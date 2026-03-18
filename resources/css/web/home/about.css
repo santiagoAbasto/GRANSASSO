@@ -1,0 +1,184 @@
+/* =============================================
+   ABOUT / QUIENES SOMOS
+   Figma: background #FFF · imagen 671×600 border-radius 0 10px 10px 0
+   Gap imagen→texto: 48px
+   Texto siempre alineado al container (max-width 1366px · padding 71px)
+   Imagen crece hacia la izquierda en pantallas > 1366px
+   Gap desde prod-cards: 109px total (82 prod-padding + 27 margin-top)
+   "Quienes somos" a 198px desde prod-cards (89px desde top del section)
+   Sección bottom → siguiente sección: 80px
+============================================= */
+
+.about-section {
+    position: relative;
+    width: 100%;
+    min-height: 600px;
+    background: #FFF;
+    padding-bottom: 80px;
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+
+/* ── Imagen absoluta ──────────────────────────────────────────────────────
+   En pantallas ≤ 1366px: width fija 671px, flush izquierda.
+   En pantallas > 1366px: crece con max(671px, 671 + (100vw - 1366px) / 2)
+   para llenar el espacio extra a la izquierda del container centrado.     */
+
+.about-section__img-wrap {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: max(671px, calc(671px + (100vw - 1366px) / 2));
+    height: 600px;
+    overflow: hidden;
+    border-radius: 0 10px 10px 0;
+}
+
+.about-section__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+}
+
+
+/* ── Inner: centrado igual que .container ─────────────────────────────────
+   padding-left fijo = 671px imagen + 48px gap = 719px
+   El texto siempre empieza en el mismo punto horizontal que el container.  */
+
+.about-section__inner {
+    position: relative;
+    z-index: 1;
+    max-width: 1366px;
+    margin: 0 auto;
+    padding-left: calc(671px + 48px);
+    padding-right: 48px;
+    box-sizing: border-box;
+    padding-bottom: 80px;
+}
+
+
+/* ── Contenido textual ── */
+
+.about-section__content {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding-top: 89px;
+}
+
+
+/* ── Título "Quienes somos" ── */
+
+.about-section__title {
+    color: var(--Gris, #1D1E20);
+    font-family: "Open Sans", sans-serif;
+    font-size: 32px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: normal;
+}
+
+
+/* ── Párrafos ── */
+
+.about-section__text {
+    margin-top: 37px;
+    width: 575px;
+    max-width: 100%;
+    color: var(--Gris, #1D1E20);
+    font-family: "Open Sans", sans-serif;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 150%;
+}
+
+.about-section__text ~ .about-section__text {
+    margin-top: 24px;
+    font-weight: 400;
+}
+
+
+/* ── Botón "Más información" ── */
+
+.about-section__btn {
+    margin-top: 54px;
+    display: inline-flex;
+    padding: 12px 25px;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    border-radius: 22px;
+    background: var(--Azul, #1F589C);
+    text-decoration: none;
+    color: var(--Blanco, #FFF);
+    text-align: center;
+    font-family: "Open Sans", sans-serif;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+    transition: opacity 0.2s ease;
+}
+
+.about-section__btn:hover {
+    opacity: 0.85;
+}
+
+
+/* ── Responsive ── */
+
+@media (max-width: 1280px) {
+    .about-section__img-wrap {
+        width: 500px;
+    }
+    .about-section__inner {
+        padding-left: calc(500px + 48px);
+    }
+}
+
+@media (max-width: 1024px) {
+    .about-section__img-wrap {
+        width: 400px;
+    }
+    .about-section__inner {
+        padding-left: calc(400px + 48px);
+        padding-right: 32px;
+    }
+    .about-section__text {
+        width: 100%;
+    }
+}
+
+@media (max-width: 768px) {
+    .about-section {
+        min-height: unset;
+        padding-bottom: 48px;
+    }
+    .about-section__img-wrap {
+        position: relative;
+        width: 100%;
+        height: 260px;
+        border-radius: 0;
+    }
+    .about-section__inner {
+        padding-left: 24px;
+        padding-right: 24px;
+    }
+    .about-section__content {
+        padding-top: 40px;
+    }
+    .about-section__title {
+        font-size: 24px;
+    }
+    .about-section__text {
+        width: 100%;
+        margin-top: 16px;
+    }
+    .about-section__btn {
+        margin-top: 32px;
+    }
+}

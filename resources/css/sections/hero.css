@@ -1,0 +1,222 @@
+/* =============================================
+   HERO
+   Figma: 1366px × 772px
+   Overlay: linear-gradient(180deg, #060607 → transparent)
+   Imagen: flipped horizontalmente
+============================================= */
+
+.hero {
+    position: relative;
+    width: 100%;
+    height: 772px;
+    overflow-x: hidden;
+    overflow-y: visible;
+    /* Hero sube detrás del header sticky (121px).
+       El header tiene fondo sólido #0D2038 que tapa la imagen del hero
+       en los primeros 121px. El texto del hero queda a 213px del top
+       del viewport (padding-top de .hero-content). */
+    margin-top: -121px;
+}
+
+
+/* ---- SLIDES (imagen de fondo) ---- */
+
+.hero-slide {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    opacity: 0;
+    transition: opacity .6s ease;
+    transform: scaleX(-1); /* flip horizontal según Figma */
+}
+
+.hero-slide.active {
+    opacity: 1;
+}
+
+
+/* ---- OVERLAY OSCURO ---- */
+/* Figma: linear-gradient(180deg, #060607 · 90% opacity → rgba(0,0,0,0))
+   Oscurece la imagen para que el texto blanco resalte */
+
+.hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(6, 6, 7, 0.90) 0%, rgba(0, 0, 0, 0) 90%);
+    z-index: 1;
+}
+
+
+/* ---- CONTENIDO ---- */
+
+.hero-inner {
+    position: relative;
+    z-index: 2;
+    height: 772px;
+    box-sizing: border-box;
+}
+
+.hero-content {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    /* 121px header + 146px de espacio = 267px desde viewport top */
+    padding-top: 267px;
+    opacity: 0;
+    transition: opacity .6s ease;
+    pointer-events: none;
+}
+
+.hero-content.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+
+/* ---- TÍTULO ---- */
+/* Figma: Open Sans 48px bold, line-height 59px, width 496px */
+
+.hero-title {
+    width: 496px;
+    max-width: 100%;
+    color: var(--Blanco, #FFF);
+    font-family: "Open Sans", sans-serif;
+    font-size: 48px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 59px;
+}
+
+
+/* ---- SUBTÍTULO ---- */
+/* Figma: Open Sans 20px regular, letter-spacing -0.4px, 12px bajo el título */
+
+.hero-subtitle {
+    margin-top: 12px;
+    max-width: 496px;
+    color: var(--Blanco, #FFF);
+    font-family: "Open Sans", sans-serif;
+    font-size: 20px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+    letter-spacing: -0.4px;
+}
+
+
+/* ---- BOTÓN ---- */
+/* Figma: outline blanco, 85px desde el subtítulo, border-radius 22px */
+
+.hero-btn {
+    margin-top: 85px;
+
+    display: inline-flex;
+    padding: 12px 25px;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+
+    border-radius: 22px;
+    border: 1px solid var(--Blanco, #FFF);
+    background: transparent;
+    text-decoration: none;
+
+    color: var(--Blanco, #FFF);
+    text-align: center;
+    font-family: "Open Sans", sans-serif;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+
+    transition: background 0.2s ease;
+}
+
+.hero-btn:hover {
+    background: rgba(255, 255, 255, 0.12);
+}
+
+
+/* ---- SLIDER DOTS (dinámicos, uno por slide) ---- */
+/* Figma: 88px desde el bottom · cada dot 37×5px · gap 7px
+   Se genera un .hero-dot por cada slide en el blade */
+
+.hero-slider-dots {
+    position: absolute;
+    bottom: 88px;   /* Figma: 88px desde el bottom del hero */
+    left: 0;        /* alineado al container (ya tiene 71px de padding) */
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    gap: 7px;       /* Figma: 44 - 37 = 7px entre dots */
+}
+
+/* Cada dot: rect del SVG original → 37×5px, rx 2.5px, blanco */
+.hero-dot {
+    display: block;
+    width: 37px;
+    height: 5px;
+    border-radius: 2.5px;
+    background: #ffffff;
+    opacity: 0.5;           /* inactivo */
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    transition: opacity 0.3s ease;
+    flex-shrink: 0;
+}
+
+.hero-dot.active {
+    opacity: 1;             /* activo = full opacity */
+}
+
+.hero-dot:hover {
+    opacity: 0.8;
+}
+
+
+/* ---- RESPONSIVE ---- */
+
+@media (max-width: 768px) {
+    /* Header mobile = 72px → ajustar el margin-top del hero */
+    .hero {
+        margin-top: -72px;
+        height: 520px;
+    }
+
+    .hero-inner {
+        height: 520px;
+    }
+
+    .hero-content {
+        /* Ajustar el padding-top para mobile:
+           72px header + ~100px de aire visual */
+        padding-top: 172px;
+    }
+
+    .hero-title {
+        font-size: 28px;
+        line-height: 36px;
+        width: 100%;
+    }
+
+    .hero-subtitle {
+        font-size: 16px;
+        max-width: 100%;
+    }
+
+    .hero-btn {
+        margin-top: 40px;
+    }
+
+    .hero-slider-dots {
+        bottom: 48px;
+    }
+}
