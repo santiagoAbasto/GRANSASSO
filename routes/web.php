@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\BrandController;
 use App\Http\Controllers\Admin\GearboxController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
+use App\Http\Controllers\Admin\HomeCalidadController;
 use App\Http\Controllers\Admin\ImportController;
 use App\Http\Controllers\ProfileController;
 
@@ -86,6 +87,11 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::put('/products/{product}',                 [AdminProductController::class, 'update'])->name('products.update');
         Route::delete('/products/{product}',              [AdminProductController::class, 'destroy'])->name('products.destroy');
         Route::post('/products/bulk-image',               [AdminProductController::class, 'bulkImage'])->name('products.bulk-image');
+
+        // Home – Calidad (sección del home)
+        Route::get('/home-calidad',              [HomeCalidadController::class, 'edit'])->name('home-calidad.edit');
+        Route::post('/home-calidad',             [HomeCalidadController::class, 'update'])->name('home-calidad.update');
+        Route::delete('/home-calidad/images/{image}', [HomeCalidadController::class, 'destroyImage'])->name('home-calidad.images.destroy');
 
         // Importación masiva desde Excel
         Route::get('/import',          [ImportController::class, 'index'])->name('import.index');

@@ -18,8 +18,9 @@ export default function Sidebar() {
             title: "Home",
             icon: "solar:home-smile-outline",
             children: [
-                { title: "Slider", icon: "solar:gallery-wide-outline",   url: "/admin/hero" },
-                { title: "Nosotros Home",         icon: "solar:info-circle-outline",     url: "/admin/home-about" },
+                { title: "Slider",        icon: "solar:gallery-wide-outline",      url: "/admin/hero" },
+                { title: "Nosotros Home", icon: "solar:info-circle-outline",       url: "/admin/home-about" },
+                { title: "Calidad Home",  icon: "solar:medal-ribbons-star-outline", url: "/admin/home-calidad" },
             ],
         },
         {

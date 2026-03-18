@@ -19,9 +19,9 @@ $quality = $page?->sections
                 {{ $quality->getTitle() }}
             </h2>
 
-            <p class="quality-section__text">
-                {{ $quality->getContent() }}
-            </p>
+            <div class="quality-section__text">
+                {!! $quality->getContent() !!}
+            </div>
 
             @if($quality->getButtonText())
             <a href="{{ $quality->button_link ?? '#' }}" class="quality-section__btn">
@@ -31,14 +31,16 @@ $quality = $page?->sections
 
         </div>
 
-        @php $isoImage = $quality->images->sortBy('order')->first(); @endphp
+        @php $certImages = $quality->images->sortBy('order'); @endphp
 
-        @if($isoImage)
+        @if($certImages->isNotEmpty())
         <div class="quality-section__iso">
+            @foreach($certImages as $certImg)
             <img
-                src="{{ asset('storage/' . $isoImage->image) }}"
-                alt="ISO 9001"
+                src="{{ asset('storage/' . $certImg->image) }}"
+                alt="Certificación"
                 class="quality-section__iso-img">
+            @endforeach
         </div>
         @endif
 
