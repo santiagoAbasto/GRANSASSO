@@ -7,9 +7,9 @@
     <div class="container">
 
         <div class="breadcrumb">
-            <a href="{{ route('home') }}">Inicio</a>
+            <a href="{{ route('home') }}">{{ __('ui.breadcrumb.home') }}</a>
             <span>›</span>
-            <a href="{{ route('products.index') }}">Productos</a>
+            <a href="{{ route('products.index') }}">{{ __('ui.breadcrumb.products') }}</a>
             <span>›</span>
             <span>{{ $brand->getName() }}</span>
         </div>
@@ -51,7 +51,7 @@
 
                 </a>
                 @empty
-                <p>No hay modelos disponibles para esta marca.</p>
+                <p>{{ __('ui.products.no_models') }}</p>
                 @endforelse
             </div>
 

@@ -18,7 +18,7 @@
 /* ── Área principal ── */
 
 .footer__main {
-    padding-top: 74px;
+    padding-top: 79px;
     /* Logo arranca a 74px del tope */
 }
 
@@ -46,8 +46,8 @@
 
 .footer__logo-img {
     display: block;
-    height: 70px;
-    width: auto;
+    width: 118px;
+    height: 121.124px;
     border: none;
     outline: none;
 }
@@ -78,24 +78,40 @@
 .footer__contact-col {
     margin-left: 46px;
     flex-shrink: 0;
+    width: 350px;
+}
+
+.footer__contact-col .footer__contact-text {
+    white-space: normal;
+    word-break: break-word;
+}
+
+.footer__contact-row--phones .footer__contact-text {
+    white-space: nowrap;
+}
+
+.footer__contact-icon {
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
 }
 
 /* ── Títulos ── */
 
 .footer__title {
-    color: var(--Blanco, #FFF);
-    font-family: 'Montserrat', sans-serif;
+    color: var(--White, #FFF);
+    font-family: 'Open Sans', sans-serif;
     font-size: 20px;
-    font-weight: 700;
+    font-weight: 600;
     line-height: 120%;
-    margin-bottom: 25px;
+    margin-bottom: 29px;
 }
 
 /* ── Secciones: dos columnas de links ── */
 
 .footer__links-grid {
     display: flex;
-    gap: 37.5px;
+    gap: 49.5px;
 }
 
 .footer__links-list {
@@ -111,8 +127,8 @@
 }
 
 .footer__link {
-    color: var(--Blanco, #FFF);
-    font-family: 'Montserrat', sans-serif;
+    color: var(--White, #FFF);
+    font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: 14px;
     font-weight: 400;
     line-height: 150%;
@@ -144,7 +160,7 @@
     border: none;
     background: transparent;
     color: #FFF;
-    font-family: 'Montserrat', sans-serif;
+    font-family: 'Open Sans', sans-serif;
     font-size: 12px;
     font-weight: 400;
     padding: 0 0 0 18px;
@@ -192,8 +208,8 @@
 .footer__contact-row {
     display: flex;
     align-items: flex-start;
-    gap: 10px;
-    margin-bottom: 14px;
+    gap: 11px;
+    margin-bottom: 23px;
     color: #FFF;
     text-decoration: none;
 }
@@ -212,8 +228,8 @@
 }
 
 .footer__contact-text {
-    color: var(--Blanco, #FFF);
-    font-family: 'Montserrat', sans-serif;
+    color: var(--White, #FFF);
+    font-family: 'Open Sans', sans-serif;
     font-size: 14px;
     font-weight: 400;
     line-height: 150%;
@@ -228,17 +244,68 @@
     opacity: 0.75;
 }
 
+/* ── Redes sociales (dentro de newsletter col) ── */
+
+.footer__social {
+    margin-top: 35px;
+}
+
+.footer__social .footer__title {
+    margin-bottom: 11px;
+}
+
+.footer__social-links {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+}
+
+.footer__social-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #FFF;
+    text-decoration: none;
+    transition: opacity 0.2s ease;
+}
+
+.footer__social-link:hover {
+    opacity: 0.75;
+}
+
+.footer__social-link svg {
+    width: 24px;
+    height: 24px;
+    display: block;
+}
+
+
 /* ── Copyright bar ── */
 
 .footer__bottom {
+    position: relative;
     margin-top: 109px;
-    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    height: 64px;
+    overflow: hidden;
+}
+
+.footer__bottom::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--Grey, #151414);
+    opacity: 0.05;
+    mix-blend-mode: multiply;
+    pointer-events: none;
 }
 
 .footer__bottom-inner {
+    position: relative;
+    z-index: 1;
     max-width: 1366px;
-    margin: 0px auto;
-    padding: 18px 71px;
+    margin: 0 auto;
+    padding: 0 71px;
+    height: 100%;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -247,15 +314,12 @@
 
 .footer__copyright,
 .footer__credit {
-    color: var(--Blanco, #FFF);
-
-    /* Body/Regular/Body 14 */
-    font-family: Montserrat;
+    color: var(--White, #FFF);
+    font-family: 'Open Sans', sans-serif;
     font-size: 14px;
     font-style: normal;
     font-weight: 400;
     line-height: 150%;
-    /* 21px */
 }
 
 .footer__credit a {

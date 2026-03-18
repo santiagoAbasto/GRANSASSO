@@ -1,0 +1,160 @@
+/* =============================================
+   CALIDAD
+   Figma: banner full-width con overlay azul oscuro
+   Izquierda: título + texto + botón outline blanco
+   Derecha: badge ISO
+   Gap título→texto: 28px · gap texto→botón: 28px
+   Texto width: 751px · font 16px · line-height 30px
+============================================= */
+
+.quality-section {
+    position: relative;
+    width: 100%;
+    min-height: 465px;
+    background-size: 100% auto;
+    background-position: center top;
+    background-repeat: no-repeat;
+}
+
+.quality-section::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(6, 22, 58, 0.55);
+}
+
+
+/* ── Inner ──────────────────────────────────────────────────────── */
+
+.quality-section__inner {
+    position: relative;
+    z-index: 1;
+    max-width: 1366px;
+    margin: 0 auto;
+    padding: 80px 71px;
+    display: flex;
+    align-items: center;
+    gap: 40px;
+    box-sizing: border-box;
+}
+
+
+/* ── Contenido izquierdo ── */
+
+.quality-section__content {
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+    flex: 1;
+}
+
+
+/* ── Título ── */
+
+.quality-section__title {
+    color: var(--BLANCO, #FFF);
+    font-family: "Open Sans", sans-serif;
+    font-size: 32px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: normal;
+}
+
+
+/* ── Texto ── */
+
+.quality-section__text {
+    width: 751px;
+    max-width: 100%;
+    color: var(--BLANCO, #FFF);
+    font-family: "Open Sans", sans-serif;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 30px;
+}
+
+
+/* ── Botón outline blanco ── */
+
+.quality-section__btn {
+    display: inline-flex;
+    padding: 12px 25px;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    border-radius: 22px;
+    border: 1px solid var(--Blanco, #FFF);
+    text-decoration: none;
+    color: var(--Blanco, #FFF);
+    text-align: center;
+    font-family: "Open Sans", sans-serif;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+    align-self: flex-start;
+    transition: opacity 0.2s ease;
+}
+
+.quality-section__btn:hover {
+    opacity: 0.75;
+}
+
+
+/* ── Badge ISO ── */
+
+.quality-section__iso {
+    flex-shrink: 0;
+    margin-left: auto;
+}
+
+.quality-section__iso-img {
+    width: 220px;
+    height: auto;
+    display: block;
+}
+
+
+/* ── Responsive ── */
+
+@media (max-width: 1280px) {
+    .quality-section__inner {
+        padding: 80px 48px;
+    }
+    .quality-section__text {
+        width: 100%;
+    }
+}
+
+@media (max-width: 1024px) {
+    .quality-section {
+        background-size: cover;
+        background-position: center;
+    }
+    .quality-section__inner {
+        padding: 64px 32px;
+        gap: 32px;
+    }
+    .quality-section__iso-img {
+        width: 180px;
+    }
+}
+
+@media (max-width: 768px) {
+    .quality-section {
+        background-size: cover;
+        background-position: center;
+    }
+    .quality-section__inner {
+        flex-direction: column;
+        padding: 48px 24px;
+        align-items: flex-start;
+    }
+    .quality-section__title {
+        font-size: 24px;
+    }
+    .quality-section__iso-img {
+        width: 140px;
+    }
+}

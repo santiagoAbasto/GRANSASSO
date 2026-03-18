@@ -36,6 +36,15 @@ Route::prefix('productos')->name('products.')->group(function () {
 Route::view('/calidad',   'web.about.index')->name('calidad');
 Route::view('/contacto',  'web.contact.index')->name('contact.index');
 
+// Idioma
+Route::get('/lang/{locale}', function (string $locale) {
+    $allowed = ['es', 'en', 'pt'];
+    if (in_array($locale, $allowed)) {
+        session(['locale' => $locale]);
+    }
+    return redirect()->back();
+})->name('lang.switch');
+
 // Newsletter
 Route::post('/newsletter', [NewsletterController::class, 'store'])->name('newsletter.store');
 

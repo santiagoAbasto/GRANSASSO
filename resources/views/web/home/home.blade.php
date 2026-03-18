@@ -12,6 +12,8 @@
 
 @include('web.home.sections.about')
 
+@include('web.home.sections.calidad')
+
 @include('web.home.sections.industrias')
 
 @include('web.home.sections.novedades')

@@ -8,12 +8,12 @@
 
             {{-- MARCA --}}
             <div class="hero-search__field">
-                <label class="hero-search__label" for="hs-marca">Marca</label>
+                <label class="hero-search__label" for="hs-marca">{{ __('ui.search.brand') }}</label>
                 <div class="hero-search__select-wrap">
                     <select name="marca"
                             id="hs-marca"
                             class="hero-search__select">
-                        <option value="">Seleccionar marca</option>
+                        <option value="">{{ __('ui.search.select_brand') }}</option>
                         @foreach($brands as $brand)
                         <option value="{{ $brand->slug }}"
                             {{ request('marca') === $brand->slug ? 'selected' : '' }}>
@@ -31,12 +31,12 @@
 
             {{-- MODELO --}}
             <div class="hero-search__field">
-                <label class="hero-search__label" for="hs-modelo">Modelo</label>
+                <label class="hero-search__label" for="hs-modelo">{{ __('ui.search.model') }}</label>
                 <div class="hero-search__select-wrap">
                     <select name="modelo"
                             id="hs-modelo"
                             class="hero-search__select hero-search__select--modelo">
-                        <option value="">Seleccionar modelo</option>
+                        <option value="">{{ __('ui.search.select_model') }}</option>
                     </select>
                     <svg class="hero-search__chevron" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
                         <g opacity="0.6">
@@ -48,19 +48,19 @@
 
             {{-- CÓDIGO --}}
             <div class="hero-search__field hero-search__field--codigo">
-                <label class="hero-search__label" for="hs-codigo">Código</label>
+                <label class="hero-search__label" for="hs-codigo">{{ __('ui.search.code') }}</label>
                 <input type="text"
                        name="codigo"
                        id="hs-codigo"
                        class="hero-search__input"
-                       placeholder="Código"
+                       placeholder="{{ __('ui.search.code_placeholder') }}"
                        value="{{ request('codigo') }}">
             </div>
 
             {{-- BUSCAR --}}
             <div class="hero-search__btn-wrap">
                 <button type="submit" class="hero-search__btn">
-                    Buscar
+                    {{ __('ui.search.button') }}
                 </button>
             </div>
 
@@ -89,7 +89,7 @@
     if (!marcaSelect || !modeloSelect) return;
 
     function loadModels(brandSlug, selectedModel) {
-        modeloSelect.innerHTML = '<option value="">Seleccionar modelo</option>';
+        modeloSelect.innerHTML = '<option value="">{{ __('ui.search.select_model') }}</option>';
         modeloSelect.disabled = !brandSlug;
         if (!brandSlug) return;
 

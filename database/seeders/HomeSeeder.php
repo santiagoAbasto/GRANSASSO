@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use App\Models\Page;
 use App\Models\PageSection;
+use App\Models\PageSectionImage;
 use App\Models\Slider;
 
 class HomeSeeder extends Seeder
@@ -129,7 +130,7 @@ Com marca e produtos próprios totalmente intercambiáveis e compatíveis com pe
         |--------------------------------------------------------------------------
         */
 
-        PageSection::create([
+        $quality = PageSection::create([
 
             'page_id' => $home->id,
 
@@ -161,6 +162,13 @@ Com marca e produtos próprios totalmente intercambiáveis e compatíveis com pe
             'button_link' => '/calidad',
 
             'order' => 2
+        ]);
+
+        // ISO badge (imagen secundaria via page_section_images)
+        PageSectionImage::create([
+            'section_id' => $quality->id,
+            'image'      => 'images/quality/iso.png',
+            'order'      => 1,
         ]);
 
     }

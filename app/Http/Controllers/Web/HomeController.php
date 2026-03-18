@@ -17,7 +17,7 @@ class HomeController extends Controller
             ->get();
 
         $page = Page::where('slug', 'home')
-            ->with(['sections' => fn ($q) => $q->where('is_active', true)->orderBy('order')])
+            ->with(['sections' => fn ($q) => $q->where('is_active', true)->orderBy('order')->with('images')])
             ->first();
 
         // Si la página home no tiene secciones aún, evitamos null pointer en las vistas

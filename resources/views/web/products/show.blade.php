@@ -8,9 +8,9 @@
 
         {{-- BREADCRUMB --}}
         <div class="breadcrumb">
-            <a href="{{ route('home') }}">Inicio</a>
+            <a href="{{ route('home') }}">{{ __('ui.breadcrumb.home') }}</a>
             <span>›</span>
-            <a href="{{ route('products.index') }}">Productos</a>
+            <a href="{{ route('products.index') }}">{{ __('ui.breadcrumb.products') }}</a>
             <span>›</span>
             <a href="{{ route('products.brand', $brand->slug) }}">{{ $brand->getName() }}</a>
             <span>›</span>
@@ -49,7 +49,7 @@
                             : asset('images/placeholder-product.png');
                     @endphp
                     <img src="{{ $mainSrc }}" alt="{{ $product->getNombre() }}" id="productMainImg">
-                    <button class="product-detail__zoom" aria-label="Ampliar imagen">+</button>
+                    <button class="product-detail__zoom" aria-label="{{ __('ui.product_detail.zoom') }}">+</button>
                 </div>
 
             </div>
@@ -73,21 +73,21 @@
                 <table class="product-detail__refs">
                     @if($product->referencia_original)
                     <tr>
-                        <td>Referencia Original</td>
+                        <td>{{ __('ui.product_detail.original_ref') }}</td>
                         <td>{{ $product->referencia_original }}</td>
                     </tr>
                     @endif
 
                     @if($product->referencias_adicionales)
                     <tr>
-                        <td>Referencia Adicional</td>
+                        <td>{{ __('ui.product_detail.additional_ref') }}</td>
                         <td>{{ implode(' ; ', $product->referencias_adicionales) }}</td>
                     </tr>
                     @endif
 
                     @if($product->applications->count())
                     <tr>
-                        <td>Aplicacion</td>
+                        <td>{{ __('ui.product_detail.application') }}</td>
                         <td>
                             @foreach($product->applications as $app)
                             {{ $app->name }}<br>
@@ -112,15 +112,15 @@
                     @if($doc)
                     <a href="{{ asset('storage/' . $doc->file) }}"
                        target="_blank"
-                       class="btn btn--outline">Ficha técnica</a>
+                       class="btn btn--outline">{{ __('ui.product_detail.technical_sheet') }}</a>
                     @else
                     <a href="{{ route('products.show', [$brand->slug, $gearbox->slug, $product->id]) }}?pdf=1"
                        class="btn btn--outline"
-                       target="_blank">Ficha técnica</a>
+                       target="_blank">{{ __('ui.product_detail.technical_sheet') }}</a>
                     @endif
 
                     <a href="{{ route('contact.index') }}?producto={{ $product->code_oem }}"
-                       class="btn btn--primary">Consultar</a>
+                       class="btn btn--primary">{{ __('ui.product_detail.inquire') }}</a>
                 </div>
 
             </div>
@@ -129,7 +129,7 @@
         {{-- PRODUCTOS RELACIONADOS --}}
         @if($related->count())
         <div class="product-related">
-            <h2 class="product-related__title">Productos relacionados</h2>
+            <h2 class="product-related__title">{{ __('ui.product_detail.related') }}</h2>
             <div class="products-grid">
                 @foreach($related as $rel)
                 <a href="{{ route('products.show', [$brand->slug, $gearbox->slug, $rel->id]) }}"

@@ -7,9 +7,9 @@
     <div class="container">
 
         <div class="breadcrumb">
-            <a href="{{ route('home') }}">Inicio</a>
+            <a href="{{ route('home') }}">{{ __('ui.breadcrumb.home') }}</a>
             <span>›</span>
-            <a href="{{ route('products.index') }}">Productos</a>
+            <a href="{{ route('products.index') }}">{{ __('ui.breadcrumb.products') }}</a>
             <span>›</span>
             <a href="{{ route('products.brand', $brand->slug) }}">{{ $brand->getName() }}</a>
             <span>›</span>
@@ -61,7 +61,7 @@
 
                 </a>
                 @empty
-                <p>No hay productos disponibles para esta caja de cambios.</p>
+                <p>{{ __('ui.products.no_products') }}</p>
                 @endforelse
             </div>
 

@@ -675,10 +675,6 @@ body {
     }
 
     /* ── About section (home) ── */
-    .about-section__img-wrap {
-        height: 250px;
-    }
-
     .about-section__content {
         padding: 32px 16px;
     }

@@ -1,5 +1,5 @@
 @extends('web.layouts.app')
-@section('title','Productos')
+@section('title', __('ui.products.title'))
 
 @section('content')
 
@@ -7,34 +7,34 @@
     <div class="container">
 
         <div class="breadcrumb">
-            <a href="{{ route('home') }}">Inicio</a>
+            <a href="{{ route('home') }}">{{ __('ui.breadcrumb.home') }}</a>
             <span>›</span>
-            <span>Productos</span>
+            <span>{{ __('ui.breadcrumb.products') }}</span>
         </div>
 
         {{-- BUSCADOR --}}
         <div class="products-search">
             <form action="{{ route('products.search') }}" method="GET" class="products-search__form">
                 <div class="products-search__field">
-                    <label>Marca</label>
+                    <label>{{ __('ui.search.brand') }}</label>
                     <select name="marca">
-                        <option value="">Seleccionar marca</option>
+                        <option value="">{{ __('ui.search.select_brand') }}</option>
                         @foreach($brands as $brand)
                         <option value="{{ $brand->slug }}">{{ $brand->getName() }}</option>
                         @endforeach
                     </select>
                 </div>
                 <div class="products-search__field">
-                    <label>Modelo</label>
+                    <label>{{ __('ui.search.model') }}</label>
                     <select name="modelo">
-                        <option value="">Seleccionar modelo</option>
+                        <option value="">{{ __('ui.search.select_model') }}</option>
                     </select>
                 </div>
                 <div class="products-search__field">
-                    <label>Código</label>
-                    <input type="text" name="codigo" placeholder="Código">
+                    <label>{{ __('ui.search.code') }}</label>
+                    <input type="text" name="codigo" placeholder="{{ __('ui.search.code_placeholder') }}">
                 </div>
-                <button type="submit" class="products-search__btn">Buscar</button>
+                <button type="submit" class="products-search__btn">{{ __('ui.search.button') }}</button>
             </form>
         </div>
 
@@ -54,7 +54,7 @@
                 </div>
 
                 <div class="brand-card__footer">
-                    <span class="brand-card__compatible">Compatible con</span>
+                    <span class="brand-card__compatible">{{ __('ui.products.compatible_with') }}</span>
                     <strong class="brand-card__brand">{{ strtoupper($brand->getName()) }}</strong>
                 </div>
 

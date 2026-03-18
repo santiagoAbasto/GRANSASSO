@@ -4,8 +4,8 @@
     <div class="container">
 
         <div class="productos-section__header">
-            <h2 class="productos-section__titulo">Productos</h2>
-            <a href="{{ route('products.index') }}" class="productos-section__ver-todos">Ver todos</a>
+            <h2 class="productos-section__titulo">{{ __('ui.products.title') }}</h2>
+            <a href="{{ route('products.index') }}" class="productos-section__ver-todos">{{ __('ui.products.see_all') }}</a>
         </div>
 
         <div class="productos-section__grid">
@@ -25,7 +25,7 @@
                 <span class="brand-card__divider"></span>
 
                 <div class="brand-card__footer">
-                    <span class="brand-card__compatible">Compatible con</span>
+                    <span class="brand-card__compatible">{{ __('ui.products.compatible_with') }}</span>
                     <strong class="brand-card__brand">{{ $brand->getName() }}</strong>
                 </div>
 

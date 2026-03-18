@@ -29,19 +29,19 @@
             <button class="nav-close" id="navClose" aria-label="Cerrar menú">✕</button>
 
             <a href="{{ route('empresa') }}"
-               class="{{ request()->routeIs('empresa') ? 'active' : '' }}">Empresa</a>
+               class="{{ request()->routeIs('empresa') ? 'active' : '' }}">{{ __('ui.nav.empresa') }}</a>
 
             <a href="{{ route('products.index') }}"
-               class="{{ request()->routeIs('products.*') ? 'active' : '' }}">Productos</a>
+               class="{{ request()->routeIs('products.*') ? 'active' : '' }}">{{ __('ui.nav.products') }}</a>
 
             <a href="#"
-               class="{{ request()->routeIs('desarrollos*') ? 'active' : '' }}">Desarrollos especiales</a>
+               class="{{ request()->routeIs('desarrollos*') ? 'active' : '' }}">{{ __('ui.nav.special_dev') }}</a>
 
             <a href="{{ route('calidad') }}"
-               class="{{ request()->routeIs('calidad') ? 'active' : '' }}">Calidad</a>
+               class="{{ request()->routeIs('calidad') ? 'active' : '' }}">{{ __('ui.nav.quality') }}</a>
 
             <a href="{{ route('contact.index') }}"
-               class="{{ request()->routeIs('contact.*') ? 'active' : '' }}">Contacto</a>
+               class="{{ request()->routeIs('contact.*') ? 'active' : '' }}">{{ __('ui.nav.contact') }}</a>
 
             {{-- Separador | + Selector de idioma (gap 14px entre ambos) --}}
             <div class="nav-lang-group">
@@ -56,9 +56,9 @@
                         </svg>
                     </span>
                     <ul class="nav-lang__dropdown" role="listbox">
-                        <li><a href="{{ url('/lang/es') }}" hreflang="es">ES</a></li>
-                        <li><a href="{{ url('/lang/en') }}" hreflang="en">EN</a></li>
-                        <li><a href="{{ url('/lang/pt') }}" hreflang="pt">PT</a></li>
+                        <li><a href="{{ route('lang.switch', 'es') }}" hreflang="es">ES</a></li>
+                        <li><a href="{{ route('lang.switch', 'en') }}" hreflang="en">EN</a></li>
+                        <li><a href="{{ route('lang.switch', 'pt') }}" hreflang="pt">PT</a></li>
                     </ul>
                 </div>
 
@@ -66,14 +66,14 @@
 
             {{-- Zona Privada (solo visible en mobile dentro del menú) --}}
             <a href="{{ route('login') }}" class="btn-zona-privada btn-zona-privada--mobile">
-                Zona Privada
+                {{ __('ui.nav.private_zone') }}
             </a>
 
         </nav>
 
         {{-- ZONA PRIVADA desktop — 24px gap (margin-left en CSS) --}}
         <a href="{{ route('login') }}" class="btn-zona-privada btn-zona-privada--desktop">
-            Zona Privada
+            {{ __('ui.nav.private_zone') }}
         </a>
 
     </div>
