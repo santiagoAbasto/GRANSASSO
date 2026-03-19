@@ -39,20 +39,32 @@ return [
         'title'           => 'Produtos',
         'see_all'         => 'Ver todos',
         'compatible_with' => 'Compatível com',
+        'no_brands'       => 'Não há marcas disponíveis.',
         'no_models'       => 'Não há modelos disponíveis para esta marca.',
         'no_products'     => 'Não há produtos disponíveis para esta caixa de câmbio.',
+        'bc_aria'         => 'Navegação estrutural',
     ],
 
     /* ── Breadcrumb ── */
     'breadcrumb' => [
         'home'     => 'Início',
         'products' => 'Produtos',
+        'empresa'  => 'Empresa',
+    ],
+
+    /* ── Slug Empresa ── */
+    'empresa' => [
+        'page_title'  => 'Empresa',
+        'why_us'      => 'Por que nos escolher?',
+        'bc_aria'     => 'Navegação estrutural',
+        'slide_aria'  => 'Ir para o slide :num',
     ],
 
     /* ── Detalhe do produto ── */
     'product_detail' => [
         'original_ref'    => 'Referência Original',
         'additional_ref'  => 'Referência Adicional',
+        'alt_oem'         => 'Códigos OEM alternativos',
         'application'     => 'Aplicação',
         'technical_sheet' => 'Ficha técnica',
         'inquire'         => 'Consultar',

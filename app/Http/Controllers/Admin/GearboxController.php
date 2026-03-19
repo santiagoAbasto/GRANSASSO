@@ -14,20 +14,30 @@ class GearboxController extends Controller
 {
     public function index()
     {
-        $gearboxes = Gearbox::with('brand')->orderBy('order')->orderBy('name')->get()
-            ->map(fn ($g) => [
-                'id'                 => $g->id,
-                'brand_id'           => $g->brand_id,
-                'brand_name'         => $g->brand ? (is_array($g->brand->name) ? ($g->brand->name['es'] ?? '') : $g->brand->name) : '',
-                'name'               => $g->name,
-                'slug'               => $g->slug,
-                'compatible_vehicles'=> $g->compatible_vehicles,
-                'image_url'          => $g->image ? asset('storage/' . $g->image) : null,
-                'is_active'          => $g->is_active,
-                'order'              => $g->order,
+        $gearboxes = Gearbox::with('brand')
+            ->orderBy('order')
+            ->orderBy('name')
+            ->get()
+            ->map(fn (Gearbox $g) => [
+                'id'                  => $g->id,
+                'brand_id'            => $g->brand_id,
+                'brand_name'          => $g->brand
+                    ? (is_array($g->brand->name) ? ($g->brand->name['es'] ?? '') : $g->brand->name)
+                    : '',
+                'name'                => $g->name,
+                'slug'                => $g->slug,
+                'compatible_vehicles' => $g->compatible_vehicles,
+                'image_url'           => $g->image ? asset('storage/' . $g->image) : null,
+                'is_active'           => $g->is_active,
+                'order'               => $g->order,
+                // Campos manuales — se editan masivamente por caja
+                'extra_field_1'       => $g->extra_field_1,
+                'extra_field_2'       => $g->extra_field_2,
             ]);
 
-        $brands = Brand::active()->orderBy('order')->get()
+        $brands = Brand::active()
+            ->orderBy('order')
+            ->get()
             ->map(fn ($b) => [
                 'id'   => $b->id,
                 'name' => is_array($b->name) ? ($b->name['es'] ?? '') : $b->name,
@@ -45,6 +55,9 @@ class GearboxController extends Controller
             'image'               => 'nullable|image|max:4096',
             'is_active'           => 'nullable|boolean',
             'order'               => 'nullable|string|max:20',
+            // Campos manuales: no vienen del Excel, se cargan desde el admin
+            'extra_field_1'       => 'nullable|string',
+            'extra_field_2'       => 'nullable|string',
         ]);
 
         $imagePath = null;
@@ -60,6 +73,8 @@ class GearboxController extends Controller
             'image'               => $imagePath,
             'is_active'           => isset($data['is_active']) ? (bool) $data['is_active'] : true,
             'order'               => strtoupper(trim($data['order'] ?? 'A')),
+            'extra_field_1'       => $data['extra_field_1'] ?? null,
+            'extra_field_2'       => $data['extra_field_2'] ?? null,
         ]);
 
         return back()->with('success', 'Caja de cambios creada.');
@@ -74,11 +89,16 @@ class GearboxController extends Controller
             'image'               => 'nullable|image|max:4096',
             'is_active'           => 'nullable|boolean',
             'order'               => 'nullable|string|max:20',
+            // Campos manuales — edición por caja (aplica a todos sus productos)
+            'extra_field_1'       => 'nullable|string',
+            'extra_field_2'       => 'nullable|string',
         ]);
 
         $imagePath = $gearbox->image;
         if ($request->hasFile('image')) {
-            if ($imagePath) Storage::disk('public')->delete($imagePath);
+            if ($imagePath) {
+                Storage::disk('public')->delete($imagePath);
+            }
             $imagePath = $request->file('image')->store('gearboxes', 'public');
         }
 
@@ -88,8 +108,17 @@ class GearboxController extends Controller
             'slug'                => Str::slug($data['name']),
             'compatible_vehicles' => $data['compatible_vehicles'] ?? null,
             'image'               => $imagePath,
-            'is_active'           => isset($data['is_active']) ? (bool) $data['is_active'] : $gearbox->is_active,
+            'is_active'           => isset($data['is_active'])
+                                        ? (bool) $data['is_active']
+                                        : $gearbox->is_active,
             'order'               => strtoupper(trim($data['order'] ?? $gearbox->order)),
+            // Campos manuales: se preserva el valor actual si no se envía
+            'extra_field_1'       => array_key_exists('extra_field_1', $data)
+                                        ? $data['extra_field_1']
+                                        : $gearbox->extra_field_1,
+            'extra_field_2'       => array_key_exists('extra_field_2', $data)
+                                        ? $data['extra_field_2']
+                                        : $gearbox->extra_field_2,
         ]);
 
         return back()->with('success', 'Caja de cambios actualizada.');
@@ -100,7 +129,9 @@ class GearboxController extends Controller
         if ($gearbox->image) {
             Storage::disk('public')->delete($gearbox->image);
         }
+
         $gearbox->delete();
+
         return back()->with('success', 'Caja de cambios eliminada.');
     }
 }

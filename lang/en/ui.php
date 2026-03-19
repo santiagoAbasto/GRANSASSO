@@ -39,20 +39,32 @@ return [
         'title'           => 'Products',
         'see_all'         => 'See all',
         'compatible_with' => 'Compatible with',
+        'no_brands'       => 'No brands available.',
         'no_models'       => 'No models available for this brand.',
         'no_products'     => 'No products available for this gearbox.',
+        'bc_aria'         => 'Breadcrumb',
     ],
 
     /* ── Breadcrumb ── */
     'breadcrumb' => [
         'home'     => 'Home',
         'products' => 'Products',
+        'empresa'  => 'Company',
+    ],
+
+    /* ── Empresa slug ── */
+    'empresa' => [
+        'page_title'  => 'Company',
+        'why_us'      => 'Why choose us?',
+        'bc_aria'     => 'Breadcrumb',
+        'slide_aria'  => 'Go to slide :num',
     ],
 
     /* ── Product detail ── */
     'product_detail' => [
         'original_ref'    => 'Original Reference',
         'additional_ref'  => 'Additional Reference',
+        'alt_oem'         => 'Alternative OEM Codes',
         'application'     => 'Application',
         'technical_sheet' => 'Technical sheet',
         'inquire'         => 'Inquire',

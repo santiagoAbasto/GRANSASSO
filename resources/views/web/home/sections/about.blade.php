@@ -23,7 +23,18 @@ $about = $page?->sections
                 {{ $about->getTitle() }}
             </h2>
 
-            <div class="about-section__text">{!! $about->getContent() !!}</div>
+            @if($about->getSubtitle())
+            <div class="about-section__text about-section__text--bold">{{ $about->getSubtitle() }}</div>
+            @endif
+
+            @php
+                $content = $about->getContent();
+                if ($content && !preg_match('/<[^>]+>/', $content)) {
+                    $paragraphs = array_filter(array_map('trim', preg_split('/\n+/', $content)));
+                    $content = implode('', array_map(fn($p) => "<p>{$p}</p>", $paragraphs));
+                }
+            @endphp
+            <div class="about-section__text">{!! $content !!}</div>
 
             @if($about->getButtonText())
             <a href="{{ $about->button_link ?? '#' }}" class="about-section__btn">

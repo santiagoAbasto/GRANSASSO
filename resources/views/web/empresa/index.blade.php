@@ -33,26 +33,29 @@ $calidad = $page?->sections->where('type', 'about_calidad')->first();
         style="background-image: url('{{ asset('storage/' . $slide->image) }}');"></div>
     @endforeach
 
-    {{-- OVERLAY OSCURO --}}
+    {{-- OVERLAY negro 10% (sobre la imagen, debajo del multiply) --}}
+    <div class="empresa-banner__overlay-dark"></div>
+
+    {{-- OVERLAY azul multiply --}}
     <div class="empresa-banner__overlay"></div>
 
     {{-- CONTENIDO --}}
     <div class="empresa-banner__inner">
-        <div class="empresa-banner__center">
 
-            <div class="empresa-banner__content">
+        {{-- BREADCRUMB --}}
+        <div class="empresa-banner__topbar">
+            <nav class="empresa-banner__breadcrumb" aria-label="{{ __('ui.empresa.bc_aria') }}">
+                <a href="{{ route('home') }}" class="empresa-banner__bc-home">{{ __('ui.breadcrumb.home') }}</a>
+                <svg class="empresa-banner__bc-sep" width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <path d="M4.5 2.5L7.5 6L4.5 9.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span class="empresa-banner__bc-current">{{ __('ui.breadcrumb.empresa') }}</span>
+            </nav>
+        </div>
 
-                <h1 class="empresa-banner__title">Empresa</h1>
-
-                <nav class="empresa-banner__breadcrumb" aria-label="Miga de pan">
-                    <a href="{{ route('home') }}" class="empresa-banner__bc-home">Inicio</a>
-                    <svg class="empresa-banner__bc-sep" width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                        <path d="M4.5 2.5L7.5 6L4.5 9.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                    <span class="empresa-banner__bc-current">Empresa</span>
-                </nav>
-
-            </div>
+        {{-- TÍTULO + DOTS --}}
+        <div class="empresa-banner__bottom">
+            <h1 class="empresa-banner__title">{{ __('ui.empresa.page_title') }}</h1>
 
             {{-- DOTS: sólo si hay ≥ 2 imágenes --}}
             @if($bannerSlides->count() >= 2)
@@ -61,12 +64,12 @@ $calidad = $page?->sections->where('type', 'about_calidad')->first();
                 <button
                     class="empresa-banner__dot {{ $i === 0 ? 'active' : '' }}"
                     data-index="{{ $i }}"
-                    aria-label="Ir al slide {{ $i + 1 }}"></button>
+                    aria-label="{{ __('ui.empresa.slide_aria', ['num' => $i + 1]) }}"></button>
                 @endforeach
             </div>
             @endif
-
         </div>
+
     </div>
 
 </section>
@@ -83,6 +86,15 @@ $calidad = $page?->sections->where('type', 'about_calidad')->first();
     <div class="container">
         <div class="empresa-about__grid">
 
+            @if($main->image)
+            <div class="empresa-about__img-col">
+                <img
+                    src="{{ asset('storage/' . $main->image) }}"
+                    alt="{{ $main->getTitle() ?: 'Quiénes somos' }}"
+                    class="empresa-about__img">
+            </div>
+            @endif
+
             <div class="empresa-about__text-col">
 
                 <h2 class="empresa-about__title">
@@ -92,15 +104,6 @@ $calidad = $page?->sections->where('type', 'about_calidad')->first();
                 <div class="empresa-about__text">{!! $main->getContent() !!}</div>
 
             </div>
-
-            @if($main->image)
-            <div class="empresa-about__img-col">
-                <img
-                    src="{{ asset('storage/' . $main->image) }}"
-                    alt="{{ $main->getTitle() ?: 'Quiénes somos' }}"
-                    class="empresa-about__img">
-            </div>
-            @endif
 
         </div>
     </div>
@@ -115,7 +118,7 @@ $calidad = $page?->sections->where('type', 'about_calidad')->first();
 <section class="empresa-why">
     <div class="container">
 
-        <h2 class="empresa-why__title">¿Por qué elegirnos?</h2>
+        <h2 class="empresa-why__title">{{ __('ui.empresa.why_us') }}</h2>
 
         <div class="empresa-why__grid">
 

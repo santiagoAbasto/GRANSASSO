@@ -1,8 +1,8 @@
 /* =============================================
    EMPRESA PAGE
-   Banner: full-width · 521px total (400px visible + 121px bajo header)
-   Quiénes somos: text 594px izq · imagen der
-   Por qué elegirnos: bg #F5F5F5 · 3 cards 392×392px
+   Banner: 400px total (header 121px + 279px visibles)
+   Quiénes somos: imagen 600×600 izq · text der · gap 29px
+   Por qué elegirnos: bg #F5F5F5 · 3 cards
 ============================================= */
 
 
@@ -13,7 +13,7 @@
 .empresa-banner {
     position: relative;
     width: 100%;
-    height: 521px;      /* 400px visibles + 121px debajo del header sticky */
+    height: 400px;      /* header 121px + 279px visibles */
     margin-top: -121px; /* sube detrás del header, igual que .hero */
     overflow: hidden;
 }
@@ -35,39 +35,65 @@
 }
 
 
-/* ── Overlay oscuro ── */
+/* ── Overlay negro base 10% ── */
 
-.empresa-banner__overlay {
+.empresa-banner__overlay-dark {
     position: absolute;
     inset: 0;
-    background: rgba(6, 22, 58, 0.60);
+    background: rgba(0, 0, 0, 0.10);
     z-index: 1;
 }
 
 
-/* ── Inner: ocupa todo el banner, empuja contenido al fondo ── */
+/* ── Overlay azul multiply ── */
+
+.empresa-banner__overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(31, 88, 156, 0.60);
+    mix-blend-mode: multiply;
+    z-index: 2;
+}
+
+
+/* ── Inner: breadcrumb arriba · título + dots abajo ── */
 
 .empresa-banner__inner {
     position: absolute;
     inset: 0;
-    z-index: 2;
+    z-index: 3;
     display: flex;
     flex-direction: column;
-    justify-content: flex-end;
+    justify-content: space-between;
 }
 
-
-/* ── Centro: centrado en 1366px (= .container), alineado izquierda ── */
-
-.empresa-banner__center {
-    width: 100%;
+/* wrapper centrado igual que .container → 1224px auto */
+.empresa-banner__topbar,
+.empresa-banner__bottom {
     max-width: 1366px;
-    margin: 0 auto;
-    padding: 0 71px 48px;
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
     box-sizing: border-box;
+}
+
+/* breadcrumb: 11px debajo del header (121 + 11 = 132px del top del banner) */
+.empresa-banner__topbar {
+    padding-top: 132px;
+    padding-left: 71px;
+    padding-right: 71px;
+    padding-bottom: 0;
+}
+
+/* título + dots: 96px del borde inferior */
+.empresa-banner__bottom {
+    padding-top: 0;
+    padding-left: 71px;
+    padding-right: 71px;
+    padding-bottom: 96px;
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 16px;
 }
 
 
@@ -77,10 +103,12 @@
     color: var(--Blanco, #FFF);
     font-family: "Open Sans", sans-serif;
     font-size: 40px;
-    font-style: normal;
     font-weight: 600;
     line-height: normal;
-    margin-bottom: 8px;
+    /* no overflow: el título no debe romperse fuera del banner */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 
@@ -90,16 +118,17 @@
     display: flex;
     align-items: center;
     gap: 6px;
+    flex-wrap: wrap; /* si el texto es largo, wrappea */
 }
 
 .empresa-banner__bc-home {
     color: var(--Blanco, #FFF);
     font-family: "Open Sans", sans-serif;
     font-size: 12px;
-    font-style: normal;
     font-weight: 600;
     line-height: normal;
     text-decoration: none;
+    white-space: nowrap;
 }
 
 .empresa-banner__bc-home:hover {
@@ -115,9 +144,9 @@
     color: var(--Blanco, #FFF);
     font-family: "Open Sans", sans-serif;
     font-size: 12px;
-    font-style: normal;
     font-weight: 300;
     line-height: normal;
+    white-space: nowrap;
 }
 
 
@@ -127,6 +156,7 @@
     display: flex;
     align-items: center;
     gap: 7px;
+    flex-wrap: wrap;
 }
 
 .empresa-banner__dot {
@@ -143,17 +173,14 @@
     flex-shrink: 0;
 }
 
-.empresa-banner__dot.active {
-    opacity: 1;
-}
-
-.empresa-banner__dot:hover {
-    opacity: 0.8;
-}
+.empresa-banner__dot.active { opacity: 1; }
+.empresa-banner__dot:hover  { opacity: 0.8; }
 
 
 /* ══════════════════════════════════════════
    QUIÉNES SOMOS
+   Container 1224px centrado siempre
+   Imagen 600×600 izq · gap 29px · texto der
 ══════════════════════════════════════════ */
 
 .empresa-about {
@@ -161,57 +188,85 @@
     padding: 80px 0;
 }
 
+/* Grid: imagen 600px fija · gap 29px · texto el resto */
 .empresa-about__grid {
-    display: flex;
-    gap: 48px;
-    align-items: flex-start;
+    display: grid;
+    grid-template-columns: 600px 1fr;
+    gap: 29px;
+    align-items: start;
 }
 
 
-/* ── Columna de texto (izquierda) ── */
+/* ── Columna imagen: tamaño fijo, no crece ni encoge ── */
+
+.empresa-about__img-col {
+    width: 600px;
+    height: 600px;
+    overflow: hidden;
+    flex-shrink: 0; /* por si el padre cambia a flex en algún contexto */
+}
+
+.empresa-about__img {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: cover;
+    object-position: center;
+    border-radius: 10px;
+}
+
+
+/* ── Columna texto: 15px desde el top de la imagen al título ── */
 
 .empresa-about__text-col {
-    width: 594px;
-    flex-shrink: 0;
+    min-width: 0;           /* evita que el grid desborde */
+    padding-top: 15px;
+    overflow-wrap: break-word;  /* palabras largas no rompen el layout */
+    word-break: break-word;
 }
 
 .empresa-about__title {
     color: var(--Gris, #1D1E20);
     font-family: "Open Sans", sans-serif;
     font-size: 32px;
-    font-style: normal;
     font-weight: 600;
     line-height: normal;
-    margin-bottom: 32px;
+    margin-bottom: 30px;
+    overflow-wrap: break-word;
 }
 
 .empresa-about__text {
     color: var(--Gris, #1D1E20);
     font-family: "Open Sans", sans-serif;
     font-size: 16px;
-    font-style: normal;
     font-weight: 400;
     line-height: 150%;
 }
 
-.empresa-about__text + .empresa-about__text {
-    margin-top: 16px;
+/* cada párrafo (rich text) tiene gap de 24px */
+.empresa-about__text p {
+    margin-bottom: 24px;
+    overflow-wrap: break-word;
 }
 
-
-/* ── Columna de imagen (derecha) ── */
-
-.empresa-about__img-col {
-    flex: 1;
-    min-width: 0;
+.empresa-about__text p:last-child {
+    margin-bottom: 0;
 }
 
-.empresa-about__img {
-    width: 100%;
+/* otros elementos del rich text no rompen el layout */
+.empresa-about__text ul,
+.empresa-about__text ol {
+    padding-left: 20px;
+    margin-bottom: 24px;
+}
+
+.empresa-about__text li {
+    margin-bottom: 8px;
+}
+
+.empresa-about__text img {
+    max-width: 100%;
     height: auto;
-    display: block;
-    border-radius: 10px;
-    object-fit: cover;
 }
 
 
@@ -221,34 +276,34 @@
 
 .empresa-why {
     background: #F5F5F5;
-    padding: 64px 0 72px;
+    padding: 39px 0 75px;
 }
 
 .empresa-why__title {
     color: var(--Gris, #1D1E20);
     font-family: "Open Sans", sans-serif;
     font-size: 32px;
-    font-style: normal;
     font-weight: 600;
     line-height: normal;
-    margin-bottom: 32px;
+    margin-bottom: 22px;
 }
 
 .empresa-why__grid {
     display: flex;
     gap: 24px;
+    align-items: stretch; /* todas las cards misma altura */
 }
 
 
-/* ── Cards ── */
+/* ── Cards: crecen con el contenido ── */
 
 .empresa-card {
-    width: 392px;
-    min-height: 392px;
-    flex-shrink: 0;
+    flex: 1 1 0;
+    min-width: 0;
+    min-height: 392px;  /* altura mínima; crece si hay más texto */
     background: #FFF;
     border-radius: 10px;
-    padding: 40px 32px 48px;
+    padding: 51px 27px 79px 30px;
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
@@ -266,74 +321,120 @@
     color: var(--Gris, #1D1E20);
     font-family: "Open Sans", sans-serif;
     font-size: 24px;
-    font-style: normal;
     font-weight: 600;
     line-height: normal;
-    margin-bottom: 16px;
+    margin-bottom: 7px;
+    overflow-wrap: break-word;
+    word-break: break-word;
+    width: 100%; /* ocupa el ancho de la card */
 }
 
 .empresa-card__text {
     color: var(--Gris, #1D1E20);
     font-family: "Open Sans", sans-serif;
-    font-size: 16px;
-    font-style: normal;
-    font-weight: 400;
-    line-height: 150%;
+    font-size: 15px;
+    font-weight: 300;
+    line-height: 24px;
+    letter-spacing: -0.15px;
+    width: 100%;            /* ← era 335px fijo: ROTO en tablet/mobile */
+    overflow-wrap: break-word;
+    word-break: break-word;
 }
+
+.empresa-card__text p  { margin-bottom: 16px; }
+.empresa-card__text p:last-child { margin-bottom: 0; }
+.empresa-card__text ul,
+.empresa-card__text ol { padding-left: 18px; margin-bottom: 16px; }
+.empresa-card__text li { margin-bottom: 6px; }
 
 
 /* ══════════════════════════════════════════
    RESPONSIVE
 ══════════════════════════════════════════ */
 
-@media (max-width: 1280px) {
-    .empresa-banner__center {
-        padding: 0 48px 48px;
-    }
-}
-
+/* ── entre 900px y 1024px: imagen se reduce un poco ── */
 @media (max-width: 1024px) {
-    .empresa-about__text-col {
-        width: auto;
-        flex: 1;
+
+    .empresa-banner__topbar {
+        padding-left: 48px;
+        padding-right: 48px;
     }
 
+    .empresa-banner__bottom {
+        padding-left: 48px;
+        padding-right: 48px;
+    }
+
+    /* imagen se achica para dar más espacio al texto */
+    .empresa-about__grid {
+        grid-template-columns: 460px 1fr;
+    }
+
+    .empresa-about__img-col {
+        width: 460px;
+        height: 460px;
+    }
+
+    /* Cards: 2 columnas */
     .empresa-why__grid {
         flex-wrap: wrap;
     }
 
     .empresa-card {
-        width: calc(50% - 12px);
-        flex-shrink: 0;
+        flex: 0 0 calc(50% - 12px);
+        min-height: 320px;
+    }
+
+    .empresa-card__text {
+        width: 100%;
     }
 }
 
+/* ── mobile: ≤ 768px — apila vertical, imagen full-width ── */
 @media (max-width: 768px) {
+
     .empresa-banner {
-        height: 392px;      /* 320px visible + 72px header mobile */
+        height: 320px;
         margin-top: -72px;
     }
 
-    .empresa-banner__center {
-        padding: 0 24px 32px;
-        gap: 16px;
+    .empresa-banner__topbar {
+        padding-top: 84px;
+        padding-left: 24px;
+        padding-right: 24px;
+        padding-bottom: 0;
+    }
+
+    .empresa-banner__bottom {
+        padding-top: 0;
+        padding-left: 24px;
+        padding-right: 24px;
+        padding-bottom: 28px;
+        gap: 12px;
     }
 
     .empresa-banner__title {
         font-size: 28px;
+        white-space: normal; /* permite wrap en mobile */
     }
 
     .empresa-about {
-        padding: 48px 0;
+        padding: 32px 0 48px;
     }
 
     .empresa-about__grid {
-        flex-direction: column;
-        gap: 32px;
+        grid-template-columns: 1fr; /* apila vertical */
+        gap: 24px;
+    }
+
+    .empresa-about__img-col {
+        width: 100%;
+        height: 280px;
     }
 
     .empresa-about__text-col {
         width: 100%;
+        padding-top: 0; /* en mobile no hay imagen arriba */
     }
 
     .empresa-about__title {
@@ -353,7 +454,12 @@
     }
 
     .empresa-card {
-        width: 100%;
+        flex: 1 1 auto;
         min-height: unset;
+        padding: 32px 24px 40px;
+    }
+
+    .empresa-card__text {
+        width: 100%;
     }
 }

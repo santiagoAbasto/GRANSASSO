@@ -1,6 +1,9 @@
-@php $isHome = request()->routeIs('home'); @endphp
+@php
+    $isHome = request()->routeIs('home');
+    $hasTransparentNav = $isHome || request()->routeIs('empresa');
+@endphp
 
-<header class="navbar{{ $isHome ? ' navbar--home' : '' }}" id="mainNav">
+<header class="navbar{{ $hasTransparentNav ? ' navbar--home' : '' }}" id="mainNav">
 
     <div class="nav-container">
 
@@ -80,7 +83,7 @@
 
 </header>
 
-@if($isHome)
+@if($hasTransparentNav)
 <script>
 (function(){
     var nav = document.getElementById('mainNav');

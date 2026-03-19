@@ -3,44 +3,54 @@
 
 @section('content')
 
-<section class="products-page">
+{{-- ══ BANNER ══════════════════════════════════════════════════════════════ --}}
+<section class="products-banner">
+
+    {{-- Fondo: dark navy por defecto. El CMS puede agregar una imagen real después. --}}
+    <div class="products-banner__bg"></div>
+    <div class="products-banner__overlay-dark"></div>
+    <div class="products-banner__overlay"></div>
+
+    <div class="products-banner__inner">
+
+        {{-- Breadcrumb: 11px bajo el header --}}
+        <div class="products-banner__topbar">
+            <nav class="products-banner__breadcrumb"
+                 aria-label="{{ __('ui.products.bc_aria') }}">
+                <a href="{{ route('home') }}" class="products-banner__bc-home">
+                    {{ __('ui.breadcrumb.home') }}
+                </a>
+                <svg class="products-banner__bc-sep"
+                     xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                     viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                    <path d="M6 3L11 8L6 13" stroke="white" stroke-width="1.5"
+                          stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span class="products-banner__bc-current">
+                    {{ __('ui.breadcrumb.products') }}
+                </span>
+            </nav>
+        </div>
+
+        {{-- Título --}}
+        <div class="products-banner__bottom">
+            <h1 class="products-banner__title">{{ __('ui.products.title') }}</h1>
+        </div>
+
+    </div>
+</section>
+
+{{-- ══ BUSCADOR (se superpone al banner con margin-top negativo) ════════════ --}}
+@include('web.home.sections.hero-search')
+
+{{-- ══ GRID DE MARCAS ══════════════════════════════════════════════════════ --}}
+<section class="products-index">
     <div class="container">
 
-        <div class="breadcrumb">
-            <a href="{{ route('home') }}">{{ __('ui.breadcrumb.home') }}</a>
-            <span>›</span>
-            <span>{{ __('ui.breadcrumb.products') }}</span>
-        </div>
+        <div class="products-index__grid">
 
-        {{-- BUSCADOR --}}
-        <div class="products-search">
-            <form action="{{ route('products.search') }}" method="GET" class="products-search__form">
-                <div class="products-search__field">
-                    <label>{{ __('ui.search.brand') }}</label>
-                    <select name="marca">
-                        <option value="">{{ __('ui.search.select_brand') }}</option>
-                        @foreach($brands as $brand)
-                        <option value="{{ $brand->slug }}">{{ $brand->getName() }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="products-search__field">
-                    <label>{{ __('ui.search.model') }}</label>
-                    <select name="modelo">
-                        <option value="">{{ __('ui.search.select_model') }}</option>
-                    </select>
-                </div>
-                <div class="products-search__field">
-                    <label>{{ __('ui.search.code') }}</label>
-                    <input type="text" name="codigo" placeholder="{{ __('ui.search.code_placeholder') }}">
-                </div>
-                <button type="submit" class="products-search__btn">{{ __('ui.search.button') }}</button>
-            </form>
-        </div>
+            @forelse($brands as $brand)
 
-        {{-- GRID DE MARCAS --}}
-        <div class="brands-grid">
-            @foreach($brands as $brand)
             <a href="{{ route('products.brand', $brand->slug) }}" class="brand-card">
 
                 <div class="brand-card__logo">
@@ -53,13 +63,19 @@
                     @endif
                 </div>
 
+                <span class="brand-card__divider"></span>
+
                 <div class="brand-card__footer">
                     <span class="brand-card__compatible">{{ __('ui.products.compatible_with') }}</span>
                     <strong class="brand-card__brand">{{ strtoupper($brand->getName()) }}</strong>
                 </div>
 
             </a>
-            @endforeach
+
+            @empty
+            <p class="products-empty">{{ __('ui.products.no_brands') }}</p>
+            @endforelse
+
         </div>
 
     </div>

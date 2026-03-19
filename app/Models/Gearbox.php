@@ -5,11 +5,42 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
+/**
+ * Gearbox — caja de cambios.
+ *
+ * Representa el segundo nivel de la jerarquía del catálogo:
+ *   Brand → Gearbox → Product → ProductItem
+ *
+ * extra_field_1 y extra_field_2 son campos manuales (no del Excel)
+ * que aplican a TODOS los productos de la caja.
+ * Se editan masivamente desde el admin (una sola edición afecta
+ * a todos los productos de la caja).
+ *
+ * @property int         $id
+ * @property int         $brand_id
+ * @property string      $name
+ * @property string      $slug
+ * @property array|null  $description       JSON multilingüe
+ * @property string|null $image
+ * @property string|null $compatible_vehicles
+ * @property string      $order
+ * @property bool        $is_active
+ * @property string|null $extra_field_1     Campo manual — se edita por caja
+ * @property string|null $extra_field_2     Campo manual — se edita por caja
+ */
 class Gearbox extends Model
 {
     protected $fillable = [
-        'brand_id', 'name', 'slug', 'compatible_vehicles',
-        'description', 'image', 'is_active', 'order',
+        'brand_id',
+        'name',
+        'slug',
+        'compatible_vehicles',
+        'description',
+        'image',
+        'is_active',
+        'order',
+        'extra_field_1',   // ← Campo manual (no viene del Excel)
+        'extra_field_2',   // ← Campo manual (no viene del Excel)
     ];
 
     protected $casts = [
@@ -17,38 +48,101 @@ class Gearbox extends Model
         'is_active'   => 'boolean',
     ];
 
-    protected static function booted()
+    protected static function booted(): void
     {
-        static::creating(function ($gearbox) {
-            if (!$gearbox->slug) {
+        static::creating(function (Gearbox $gearbox) {
+            if (! $gearbox->slug) {
                 $gearbox->slug = Str::slug($gearbox->name);
             }
         });
     }
 
-    public function brand()      { return $this->belongsTo(Brand::class); }
-    public function products()   { return $this->hasMany(Product::class); }
-    public function documents()  { return $this->hasMany(GearboxDocument::class); }
-    public function applications(){ return $this->hasMany(Application::class); }
+    /*
+    |--------------------------------------------------------------------------
+    | RELATIONS
+    |--------------------------------------------------------------------------
+    */
 
-    public function getDescription($locale = null): string
+    public function brand()
+    {
+        return $this->belongsTo(Brand::class);
+    }
+
+    public function products()
+    {
+        return $this->hasMany(Product::class);
+    }
+
+    public function documents()
+    {
+        return $this->hasMany(GearboxDocument::class);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | HELPERS — Multilenguaje
+    |--------------------------------------------------------------------------
+    */
+
+    public function getDescription(?string $locale = null): string
     {
         $locale = $locale ?? app()->getLocale();
-        return $this->description[$locale] ?? $this->description['es'] ?? '';
+
+        return $this->description[$locale]
+            ?? $this->description['es']
+            ?? '';
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | HELPERS — Documentación
+    |--------------------------------------------------------------------------
+    */
 
     public function getMainDocument()
     {
         return $this->documents()->where('is_main', true)->first();
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | HELPERS — Variantes
+    |
+    | Agrega todas las variantes disponibles de los items de los productos
+    | de esta caja. Útil para mostrar en la ficha de la caja qué variantes
+    | de transmisión soporta.
+    |--------------------------------------------------------------------------
+    */
+
+    /**
+     * Todas las variantes disponibles en los productos de esta caja.
+     * (deduplica across todos los product_items)
+     *
+     * @return string[]
+     */
     public function getVariants(): array
     {
-        return $this->products()->with('versions')->get()
-            ->flatMap(fn ($p) => $p->versions->pluck('version'))
-            ->unique()->values()->all();
+        return ProductItem::whereHas('product', fn ($q) => $q->where('gearbox_id', $this->id))
+            ->get()
+            ->flatMap(fn ($item) => $item->getCompatibleVariants())
+            ->unique()
+            ->values()
+            ->all();
     }
 
-    public function scopeActive($query)   { return $query->where('is_active', true); }
-    public function scopeOrdered($query)  { return $query->orderBy('order'); }
+    /*
+    |--------------------------------------------------------------------------
+    | SCOPES
+    |--------------------------------------------------------------------------
+    */
+
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', true);
+    }
+
+    public function scopeOrdered($query)
+    {
+        return $query->orderBy('order');
+    }
 }

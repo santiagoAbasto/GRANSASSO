@@ -5,84 +5,211 @@ namespace App\Imports;
 use App\Models\Brand;
 use App\Models\Gearbox;
 use App\Models\Product;
-use App\Models\Application;
+use App\Models\ProductItem;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
+use Maatwebsite\Excel\Concerns\SkipsEmptyRows;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
-use Maatwebsite\Excel\Concerns\WithValidation;
-use Maatwebsite\Excel\Concerns\SkipsEmptyRows;
 
+/**
+ * ProductsImport — importador de catálogo desde Excel.
+ *
+ * ══ ARQUITECTURA ══════════════════════════════════════════════════════════
+ *
+ * ANTES (incorrecto):
+ *   1 fila Excel → 1 Product
+ *   Esto genera duplicados masivos cuando el mismo producto tiene múltiples
+ *   códigos OEM o variantes.
+ *
+ * AHORA (correcto):
+ *   N filas con mismo (fig + code_gs) → 1 Product + N ProductItems
+ *
+ *   Product   = producto base identificado por figura + código GS
+ *   ProductItem = cada fila del Excel; contiene OEM code, aplicación,
+ *                 datos dinámicos de variantes (G60, G85, etc.)
+ *
+ * ══ COLUMNAS DEL EXCEL ════════════════════════════════════════════════════
+ *
+ * CONOCIDAS (mapeadas a campos de BD):
+ *   marca              → Brand.name / Brand.slug
+ *   modelo_caja        → Gearbox.name / Gearbox.slug
+ *   modelos_vehiculo   → ProductItem.application + application_type
+ *   fig                → Product.figure
+ *   cod_gs             → Product.code_gs
+ *   codigo_oem         → ProductItem.oem_code
+ *   nombre             → Product.name (JSON ES)
+ *   descripcion        → Product.description (JSON ES)
+ *   referencia_original   → ProductItem.extra_data['referencia_original']
+ *   referencias_adicionales → ProductItem.extra_data['referencias_adicionales']
+ *   notas              → ProductItem.notes
+ *
+ * DINÁMICAS (detectadas automáticamente):
+ *   Cualquier columna NO listada arriba → ProductItem.extra_data[columna]
+ *   Valor "x", "si", "yes", "1", "true" → true
+ *   Valor vacío, "no", "0"              → false
+ *
+ * ══ LÓGICA DE MODELOS_VEHICULO ════════════════════════════════════════════
+ *
+ *   Si modelos_vehiculo está vacío → application_type = 'generic'
+ *     Significa: el producto aplica a TODA la caja (no a un modelo específico)
+ *
+ *   Si modelos_vehiculo tiene valor → application_type = 'specific'
+ *     Significa: el producto aplica sólo a esos modelos de vehículo
+ *
+ * ══ QUÉ NO HACE EL IMPORTADOR ════════════════════════════════════════════
+ *
+ *   ✗ NO toca gearbox.extra_field_1 / extra_field_2
+ *     (son campos manuales, se editan desde el panel admin)
+ *
+ *   ✗ NO rechaza filas con modelos_vehiculo vacío (es dato válido)
+ *
+ *   ✗ NO duplica productos (agrupa por fig+code_gs antes de crear)
+ */
 class ProductsImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
 {
-    public array $errors  = [];
-    public int   $created = 0;
-    public int   $updated = 0;
+    /** Productos base creados en esta importación */
+    public int $created = 0;
+
+    /** Productos base actualizados en esta importación */
+    public int $updated = 0;
+
+    /** Items creados en esta importación */
+    public int $itemsCreated = 0;
+
+    /** Items actualizados en esta importación */
+    public int $itemsUpdated = 0;
+
+    /** Errores ocurridos (no fatales — el resto continúa) */
+    public array $errors = [];
 
     /**
-     * Columnas esperadas en el Excel:
-     *
-     * marca | modelo_caja | modelos_vehiculo | fig | cod_gs | codigo_oem
-     * nombre | descripcion | referencia_original | referencias_adicionales
-     * aplicaciones | [variante_1] | [variante_2] | ...
-     *
-     * Las columnas de variantes son dinámicas (G60, G85, G3/36, etc.)
-     * y se detectan automáticamente como todo lo que no sea una columna conocida.
-     */
-    /**
-     * Columnas del catálogo base (no se interpretan como variantes).
-     * nota_comercial y nota_interna son campos EXTRA (no vienen del catálogo oficial).
+     * Columnas conocidas del Excel.
+     * Todo lo que NO esté aquí se trata como columna dinámica
+     * y se guarda en extra_data del ProductItem.
      */
     private const KNOWN_COLUMNS = [
-        'marca', 'modelo_caja', 'modelos_vehiculo', 'fig', 'cod_gs',
-        'codigo_oem', 'nombre', 'descripcion', 'referencia_original',
-        'referencias_adicionales', 'aplicaciones',
-        // Campos extra opcionales — no son del catálogo de fábrica
-        'nota_comercial', 'nota_interna',
+        'marca',
+        'modelo_caja',
+        'modelos_vehiculo',
+        'fig',
+        'cod_gs',
+        'codigo_oem',
+        'nombre',
+        'descripcion',
+        'referencia_original',
+        'referencias_adicionales',
+        'notas',
     ];
+
+    /*
+    |--------------------------------------------------------------------------
+    | ENTRY POINT
+    |--------------------------------------------------------------------------
+    */
 
     public function collection(Collection $rows): void
     {
-        foreach ($rows as $rowIndex => $row) {
+        // 1. Normalizar todas las filas (claves a minúsculas, trim de valores)
+        $normalized = $this->normalizeRows($rows);
+
+        // 2. Agrupar por (brand, gearbox, fig, code_gs)
+        //    → cada grupo = 1 producto base con N items
+        $groups = $this->groupRowsByProduct($normalized);
+
+        // 3. Procesar cada grupo
+        foreach ($groups as $groupKey => $groupRows) {
             try {
-                $this->processRow($row->toArray(), $rowIndex + 2);
+                $this->processGroup($groupKey, $groupRows);
             } catch (\Throwable $e) {
-                $this->errors[] = "Fila " . ($rowIndex + 2) . ": " . $e->getMessage();
+                $this->errors[] = "[Grupo {$groupKey}] " . $e->getMessage();
             }
         }
     }
 
-    private function generateSlug(string $base): string
+    /*
+    |--------------------------------------------------------------------------
+    | NORMALIZACIÓN
+    |--------------------------------------------------------------------------
+    */
+
+    /**
+     * Normaliza las claves de cada fila: minúsculas + trim.
+     * También hace trim de valores string.
+     */
+    private function normalizeRows(Collection $rows): array
     {
-        $slug      = Str::slug($base);
-        $candidate = $slug;
-        $i         = 2;
+        return $rows->map(function ($row) {
+            $arr = $row->toArray();
 
-        while (Product::where('slug', $candidate)->exists()) {
-            $candidate = $slug . '-' . $i++;
-        }
-
-        return $candidate;
+            return array_combine(
+                array_map(fn ($k) => strtolower(trim((string) $k)), array_keys($arr)),
+                array_map(fn ($v) => is_string($v) ? trim($v) : $v, array_values($arr))
+            );
+        })->toArray();
     }
 
-    private function processRow(array $row, int $line): void
+    /*
+    |--------------------------------------------------------------------------
+    | AGRUPACIÓN — NÚCLEO DE LA ARQUITECTURA
+    |--------------------------------------------------------------------------
+    */
+
+    /**
+     * Agrupa filas por clave de producto único:
+     *   "{brand_slug}|{gearbox_slug}|{figure}|{code_gs}"
+     *
+     * Si fig y code_gs están ambos vacíos, se usa el oem_code como
+     * diferenciador de último recurso (cada OEM = producto separado).
+     *
+     * @param  array[]  $rows
+     * @return array<string, array[]>  groupKey → array de filas
+     */
+    private function groupRowsByProduct(array $rows): array
     {
-        // Normalizar claves: minúsculas, sin espacios extra
-        $row = array_combine(
-            array_map(fn ($k) => strtolower(trim($k)), array_keys($row)),
-            array_values($row)
-        );
+        $groups = [];
 
-        $brandName   = trim($row['marca'] ?? '');
-        $gearboxName = trim($row['modelo_caja'] ?? '');
-        $codeOem     = trim($row['codigo_oem'] ?? '');
+        foreach ($rows as $row) {
+            $brandSlug   = Str::slug(trim($row['marca']        ?? ''));
+            $gearboxSlug = Str::slug(trim($row['modelo_caja']  ?? ''));
+            $fig         = trim($row['fig']     ?? '');
+            $codeGs      = trim($row['cod_gs']  ?? '');
+            $oemCode     = trim($row['codigo_oem'] ?? '');
 
-        if (!$brandName || !$gearboxName || !$codeOem) {
-            $this->errors[] = "Fila {$line}: marca, modelo_caja y codigo_oem son obligatorios.";
+            // La clave identifica el producto base
+            if ($fig !== '' || $codeGs !== '') {
+                // Caso normal: producto definido por figura y/o code_gs
+                $productKey = "{$brandSlug}|{$gearboxSlug}|{$fig}|{$codeGs}";
+            } else {
+                // Fallback: ni fig ni code_gs → el OEM code define el producto
+                // (caso extremo que no debería darse, pero el sistema no rompe)
+                $productKey = "{$brandSlug}|{$gearboxSlug}|__oem__{$oemCode}";
+            }
+
+            $groups[$productKey][] = $row;
+        }
+
+        return $groups;
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | PROCESAMIENTO DE GRUPO (1 Product + N ProductItems)
+    |--------------------------------------------------------------------------
+    */
+
+    private function processGroup(string $groupKey, array $rows): void
+    {
+        $firstRow    = $rows[0];
+        $brandName   = trim($firstRow['marca']       ?? '');
+        $gearboxName = trim($firstRow['modelo_caja'] ?? '');
+
+        if (! $brandName || ! $gearboxName) {
+            $this->errors[] = "[Grupo {$groupKey}] Sin marca o modelo_caja — se omite.";
             return;
         }
 
-        // 1. Brand — buscar o crear
+        // ── 1. Brand (firstOrCreate) ────────────────────────────────────────
         $brand = Brand::firstOrCreate(
             ['slug' => Str::slug($brandName)],
             [
@@ -91,84 +218,272 @@ class ProductsImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
             ]
         );
 
-        // 2. Gearbox — buscar o crear
+        // ── 2. Gearbox (firstOrCreate) ──────────────────────────────────────
+        $gearboxSlug = Str::slug($gearboxName);
+
         $gearbox = Gearbox::firstOrCreate(
-            ['brand_id' => $brand->id, 'slug' => Str::slug($gearboxName)],
+            ['brand_id' => $brand->id, 'slug' => $gearboxSlug],
             [
-                'name'                => $gearboxName,
-                'compatible_vehicles' => trim($row['modelos_vehiculo'] ?? ''),
-                'is_active'           => true,
+                'name'      => $gearboxName,
+                'is_active' => true,
+                // compatible_vehicles se llena si existe el dato (se usa la
+                // primera fila con valor no vacío)
             ]
         );
 
-        // Si ya existía el gearbox pero le falta compatible_vehicles, actualizar
-        if (!$gearbox->compatible_vehicles && !empty($row['modelos_vehiculo'])) {
-            $gearbox->update(['compatible_vehicles' => trim($row['modelos_vehiculo'])]);
+        // Actualizar compatible_vehicles si aún no lo tiene
+        $vehiclesFromRow = trim($firstRow['modelos_vehiculo'] ?? '');
+        if (! $gearbox->compatible_vehicles && $vehiclesFromRow !== '') {
+            $gearbox->update(['compatible_vehicles' => $vehiclesFromRow]);
         }
 
-        // 3. Product — crear o actualizar por code_oem
-        $nombreEs = trim($row['nombre'] ?? '');
-        $descEs   = trim($row['descripcion'] ?? '');
-        $refs     = trim($row['referencias_adicionales'] ?? '');
+        // NOTA: extra_field_1 y extra_field_2 de gearbox NO se tocan aquí.
+        // Son campos manuales que se gestionan desde el admin.
 
-        // Generar slug único basado en code_oem
-        $existingProduct = Product::where('code_oem', $codeOem)->first();
-        $slug = $existingProduct?->slug ?? $this->generateSlug($codeOem);
+        // ── 3. Product base (1 por grupo) ───────────────────────────────────
+        $product = $this->findOrCreateProduct($gearbox, $firstRow);
 
-        $productData = [
-            'gearbox_id'              => $gearbox->id,
-            'figure'                  => trim($row['fig'] ?? '') ?: null,
-            'cod_gs'                  => trim($row['cod_gs'] ?? '') ?: null,
-            'code_oem'                => $codeOem,
-            'slug'                    => $slug,
-            'nombre'                  => ['es' => $nombreEs ?: null, 'en' => null, 'pt' => null],
-            'referencia_original'     => trim($row['referencia_original'] ?? '') ?: null,
-            'referencias_adicionales' => $refs
-                ? array_values(array_filter(array_map('trim', explode(';', $refs))))
-                : null,
-            'description'             => ['es' => $descEs ?: null, 'en' => null, 'pt' => null],
-            // Campos extra (opcionales en el Excel — datos no provenientes del catálogo):
-            'nota_comercial'          => trim($row['nota_comercial'] ?? '') ?: ($existingProduct?->nota_comercial),
-            'nota_interna'            => trim($row['nota_interna'] ?? '') ?: ($existingProduct?->nota_interna),
-            'is_active'               => true,
+        // ── 4. ProductItems (1 por fila del Excel) ──────────────────────────
+        foreach ($rows as $index => $row) {
+            try {
+                $this->upsertProductItem($product, $row);
+            } catch (\Throwable $e) {
+                $this->errors[] = "[Grupo {$groupKey} / fila #{$index}] " . $e->getMessage();
+            }
+        }
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | PRODUCTO BASE — findOrCreateProduct
+    |--------------------------------------------------------------------------
+    */
+
+    /**
+     * Busca un producto existente por (gearbox_id, figure, code_gs).
+     * Si no existe, lo crea.
+     *
+     * Lógica de búsqueda (de más específico a más general):
+     *   1. gearbox_id + code_gs (si code_gs no está vacío) — primary key real
+     *   2. gearbox_id + figure  (si figure no está vacío y code_gs vacío)
+     *   3. Producto nuevo (si ambos vacíos)
+     */
+    private function findOrCreateProduct(Gearbox $gearbox, array $firstRow): Product
+    {
+        $figure  = trim($firstRow['fig']    ?? '') ?: null;
+        $codeGs  = trim($firstRow['cod_gs'] ?? '') ?: null;
+        $oemCode = trim($firstRow['codigo_oem'] ?? '');
+
+        $nombreEs = trim($firstRow['nombre']     ?? '') ?: null;
+        $descEs   = trim($firstRow['descripcion'] ?? '') ?: null;
+
+        // ── Búsqueda ──────────────────────────────────────────────────────
+        $product = null;
+
+        if ($codeGs !== null) {
+            // code_gs es el identificador principal del negocio
+            $product = Product::where('gearbox_id', $gearbox->id)
+                               ->where('code_gs', $codeGs)
+                               ->first();
+        } elseif ($figure !== null) {
+            // Solo figura disponible
+            $product = Product::where('gearbox_id', $gearbox->id)
+                               ->where('figure', $figure)
+                               ->whereNull('code_gs')
+                               ->first();
+        } else {
+            // Sin identificadores de negocio: buscar via item por oem_code
+            if ($oemCode !== '') {
+                $product = Product::where('gearbox_id', $gearbox->id)
+                    ->whereHas('items', fn ($q) => $q->where('oem_code', $oemCode))
+                    ->first();
+            }
+        }
+
+        // ── Creación ──────────────────────────────────────────────────────
+        if (! $product) {
+            $slugBase = $codeGs ?? $figure ?? $oemCode ?? ('product-' . now()->timestamp);
+
+            $product = Product::create([
+                'gearbox_id'  => $gearbox->id,
+                'figure'      => $figure,
+                'code_gs'     => $codeGs,
+                'name'        => ['es' => $nombreEs, 'en' => null, 'pt' => null],
+                'description' => ['es' => $descEs,   'en' => null, 'pt' => null],
+                'slug'        => $this->generateUniqueSlug($slugBase),
+                'is_active'   => true,
+            ]);
+
+            $this->created++;
+            return $product;
+        }
+
+        // ── Actualización parcial (no sobreescribir traducciones manuales) ─
+        $updates = [];
+
+        if ($figure !== null && $product->figure === null) {
+            $updates['figure'] = $figure;
+        }
+
+        if ($nombreEs && empty($product->name['es'])) {
+            $name       = $product->name ?? [];
+            $name['es'] = $nombreEs;
+            $updates['name'] = $name;
+        }
+
+        if ($descEs && empty($product->description['es'])) {
+            $desc       = $product->description ?? [];
+            $desc['es'] = $descEs;
+            $updates['description'] = $desc;
+        }
+
+        if (! empty($updates)) {
+            $product->update($updates);
+        }
+
+        $this->updated++;
+        return $product;
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | PRODUCT ITEM — upsertProductItem
+    |--------------------------------------------------------------------------
+    */
+
+    /**
+     * Crea o actualiza un ProductItem para la fila dada.
+     *
+     * Clave de upsert: (product_id, oem_code)
+     * Si oem_code es null → siempre crea (no hay clave única para upsert).
+     */
+    private function upsertProductItem(Product $product, array $row): void
+    {
+        $oemCode = trim($row['codigo_oem'] ?? '') ?: null;
+
+        // ── application_type ─────────────────────────────────────────────
+        // Regla de negocio:
+        //   modelos_vehiculo vacío  → genérico (aplica a toda la caja)
+        //   modelos_vehiculo con valor → específico (aplica a esos modelos)
+        $modelos = trim($row['modelos_vehiculo'] ?? '');
+
+        if ($modelos === '') {
+            $application     = null;
+            $applicationType = 'generic';
+        } else {
+            $application     = $modelos;
+            $applicationType = 'specific';
+        }
+
+        $notas = trim($row['notas'] ?? '') ?: null;
+
+        // ── extra_data: columnas dinámicas + referencias ──────────────────
+        $extraData = $this->buildExtraData($row);
+
+        // ── Upsert ────────────────────────────────────────────────────────
+        $itemData = [
+            'application'      => $application,
+            'application_type' => $applicationType,
+            'notes'            => $notas,
+            'extra_data'       => ! empty($extraData) ? $extraData : null,
         ];
 
-        $product = Product::updateOrCreate(
-            ['code_oem' => $codeOem],
-            $productData
-        );
+        if ($oemCode !== null) {
+            // Buscar item existente por product + oem_code
+            $existing = ProductItem::where('product_id', $product->id)
+                                   ->where('oem_code', $oemCode)
+                                   ->first();
 
-        $product->wasRecentlyCreated ? $this->created++ : $this->updated++;
+            if ($existing) {
+                $existing->update($itemData);
+                $this->itemsUpdated++;
+            } else {
+                ProductItem::create(array_merge(
+                    ['product_id' => $product->id, 'oem_code' => $oemCode],
+                    $itemData
+                ));
+                $this->itemsCreated++;
+            }
+        } else {
+            // Sin oem_code → siempre crear (no hay forma de identificar el item)
+            ProductItem::create(array_merge(
+                ['product_id' => $product->id, 'oem_code' => null],
+                $itemData
+            ));
+            $this->itemsCreated++;
+        }
+    }
 
-        // 4. Aplicaciones (pipe-separated)
-        $appsRaw = trim($row['aplicaciones'] ?? '');
-        if ($appsRaw) {
-            foreach (array_filter(array_map('trim', explode('|', $appsRaw))) as $appName) {
-                Application::firstOrCreate([
-                    'gearbox_id' => $gearbox->id,
-                    'name'       => $appName,
-                ]);
-                $app = Application::where('gearbox_id', $gearbox->id)->where('name', $appName)->first();
-                $product->applications()->syncWithoutDetaching([$app->id]);
+    /*
+    |--------------------------------------------------------------------------
+    | EXTRA DATA — columnas dinámicas + referencias
+    |--------------------------------------------------------------------------
+    */
+
+    /**
+     * Construye el JSON extra_data para un ProductItem.
+     *
+     * Incluye:
+     *   - Columnas dinámicas (no en KNOWN_COLUMNS): G60, G85, etc. → bool
+     *   - referencia_original  → string|null
+     *   - referencias_adicionales → array|null
+     *
+     * Interpretación de valores en columnas dinámicas:
+     *   "x", "si", "yes", "s", "1", "true" → true
+     *   Todo lo demás (incluido vacío)       → false
+     */
+    private function buildExtraData(array $row): array
+    {
+        $extra = [];
+
+        // ── Columnas dinámicas (G60, G85, G3/36, etc.) ───────────────────
+        foreach ($row as $col => $rawValue) {
+            if (in_array($col, self::KNOWN_COLUMNS, true)) {
+                continue; // columna conocida → no es dinámica
+            }
+
+            $normalizedValue = strtolower(trim((string) $rawValue));
+            $extra[$col]     = in_array($normalizedValue, ['x', 'si', 'yes', 's', '1', 'true'], true);
+        }
+
+        // ── Referencia original (columna conocida → extra_data) ───────────
+        $refOriginal = trim($row['referencia_original'] ?? '');
+        if ($refOriginal !== '') {
+            $extra['referencia_original'] = $refOriginal;
+        }
+
+        // ── Referencias adicionales (string separado por ";") ─────────────
+        $refsAdicionales = trim($row['referencias_adicionales'] ?? '');
+        if ($refsAdicionales !== '') {
+            $refs = array_values(
+                array_filter(
+                    array_map('trim', explode(';', $refsAdicionales))
+                )
+            );
+            if (! empty($refs)) {
+                $extra['referencias_adicionales'] = $refs;
             }
         }
 
-        // 5. Variantes dinámicas — columnas que no son conocidas y tienen "x" o están llenas
-        $variantColumns = array_filter(
-            array_keys($row),
-            fn ($k) => !in_array($k, self::KNOWN_COLUMNS)
-        );
+        return $extra;
+    }
 
-        foreach ($variantColumns as $variantName) {
-            $value = strtolower(trim((string) ($row[$variantName] ?? '')));
-            $isActive = in_array($value, ['x', 'si', 'yes', 's', '1', 'true']);
+    /*
+    |--------------------------------------------------------------------------
+    | SLUG ÚNICO
+    |--------------------------------------------------------------------------
+    */
 
-            if ($isActive) {
-                $product->versions()->firstOrCreate(
-                    ['version' => $variantName],
-                    ['is_available' => true]
-                );
-            }
+    private function generateUniqueSlug(string $base): string
+    {
+        $slug      = Str::slug($base) ?: 'product';
+        $candidate = $slug;
+        $counter   = 2;
+
+        while (Product::where('slug', $candidate)->exists()) {
+            $candidate = $slug . '-' . $counter++;
         }
+
+        return $candidate;
     }
 }

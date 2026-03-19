@@ -96,8 +96,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('/products/bulk-image',               [AdminProductController::class, 'bulkImage'])->name('products.bulk-image');
 
         // Home – Calidad (sección del home)
-        Route::get('/home-calidad',              [HomeCalidadController::class, 'edit'])->name('home-calidad.edit');
-        Route::post('/home-calidad',             [HomeCalidadController::class, 'update'])->name('home-calidad.update');
+        Route::get('/home-calidad',                   [HomeCalidadController::class, 'edit'])->name('home-calidad.edit');
+        Route::post('/home-calidad',                  [HomeCalidadController::class, 'update'])->name('home-calidad.update');
+        Route::put('/home-calidad',                   [HomeCalidadController::class, 'update'])->name('home-calidad.update.put');
         Route::delete('/home-calidad/images/{image}', [HomeCalidadController::class, 'destroyImage'])->name('home-calidad.images.destroy');
 
         // Importación masiva desde Excel

@@ -133,10 +133,10 @@ function SectionForm({ initial = null, pageId, onCancel, onSuccess }) {
     const isNew = !initial;
     const [activeLang, setActiveLang] = useState("es");
 
-    const { data, setData, post, processing } = useForm(
+    const { data, setData, post, processing, errors } = useForm(
         isNew
             ? {
-                type: "text",
+                type: "about_main",
                 title_es: "", title_en: "", title_pt: "",
                 subtitle_es: "", subtitle_en: "", subtitle_pt: "",
                 content_es: "", content_en: "", content_pt: "",
@@ -174,15 +174,25 @@ function SectionForm({ initial = null, pageId, onCancel, onSuccess }) {
 
     return (
         <form onSubmit={submit} className="space-y-5">
-            {/* Imagen de la sección */}
-            <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
-                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Imagen de sección</p>
-                <ImageUploadField
-                    currentUrl={initial?.image_url}
-                    onChange={(f) => setData("image", f)}
-                    specs={{ width: 600, height: 600, maxMB: 4, formats: ["JPG", "PNG"] }}
-                />
-            </div>
+            {/* Imagen — solo para Quiénes somos */}
+            {(isNew ? data.type === "about_main" : initial?.type === "about_main") && (
+                <div className="bg-white rounded-xl border border-[#25A7CA]/40 shadow-sm p-5">
+                    <p className="text-sm font-semibold text-gray-700 mb-1">Imagen de sección</p>
+                    <p className="text-xs text-gray-400 mb-3">Aparece a la izquierda del texto en la página web.</p>
+                    <ImageUploadField
+                        currentUrl={initial?.image_url}
+                        onChange={(f) => setData("image", f)}
+                        specs={{ maxMB: 4, formats: ["JPG", "PNG"] }}
+                        error={errors.image}
+                    />
+                    {!initial?.image_url && !data.image && (
+                        <p className="mt-2 text-xs text-amber-600 flex items-center gap-1">
+                            <Icon icon="solar:danger-triangle-outline" width={13} />
+                            Sin imagen — seleccioná un archivo para asignarla.
+                        </p>
+                    )}
+                </div>
+            )}
 
             {/* Tabs multiidioma */}
             <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
@@ -265,13 +275,16 @@ function SectionForm({ initial = null, pageId, onCancel, onSuccess }) {
                 {isNew && (
                     <div>
                         <label className="block text-xs text-gray-500 mb-1">Tipo de sección</label>
-                        <input
-                            type="text"
+                        <select
                             value={data.type}
                             onChange={(e) => setData("type", e.target.value)}
-                            placeholder="about_main, about_mision…"
-                            className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#25A7CA]/30"
-                        />
+                            className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#25A7CA]/30 bg-white"
+                        >
+                            <option value="about_main">Quiénes somos</option>
+                            <option value="about_mision">Misión</option>
+                            <option value="about_vision">Visión</option>
+                            <option value="about_calidad">Valores / Calidad</option>
+                        </select>
                     </div>
                 )}
                 <div className="flex items-end gap-4">
@@ -349,8 +362,15 @@ function SectionCard({ section, onDelete }) {
             <div className="w-8 text-center flex-shrink-0 mt-0.5">
                 <span className="text-xs font-mono font-bold text-gray-400">{section.order}</span>
             </div>
-            {section.image_url && (
-                <img src={section.image_url} alt="" className="h-14 w-20 object-cover rounded-lg flex-shrink-0 border border-gray-100" />
+            {/* Imagen solo para Quiénes somos (about_main) */}
+            {section.type === "about_main" && (
+                section.image_url ? (
+                    <img src={section.image_url} alt="" className="h-14 w-20 object-cover rounded-lg flex-shrink-0 border border-gray-100" />
+                ) : (
+                    <div className="h-14 w-20 rounded-lg flex-shrink-0 border-2 border-dashed border-amber-300 bg-amber-50 flex items-center justify-center">
+                        <Icon icon="solar:camera-add-outline" width={18} className="text-amber-400" />
+                    </div>
+                )
             )}
             <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">

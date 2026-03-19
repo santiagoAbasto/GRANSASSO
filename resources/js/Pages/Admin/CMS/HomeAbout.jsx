@@ -2,6 +2,7 @@ import AdminLayout from "@/Layouts/AdminLayout";
 import { useForm } from "@inertiajs/react";
 import { Icon } from "@iconify/react";
 import ImageUploadField from "@/Components/Admin/ImageUploadField";
+import RichTextEditor from "@/Components/Admin/RichTextEditor";
 
 const LANGS = ["es", "en", "pt"];
 
@@ -106,14 +107,21 @@ export default function HomeAbout({ page, section }) {
 
                         <MultiInput label="Título" field="title" data={data} setData={setData} placeholder="Ej: Sobre Gran Sasso" />
                         <MultiInput label="Subtítulo" field="subtitle" data={data} setData={setData} placeholder="Ej: Líderes en repuestos" />
-                        <MultiInput
-                            label="Contenido (cada línea es un párrafo)"
-                            field="content"
-                            data={data}
-                            setData={setData}
-                            placeholder="Escribí el texto..."
-                            type="textarea"
-                        />
+                        <div>
+                            <label className="block text-sm font-medium text-gray-600 mb-2">Contenido</label>
+                            <div className="space-y-2">
+                                {LANGS.map((lang) => (
+                                    <div key={lang} className="flex flex-col gap-1">
+                                        <LangBadge lang={lang} />
+                                        <RichTextEditor
+                                            value={data[`content_${lang}`]}
+                                            onChange={(val) => setData(`content_${lang}`, val)}
+                                            placeholder="Escribí el texto..."
+                                        />
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
                         <MultiInput label="Texto del botón" field="button_text" data={data} setData={setData} placeholder="Ej: Más información" />
                     </div>
 

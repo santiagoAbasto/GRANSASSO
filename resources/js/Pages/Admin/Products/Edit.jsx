@@ -5,198 +5,313 @@ import { useState } from "react";
 
 export default function ProductEdit({ product, brands, gearboxes }) {
     const [selectedBrand, setSelectedBrand] = useState(product.gearbox?.brand_id ?? "");
-    const [newVersion, setNewVersion] = useState("");
-
-    const existingVersions = (product.versions ?? []).map((v) => v.version);
+    const [variantInput,  setVariantInput]  = useState("");
 
     const { data, setData, post, processing, errors } = useForm({
         _method:                 "PUT",
+        // Producto base
         gearbox_id:              product.gearbox_id ?? "",
         figure:                  product.figure ?? "",
-        cod_gs:                  product.cod_gs ?? "",
-        code_oem:                product.code_oem ?? "",
-        nombre:                  product.nombre?.es ?? "",
-        referencia_original:     product.referencia_original ?? "",
-        referencias_adicionales: Array.isArray(product.referencias_adicionales)
-            ? product.referencias_adicionales.join("; ")
-            : (product.referencias_adicionales ?? ""),
-        description:             product.description?.es ?? "",
-        nota_comercial:          product.nota_comercial ?? "",
-        nota_interna:            product.nota_interna ?? "",
+        code_gs:                 product.code_gs ?? "",
+        name_es:                 product.name_es ?? "",
+        description_es:          product.description_es ?? "",
         is_active:               product.is_active ?? true,
-        versions:                existingVersions,
+        // Item principal
+        code_oem:                product.code_oem ?? "",
+        referencia_original:     product.referencia_original ?? "",
+        referencias_adicionales: product.referencias_adicionales ?? "",
+        notes:                   product.notes ?? "",
+        application:             product.application ?? "",
+        application_type:        product.application_type ?? "generic",
+        variants:                product.variants ?? [],
+        // Imágenes
+        images:                  [],
     });
 
     const filteredGearboxes = gearboxes.filter(
         (g) => !selectedBrand || String(g.brand_id) === String(selectedBrand)
     );
 
-    const addVersion = () => {
-        const v = newVersion.trim().toUpperCase();
-        if (v && !data.versions.includes(v)) {
-            setData("versions", [...data.versions, v]);
+    const addVariant = () => {
+        const v = variantInput.trim().toUpperCase();
+        if (v && !data.variants.includes(v)) {
+            setData("variants", [...data.variants, v]);
         }
-        setNewVersion("");
+        setVariantInput("");
     };
 
-    const removeVersion = (v) => {
-        setData("versions", data.versions.filter((x) => x !== v));
-    };
+    const removeVariant = (v) => setData("variants", data.variants.filter((x) => x !== v));
 
     const submit = (e) => {
         e.preventDefault();
         post(`/admin/products/${product.id}`, { forceFormData: true });
     };
 
-    const inputClass = "w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#25A7CA]/30";
-    const labelClass = "block text-sm text-gray-600 mb-1";
+    const ic = "w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#25A7CA]/30";
+    const lc = "block text-sm text-gray-600 mb-1";
 
     return (
         <AdminLayout>
             <div className="max-w-3xl">
+                {/* Header */}
                 <div className="flex items-center gap-3 mb-6">
                     <button onClick={() => router.visit("/admin/products")} className="p-2 rounded-lg hover:bg-gray-100 text-gray-500">
                         <Icon icon="solar:arrow-left-outline" width={18} />
                     </button>
                     <div>
                         <h1 className="text-2xl font-bold text-gray-800">Editar Producto</h1>
-                        <p className="text-sm text-gray-500">{product.code_oem}</p>
+                        <p className="text-sm text-gray-500">
+                            {product.code_oem
+                                ? <>OEM: <span className="font-mono font-medium">{product.code_oem}</span></>
+                                : `ID #${product.id}`
+                            }
+                            {product.code_gs && <> · GS: <span className="font-mono">{product.code_gs}</span></>}
+                        </p>
                     </div>
                 </div>
 
                 <form onSubmit={submit} className="space-y-6">
-                    {/* Identificación */}
+
+                    {/* ── Producto base ───────────────────────────────────── */}
                     <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-4">
-                        <h2 className="font-semibold text-gray-700">Identificación</h2>
+                        <h2 className="font-semibold text-gray-700 flex items-center gap-2">
+                            <Icon icon="solar:box-outline" width={18} className="text-[#25A7CA]" />
+                            Producto base
+                        </h2>
 
                         <div className="grid grid-cols-2 gap-4">
                             <div>
-                                <label className={labelClass}>Marca</label>
-                                <select value={selectedBrand} onChange={(e) => { setSelectedBrand(e.target.value); setData("gearbox_id", ""); }} className={inputClass}>
-                                    <option value="">Todas las marcas</option>
-                                    {brands.map((b) => <option key={b.id} value={b.id}>{b.name?.es ?? b.name}</option>)}
+                                <label className={lc}>Marca</label>
+                                <select
+                                    value={selectedBrand}
+                                    onChange={(e) => { setSelectedBrand(e.target.value); setData("gearbox_id", ""); }}
+                                    className={ic}
+                                >
+                                    <option value="">Seleccionar marca…</option>
+                                    {brands.map((b) => (
+                                        <option key={b.id} value={b.id}>{b.name?.es ?? b.name}</option>
+                                    ))}
                                 </select>
                             </div>
                             <div>
-                                <label className={labelClass}>Caja de cambios *</label>
-                                <select value={data.gearbox_id} onChange={(e) => setData("gearbox_id", e.target.value)} className={inputClass} required>
-                                    <option value="">Seleccionar...</option>
-                                    {filteredGearboxes.map((g) => <option key={g.id} value={g.id}>{g.name}</option>)}
+                                <label className={lc}>Caja de cambios *</label>
+                                <select
+                                    value={data.gearbox_id}
+                                    onChange={(e) => setData("gearbox_id", e.target.value)}
+                                    className={ic}
+                                    required
+                                >
+                                    <option value="">Seleccionar caja…</option>
+                                    {filteredGearboxes.map((g) => (
+                                        <option key={g.id} value={g.id}>{g.name}</option>
+                                    ))}
                                 </select>
                                 {errors.gearbox_id && <p className="text-xs text-red-500 mt-1">{errors.gearbox_id}</p>}
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-3 gap-4">
+                        <div className="grid grid-cols-2 gap-4">
                             <div>
-                                <label className={labelClass}>Figura</label>
-                                <input type="text" value={data.figure} onChange={(e) => setData("figure", e.target.value)} placeholder="G60" className={inputClass} />
+                                <label className={lc}>Figura</label>
+                                <input type="text" value={data.figure} onChange={(e) => setData("figure", e.target.value)} placeholder="7, 9, 236…" className={ic} />
                             </div>
                             <div>
-                                <label className={labelClass}>Cod. GS</label>
-                                <input type="text" value={data.cod_gs} onChange={(e) => setData("cod_gs", e.target.value)} className={inputClass} />
-                            </div>
-                            <div>
-                                <label className={labelClass}>Código OEM *</label>
-                                <input type="text" value={data.code_oem} onChange={(e) => setData("code_oem", e.target.value)} className={inputClass} required />
-                                {errors.code_oem && <p className="text-xs text-red-500 mt-1">{errors.code_oem}</p>}
+                                <label className={lc}>Cod. GS</label>
+                                <input type="text" value={data.code_gs} onChange={(e) => setData("code_gs", e.target.value)} placeholder="800, 812…" className={ic} />
                             </div>
                         </div>
 
                         <div>
-                            <label className={labelClass}>Nombre del producto</label>
-                            <input type="text" value={data.nombre} onChange={(e) => setData("nombre", e.target.value)} className={inputClass} />
+                            <label className={lc}>Nombre del producto</label>
+                            <input type="text" value={data.name_es} onChange={(e) => setData("name_es", e.target.value)} className={ic} />
+                        </div>
+
+                        <div>
+                            <label className={lc}>Descripción</label>
+                            <textarea value={data.description_es} onChange={(e) => setData("description_es", e.target.value)} rows={3} className={ic} />
+                        </div>
+                    </div>
+
+                    {/* ── Item principal ───────────────────────────────────── */}
+                    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-4">
+                        <div className="flex items-center justify-between">
+                            <h2 className="font-semibold text-gray-700 flex items-center gap-2">
+                                <Icon icon="solar:tag-outline" width={18} className="text-[#25A7CA]" />
+                                Item principal
+                            </h2>
+                            {product.items?.length > 1 && (
+                                <span className="text-xs bg-amber-100 text-amber-700 px-2 py-1 rounded-full font-medium">
+                                    Este producto tiene {product.items.length} items — editás el primero
+                                </span>
+                            )}
+                        </div>
+
+                        <div>
+                            <label className={lc}>Código OEM</label>
+                            <input type="text" value={data.code_oem} onChange={(e) => setData("code_oem", e.target.value)} className={ic} placeholder="694-262-0002" />
                         </div>
 
                         <div className="grid grid-cols-2 gap-4">
                             <div>
-                                <label className={labelClass}>Referencia original</label>
-                                <input type="text" value={data.referencia_original} onChange={(e) => setData("referencia_original", e.target.value)} className={inputClass} />
+                                <label className={lc}>Referencia original</label>
+                                <input type="text" value={data.referencia_original} onChange={(e) => setData("referencia_original", e.target.value)} className={ic} />
                             </div>
                             <div>
-                                <label className={labelClass}>Referencias adicionales</label>
-                                <input type="text" value={data.referencias_adicionales} onChange={(e) => setData("referencias_adicionales", e.target.value)} placeholder="REF1; REF2; REF3" className={inputClass} />
+                                <label className={lc}>Referencias adicionales</label>
+                                <input type="text" value={data.referencias_adicionales} onChange={(e) => setData("referencias_adicionales", e.target.value)} placeholder="REF1; REF2; REF3" className={ic} />
                                 <p className="text-xs text-gray-400 mt-0.5">Separadas por punto y coma</p>
                             </div>
                         </div>
-                    </div>
 
-                    {/* Descripción */}
-                    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-4">
-                        <h2 className="font-semibold text-gray-700">Descripción</h2>
-                        <textarea value={data.description} onChange={(e) => setData("description", e.target.value)} rows={4} className={inputClass} placeholder="Descripción técnica del producto..." />
-                    </div>
-
-                    {/* Notas */}
-                    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-4">
-                        <h2 className="font-semibold text-gray-700">Notas</h2>
                         <div>
-                            <label className={labelClass}>
-                                <span className="inline-flex items-center gap-1.5">
-                                    <Icon icon="solar:tag-outline" width={14} className="text-blue-500" />
-                                    Nota comercial
-                                    <span className="text-xs text-gray-400 font-normal">(visible para clientes)</span>
-                                </span>
-                            </label>
-                            <textarea value={data.nota_comercial} onChange={(e) => setData("nota_comercial", e.target.value)} rows={2} className={inputClass} />
+                            <label className={lc}>Notas</label>
+                            <textarea value={data.notes} onChange={(e) => setData("notes", e.target.value)} rows={2} className={ic} />
                         </div>
-                        <div>
-                            <label className={labelClass}>
-                                <span className="inline-flex items-center gap-1.5">
-                                    <Icon icon="solar:lock-outline" width={14} className="text-amber-500" />
-                                    Nota interna
-                                    <span className="text-xs text-gray-400 font-normal">(solo equipo interno)</span>
-                                </span>
-                            </label>
-                            <textarea value={data.nota_interna} onChange={(e) => setData("nota_interna", e.target.value)} rows={2} className={inputClass} />
-                        </div>
-                    </div>
 
-                    {/* Versiones */}
-                    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-4">
-                        <h2 className="font-semibold text-gray-700">Versiones / Variantes</h2>
-                        <div className="flex gap-2">
-                            <input type="text" value={newVersion} onChange={(e) => setNewVersion(e.target.value.toUpperCase())}
-                                onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addVersion())}
-                                placeholder="G60, G85, G3/36..." className="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#25A7CA]/30 uppercase" />
-                            <button type="button" onClick={addVersion} className="px-3 py-2 bg-[#25A7CA] text-white rounded-lg text-sm">Agregar</button>
-                        </div>
-                        {data.versions.length > 0 && (
-                            <div className="flex flex-wrap gap-2">
-                                {data.versions.map((v) => (
-                                    <span key={v} className="flex items-center gap-1 bg-[#25A7CA]/10 text-[#25A7CA] text-xs font-semibold px-2.5 py-1 rounded-full">
-                                        {v}
-                                        <button type="button" onClick={() => removeVersion(v)} className="ml-1 text-[#25A7CA]/60 hover:text-red-500">×</button>
-                                    </span>
-                                ))}
+                        {/* Variantes */}
+                        <div>
+                            <label className={lc}>Variantes compatibles (G60, G85, G3/36…)</label>
+                            <div className="flex gap-2">
+                                <input
+                                    type="text"
+                                    value={variantInput}
+                                    onChange={(e) => setVariantInput(e.target.value.toUpperCase())}
+                                    onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addVariant())}
+                                    placeholder="G60"
+                                    className="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#25A7CA]/30"
+                                />
+                                <button type="button" onClick={addVariant} className="px-3 py-2 bg-[#25A7CA] text-white rounded-lg text-sm">
+                                    Agregar
+                                </button>
                             </div>
-                        )}
+                            {data.variants.length > 0 && (
+                                <div className="flex flex-wrap gap-2 mt-2">
+                                    {data.variants.map((v) => (
+                                        <span key={v} className="flex items-center gap-1 bg-[#25A7CA]/10 text-[#25A7CA] text-xs font-semibold px-2.5 py-1 rounded-full">
+                                            {v}
+                                            <button type="button" onClick={() => removeVariant(v)} className="ml-1 text-[#25A7CA]/60 hover:text-red-500">×</button>
+                                        </span>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Aplicación */}
+                        <div>
+                            <label className={lc}>Tipo de aplicación</label>
+                            <div className="flex gap-4 mt-1">
+                                <label className="flex items-center gap-2 cursor-pointer text-sm text-gray-600">
+                                    <input
+                                        type="radio"
+                                        value="generic"
+                                        checked={data.application_type === "generic"}
+                                        onChange={() => setData("application_type", "generic")}
+                                        className="accent-[#25A7CA]"
+                                    />
+                                    Genérico (aplica a toda la caja)
+                                </label>
+                                <label className="flex items-center gap-2 cursor-pointer text-sm text-gray-600">
+                                    <input
+                                        type="radio"
+                                        value="specific"
+                                        checked={data.application_type === "specific"}
+                                        onChange={() => setData("application_type", "specific")}
+                                        className="accent-[#25A7CA]"
+                                    />
+                                    Específico (modelos de vehículo)
+                                </label>
+                            </div>
+                            {data.application_type === "specific" && (
+                                <input
+                                    type="text"
+                                    value={data.application}
+                                    onChange={(e) => setData("application", e.target.value)}
+                                    placeholder="Mercedes L1218, L1518…"
+                                    className={`${ic} mt-2`}
+                                />
+                            )}
+                        </div>
                     </div>
 
-                    {/* Imágenes existentes */}
-                    {product.images?.length > 0 && (
+                    {/* ── Todos los items (solo lectura si hay múltiples) ── */}
+                    {product.items?.length > 1 && (
                         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-                            <h2 className="font-semibold text-gray-700 mb-3">Imágenes actuales</h2>
-                            <div className="flex flex-wrap gap-3">
-                                {product.images.map((img) => (
-                                    <img key={img.id} src={img.url ?? `/storage/${img.path}`} className="h-20 w-20 object-cover rounded-lg border border-gray-100" alt="" />
+                            <h2 className="font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                                <Icon icon="solar:list-outline" width={18} className="text-gray-400" />
+                                Todos los items ({product.items.length})
+                                <span className="text-xs font-normal text-gray-400">— solo lectura</span>
+                            </h2>
+                            <div className="space-y-2">
+                                {product.items.map((item, i) => (
+                                    <div key={item.id} className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm ${i === 0 ? "bg-[#25A7CA]/5 border border-[#25A7CA]/20" : "bg-gray-50"}`}>
+                                        {i === 0 && <span className="text-[10px] bg-[#25A7CA] text-white px-1.5 py-0.5 rounded-full font-medium shrink-0">Principal</span>}
+                                        <span className="font-mono font-medium text-gray-800 shrink-0">{item.oem_code ?? "—"}</span>
+                                        {item.application && <span className="text-gray-500 truncate">{item.application}</span>}
+                                        <div className="flex gap-1 ml-auto shrink-0">
+                                            {item.variants?.map((v) => (
+                                                <span key={v} className="text-[10px] bg-[#25A7CA]/10 text-[#25A7CA] px-1.5 py-0.5 rounded-full font-medium">{v}</span>
+                                            ))}
+                                        </div>
+                                    </div>
                                 ))}
                             </div>
                         </div>
                     )}
 
-                    {/* Config */}
+                    {/* ── Imágenes existentes ──────────────────────────────── */}
+                    {product.images?.length > 0 && (
+                        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+                            <h2 className="font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                                <Icon icon="solar:gallery-outline" width={18} className="text-[#25A7CA]" />
+                                Imágenes actuales
+                            </h2>
+                            <div className="flex flex-wrap gap-3">
+                                {product.images.map((img) => (
+                                    <img
+                                        key={img.id}
+                                        src={img.url}
+                                        className="h-20 w-20 object-cover rounded-xl border border-gray-100"
+                                        alt=""
+                                    />
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* ── Subir nuevas imágenes ─────────────────────────── */}
+                    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-3">
+                        <h2 className="font-semibold text-gray-700 flex items-center gap-2">
+                            <Icon icon="solar:upload-outline" width={18} className="text-[#25A7CA]" />
+                            Agregar imágenes
+                        </h2>
+                        <input
+                            type="file"
+                            multiple
+                            accept="image/*"
+                            onChange={(e) => setData("images", Array.from(e.target.files))}
+                            className="block w-full text-sm text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-medium file:bg-[#25A7CA]/10 file:text-[#25A7CA]"
+                        />
+                    </div>
+
+                    {/* ── Config ──────────────────────────────────────────── */}
                     <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
                         <label className="flex items-center gap-2 cursor-pointer">
-                            <input type="checkbox" checked={data.is_active} onChange={(e) => setData("is_active", e.target.checked)} className="w-4 h-4 rounded accent-[#25A7CA]" />
+                            <input
+                                type="checkbox"
+                                checked={data.is_active}
+                                onChange={(e) => setData("is_active", e.target.checked)}
+                                className="w-4 h-4 rounded accent-[#25A7CA]"
+                            />
                             <span className="text-sm font-medium text-gray-700">Producto activo</span>
                         </label>
                     </div>
 
                     <div className="flex justify-end gap-3">
-                        <button type="button" onClick={() => router.visit("/admin/products")} className="px-5 py-2.5 rounded-xl border border-gray-200 text-sm text-gray-700 hover:bg-gray-50">Cancelar</button>
+                        <button type="button" onClick={() => router.visit("/admin/products")} className="px-5 py-2.5 rounded-xl border border-gray-200 text-sm text-gray-700 hover:bg-gray-50">
+                            Cancelar
+                        </button>
                         <button type="submit" disabled={processing} className="px-5 py-2.5 rounded-xl bg-[#25A7CA] text-white text-sm font-medium hover:bg-[#1d96b8] disabled:opacity-60">
-                            {processing ? "Guardando..." : "Guardar Cambios"}
+                            {processing ? "Guardando…" : "Guardar Cambios"}
                         </button>
                     </div>
                 </form>

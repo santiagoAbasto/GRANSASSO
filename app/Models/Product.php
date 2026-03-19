@@ -3,33 +3,46 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
+/**
+ * Product — producto base del catálogo.
+ *
+ * Un producto está definido de forma ÚNICA por:
+ *   gearbox_id + figure + code_gs
+ *
+ * Cada producto tiene MÚLTIPLES ProductItems (uno por fila del Excel).
+ * Cada ProductItem representa un código OEM con sus datos de compatibilidad.
+ *
+ * @property int         $id
+ * @property int|null    $gearbox_id
+ * @property string|null $figure       Número de figura del catálogo
+ * @property string|null $code_gs      Código interno Gran Sasso
+ * @property array|null  $name         JSON multilingüe {"es":"...","en":"...","pt":"..."}
+ * @property array|null  $description  JSON multilingüe
+ * @property string|null $image        Imagen principal (storage path)
+ * @property string      $slug         URL-friendly identifier
+ * @property bool        $is_active
+ */
 class Product extends Model
 {
     protected $fillable = [
         'gearbox_id',
         'figure',
-        'cod_gs',
-        'code_oem',
-        'slug',
-        'nombre',
-        'referencia_original',
-        'referencias_adicionales',
+        'code_gs',
+        'name',
         'description',
         'image',
-        // Campos extra: datos que NO vienen del catálogo Excel
-        'nota_comercial',  // Visible al cliente: precios, promo, disponibilidad especial
-        'nota_interna',    // Nota privada para equipo de ventas / admin
+        'slug',
         'is_active',
     ];
 
     protected $casts = [
-        'nombre'                  => 'array',  // {"es":"...","en":"...","pt":"..."}
-        'description'             => 'array',  // {"es":"...","en":"...","pt":"..."}
-        'referencias_adicionales' => 'array',  // ["A6137W","TT-A-006137"]
-        'is_active'               => 'boolean',
+        'name'        => 'array',  // {"es":"...","en":"...","pt":"..."}
+        'description' => 'array',  // {"es":"...","en":"...","pt":"..."}
+        'is_active'   => 'boolean',
     ];
 
     /*
@@ -38,31 +51,39 @@ class Product extends Model
     |--------------------------------------------------------------------------
     */
 
-    public function gearbox()
+    public function gearbox(): BelongsTo
     {
         return $this->belongsTo(Gearbox::class);
     }
 
-    public function applications()
+    /**
+     * Items del producto (uno por fila del Excel).
+     * Aquí viven: oem_code, application, extra_data (G60, G85, etc.)
+     */
+    public function items(): HasMany
     {
-        return $this->belongsToMany(Application::class, 'product_applications');
+        return $this->hasMany(ProductItem::class);
     }
 
-    public function versions()
-    {
-        return $this->hasMany(ProductVersion::class);
-    }
-
-    public function documents()
+    /**
+     * Documentos técnicos propios del producto (fichas, manuales).
+     */
+    public function documents(): HasMany
     {
         return $this->hasMany(ProductDocument::class);
     }
 
+    /**
+     * Galería de imágenes del producto.
+     */
     public function images(): HasMany
     {
         return $this->hasMany(ProductImage::class)->orderBy('sort_order');
     }
 
+    /**
+     * Imagen principal del producto.
+     */
     public function primaryImage(): HasOne
     {
         return $this->hasOne(ProductImage::class)->where('is_primary', true);
@@ -70,57 +91,175 @@ class Product extends Model
 
     /*
     |--------------------------------------------------------------------------
-    | HELPERS MULTILENGUAJE
+    | HELPERS — Multilenguaje
     |--------------------------------------------------------------------------
     */
 
-    public function getNombre($locale = null): string
+    /**
+     * Nombre del producto en el idioma actual (o fallback a ES).
+     */
+    public function getName(?string $locale = null): ?string
     {
         $locale = $locale ?? app()->getLocale();
+        $name   = $this->name;
 
-        return $this->nombre[$locale]
-            ?? $this->nombre['es']
-            ?? '';
+        if (! $name) {
+            return null;
+        }
+
+        return $name[$locale] ?? $name['es'] ?? null;
     }
 
-    public function getDescription($locale = null): string
+    /**
+     * Alias de getName() — mantiene compatibilidad con vistas que usan getNombre().
+     */
+    public function getNombre(?string $locale = null): string
     {
-        $locale = $locale ?? app()->getLocale();
+        return $this->getName($locale) ?? '';
+    }
 
-        return $this->description[$locale]
-            ?? $this->description['es']
-            ?? '';
+    /**
+     * Descripción del producto en el idioma actual (o fallback a ES).
+     */
+    public function getDescription(?string $locale = null): ?string
+    {
+        $locale      = $locale ?? app()->getLocale();
+        $description = $this->description;
+
+        if (! $description) {
+            return null;
+        }
+
+        return $description[$locale] ?? $description['es'] ?? null;
     }
 
     /*
     |--------------------------------------------------------------------------
-    | HELPERS
+    | HELPERS — Accesores de compatibilidad con vistas anteriores
+    |
+    | Las vistas actualmente referencian $product->code_oem,
+    | $product->referencia_original, etc.
+    | Estos accesores los computan dinámicamente desde items()
+    | para que las vistas existentes no rompan durante la transición.
     |--------------------------------------------------------------------------
     */
 
-    public function hasVersion($version): bool
+    /**
+     * Primer código OEM del producto (del primer item).
+     * Acceso: $product->code_oem
+     */
+    public function getCodeOemAttribute(): ?string
     {
-        return $this->versions()
-            ->where('version', $version)
-            ->where('is_available', true)
-            ->exists();
+        // Usa la relación si ya fue cargada (eager loading), sino query puntual
+        if ($this->relationLoaded('items')) {
+            return $this->items->first()?->oem_code;
+        }
+
+        return $this->items()->value('oem_code');
     }
 
+    /**
+     * Referencia original del primer item.
+     * Acceso: $product->referencia_original
+     */
+    public function getReferenciaOriginalAttribute(): ?string
+    {
+        if ($this->relationLoaded('items')) {
+            $item = $this->items->first();
+        } else {
+            $item = $this->items()->first();
+        }
+
+        return $item?->getReferenciaOriginal();
+    }
+
+    /**
+     * Referencias adicionales unificadas de todos los items.
+     * Acceso: $product->referencias_adicionales
+     *
+     * @return string[]
+     */
+    public function getReferenciasAdicionalesAttribute(): array
+    {
+        $items = $this->relationLoaded('items')
+            ? $this->items
+            : $this->items()->get();
+
+        return $items
+            ->flatMap(fn ($item) => $item->getReferenciasAdicionales())
+            ->filter()
+            ->unique()
+            ->values()
+            ->toArray();
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | HELPERS — Variantes / Compatibilidad
+    |--------------------------------------------------------------------------
+    */
+
+    /**
+     * Devuelve todas las variantes/aplicaciones disponibles para este producto,
+     * deduplicadas de todos sus items.
+     *
+     * Con la nueva arquitectura, las variantes se leen del campo `application`
+     * de cada ProductItem (ej: "G60", "G85"), no de extra_data.
+     *
+     * @return string[]
+     */
+    public function getAvailableVariants(): array
+    {
+        $items = $this->relationLoaded('items')
+            ? $this->items
+            : $this->items()->get();
+
+        return $items
+            ->pluck('application')
+            ->filter()               // quita nulls (items genéricos sin variante)
+            ->unique()
+            ->values()
+            ->toArray();
+    }
+
+    /**
+     * ¿Algún item de este producto es compatible con la variante dada?
+     */
+    public function hasVariant(string $variant): bool
+    {
+        return in_array($variant, $this->getAvailableVariants(), true);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | HELPERS — Documentación
+    |--------------------------------------------------------------------------
+    */
+
+    /**
+     * Ficha técnica: primero busca en el propio producto,
+     * luego en la caja de cambios.
+     */
     public function getTechnicalSheet()
     {
-        // 1. Documento propio
-        $doc = $this->documents()
-            ->where('is_main', true)
-            ->first();
+        $doc = $this->documents()->where('is_main', true)->first();
 
-        if ($doc) return $doc;
+        if ($doc) {
+            return $doc;
+        }
 
-        // 2. Documento de la caja
-        $doc = $this->gearbox?->getMainDocument();
-
-        if ($doc) return $doc;
-
-        // 3. null → generar automático
-        return null;
+        return $this->gearbox?->getMainDocument();
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | SCOPES
+    |--------------------------------------------------------------------------
+    */
+
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', true);
+    }
+
 }
