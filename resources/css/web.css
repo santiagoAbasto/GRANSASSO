@@ -29,6 +29,10 @@
 @import "./web/home/calidad.css";
 @import "./web/home/news.css";
 
+/* EMPRESA */
+
+@import "./web/empresa/empresa.css";
+
 /* TOAST */
 
 @import "./layout/toast.css";

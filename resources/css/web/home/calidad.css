@@ -1,19 +1,18 @@
 /* =============================================
    CALIDAD
-   Figma: banner full-width con overlay azul oscuro
-   Izquierda: título + texto + botón outline blanco
-   Derecha: badge ISO
-   Gap título→texto: 28px · gap texto→botón: 28px
-   Texto width: 751px · font 16px · line-height 30px
+   Sección: full-width · height 465px · background-size cover (zoom OK)
+   Overlay: rgba(6, 22, 58, 0.55)
+   Inner: centrado en 1224px · izq: título + texto + botón · der: badge ISO
 ============================================= */
 
 .quality-section {
     position: relative;
     width: 100%;
-    min-height: 465px;
-    background-size: 100% auto;
-    background-position: center top;
+    height: 465px;
+    background-size: cover;
+    background-position: center;
     background-repeat: no-repeat;
+    overflow: hidden;
 }
 
 .quality-section::before {
@@ -21,17 +20,22 @@
     position: absolute;
     inset: 0;
     background: rgba(6, 22, 58, 0.55);
+    z-index: 1;
 }
 
 
-/* ── Inner ──────────────────────────────────────────────────────── */
+/* ── Inner centrado en 1224px ── */
 
 .quality-section__inner {
-    position: relative;
-    z-index: 1;
-    max-width: 1366px;
-    margin: 0 auto;
-    padding: 80px 71px;
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    /* centrado horizontal */
+    width: 100%;
+    max-width: 1224px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 80px 0;
     display: flex;
     align-items: center;
     gap: 40px;
@@ -129,10 +133,15 @@
 
 @media (max-width: 1024px) {
     .quality-section {
-        background-size: cover;
-        background-position: center;
+        height: auto;
+        min-height: 465px;
     }
     .quality-section__inner {
+        position: relative;
+        inset: unset;
+        left: unset;
+        transform: none;
+        margin: 0 auto;
         padding: 64px 32px;
         gap: 32px;
     }
@@ -142,10 +151,6 @@
 }
 
 @media (max-width: 768px) {
-    .quality-section {
-        background-size: cover;
-        background-position: center;
-    }
     .quality-section__inner {
         flex-direction: column;
         padding: 48px 24px;

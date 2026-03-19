@@ -1,0 +1,359 @@
+/* =============================================
+   EMPRESA PAGE
+   Banner: full-width · 521px total (400px visible + 121px bajo header)
+   Quiénes somos: text 594px izq · imagen der
+   Por qué elegirnos: bg #F5F5F5 · 3 cards 392×392px
+============================================= */
+
+
+/* ══════════════════════════════════════════
+   BANNER — mismo comportamiento que .hero
+══════════════════════════════════════════ */
+
+.empresa-banner {
+    position: relative;
+    width: 100%;
+    height: 521px;      /* 400px visibles + 121px debajo del header sticky */
+    margin-top: -121px; /* sube detrás del header, igual que .hero */
+    overflow: hidden;
+}
+
+
+/* ── Slides ── */
+
+.empresa-banner__slide {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    opacity: 0;
+    transition: opacity 0.6s ease;
+}
+
+.empresa-banner__slide.active {
+    opacity: 1;
+}
+
+
+/* ── Overlay oscuro ── */
+
+.empresa-banner__overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(6, 22, 58, 0.60);
+    z-index: 1;
+}
+
+
+/* ── Inner: ocupa todo el banner, empuja contenido al fondo ── */
+
+.empresa-banner__inner {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+}
+
+
+/* ── Centro: centrado en 1366px (= .container), alineado izquierda ── */
+
+.empresa-banner__center {
+    width: 100%;
+    max-width: 1366px;
+    margin: 0 auto;
+    padding: 0 71px 48px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+
+/* ── Título de página ── */
+
+.empresa-banner__title {
+    color: var(--Blanco, #FFF);
+    font-family: "Open Sans", sans-serif;
+    font-size: 40px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: normal;
+    margin-bottom: 8px;
+}
+
+
+/* ── Breadcrumb ── */
+
+.empresa-banner__breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.empresa-banner__bc-home {
+    color: var(--Blanco, #FFF);
+    font-family: "Open Sans", sans-serif;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: normal;
+    text-decoration: none;
+}
+
+.empresa-banner__bc-home:hover {
+    text-decoration: underline;
+}
+
+.empresa-banner__bc-sep {
+    flex-shrink: 0;
+    display: block;
+}
+
+.empresa-banner__bc-current {
+    color: var(--Blanco, #FFF);
+    font-family: "Open Sans", sans-serif;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 300;
+    line-height: normal;
+}
+
+
+/* ── Slider dots ── */
+
+.empresa-banner__dots {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.empresa-banner__dot {
+    display: block;
+    width: 37px;
+    height: 5px;
+    border-radius: 2.5px;
+    background: #ffffff;
+    opacity: 0.5;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    transition: opacity 0.3s ease;
+    flex-shrink: 0;
+}
+
+.empresa-banner__dot.active {
+    opacity: 1;
+}
+
+.empresa-banner__dot:hover {
+    opacity: 0.8;
+}
+
+
+/* ══════════════════════════════════════════
+   QUIÉNES SOMOS
+══════════════════════════════════════════ */
+
+.empresa-about {
+    background: #FFF;
+    padding: 80px 0;
+}
+
+.empresa-about__grid {
+    display: flex;
+    gap: 48px;
+    align-items: flex-start;
+}
+
+
+/* ── Columna de texto (izquierda) ── */
+
+.empresa-about__text-col {
+    width: 594px;
+    flex-shrink: 0;
+}
+
+.empresa-about__title {
+    color: var(--Gris, #1D1E20);
+    font-family: "Open Sans", sans-serif;
+    font-size: 32px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: normal;
+    margin-bottom: 32px;
+}
+
+.empresa-about__text {
+    color: var(--Gris, #1D1E20);
+    font-family: "Open Sans", sans-serif;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 150%;
+}
+
+.empresa-about__text + .empresa-about__text {
+    margin-top: 16px;
+}
+
+
+/* ── Columna de imagen (derecha) ── */
+
+.empresa-about__img-col {
+    flex: 1;
+    min-width: 0;
+}
+
+.empresa-about__img {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 10px;
+    object-fit: cover;
+}
+
+
+/* ══════════════════════════════════════════
+   POR QUÉ ELEGIRNOS
+══════════════════════════════════════════ */
+
+.empresa-why {
+    background: #F5F5F5;
+    padding: 64px 0 72px;
+}
+
+.empresa-why__title {
+    color: var(--Gris, #1D1E20);
+    font-family: "Open Sans", sans-serif;
+    font-size: 32px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: normal;
+    margin-bottom: 32px;
+}
+
+.empresa-why__grid {
+    display: flex;
+    gap: 24px;
+}
+
+
+/* ── Cards ── */
+
+.empresa-card {
+    width: 392px;
+    min-height: 392px;
+    flex-shrink: 0;
+    background: #FFF;
+    border-radius: 10px;
+    padding: 40px 32px 48px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.empresa-card__icon {
+    flex-shrink: 0;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+}
+
+.empresa-card__title {
+    color: var(--Gris, #1D1E20);
+    font-family: "Open Sans", sans-serif;
+    font-size: 24px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: normal;
+    margin-bottom: 16px;
+}
+
+.empresa-card__text {
+    color: var(--Gris, #1D1E20);
+    font-family: "Open Sans", sans-serif;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 150%;
+}
+
+
+/* ══════════════════════════════════════════
+   RESPONSIVE
+══════════════════════════════════════════ */
+
+@media (max-width: 1280px) {
+    .empresa-banner__center {
+        padding: 0 48px 48px;
+    }
+}
+
+@media (max-width: 1024px) {
+    .empresa-about__text-col {
+        width: auto;
+        flex: 1;
+    }
+
+    .empresa-why__grid {
+        flex-wrap: wrap;
+    }
+
+    .empresa-card {
+        width: calc(50% - 12px);
+        flex-shrink: 0;
+    }
+}
+
+@media (max-width: 768px) {
+    .empresa-banner {
+        height: 392px;      /* 320px visible + 72px header mobile */
+        margin-top: -72px;
+    }
+
+    .empresa-banner__center {
+        padding: 0 24px 32px;
+        gap: 16px;
+    }
+
+    .empresa-banner__title {
+        font-size: 28px;
+    }
+
+    .empresa-about {
+        padding: 48px 0;
+    }
+
+    .empresa-about__grid {
+        flex-direction: column;
+        gap: 32px;
+    }
+
+    .empresa-about__text-col {
+        width: 100%;
+    }
+
+    .empresa-about__title {
+        font-size: 24px;
+    }
+
+    .empresa-why {
+        padding: 48px 0 56px;
+    }
+
+    .empresa-why__title {
+        font-size: 24px;
+    }
+
+    .empresa-why__grid {
+        flex-direction: column;
+    }
+
+    .empresa-card {
+        width: 100%;
+        min-height: unset;
+    }
+}

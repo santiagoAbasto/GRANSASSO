@@ -6,7 +6,7 @@ export default function GuestLayout({ children }) {
             <div className="gs-auth__brand">
                 <div className="gs-auth__brand-inner">
                     <img
-                        src="/storage/images/logos/logo-white.png"
+                        src="/storage/images/logos/logo.svg"
                         alt="Gran Sasso"
                         className="gs-auth__logo"
                     />

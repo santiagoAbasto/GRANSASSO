@@ -18,39 +18,33 @@ export default function Sidebar() {
             title: "Home",
             icon: "solar:home-smile-outline",
             children: [
-                { title: "Slider",        icon: "solar:gallery-wide-outline",      url: "/admin/hero" },
-                { title: "Nosotros Home", icon: "solar:info-circle-outline",       url: "/admin/home-about" },
-                { title: "Calidad Home",  icon: "solar:medal-ribbons-star-outline", url: "/admin/home-calidad" },
+                { title: "Sliders",       icon: "solar:gallery-wide-outline",      url: "/admin/hero" },
+                { title: "About Home",   icon: "solar:info-circle-outline",       url: "/admin/home-about" },
+                { title: "Calidad Home", icon: "solar:medal-ribbons-star-outline", url: "/admin/home-calidad" },
             ],
         },
         {
-            title: "Nosotros",
+            title: "Empresa",
             icon: "solar:users-group-rounded-outline",
             children: [
-                { title: "Contenido", icon: "solar:document-text-outline", url: "/admin/about" },
+                { title: "Contenido", icon: "solar:document-text-outline", url: "/admin/empresa" },
+            ],
+        },
+        {
+            title: "Calidad",
+            icon: "solar:medal-ribbons-star-outline",
+            children: [
+                { title: "Contenido", icon: "solar:document-text-outline", url: "/admin/calidad" },
             ],
         },
         {
             title: "Productos",
             icon: "solar:box-outline",
             children: [
-                { title: "Productos",      icon: "solar:box-outline",    url: "/admin/products" },
-                { title: "Categorías",     icon: "solar:folder-outline", url: "/admin/categories" },
-                { title: "Subcategorías",  icon: "solar:folder-open-outline", url: "/admin/subcategories" },
-            ],
-        },
-        {
-            title: "Industrias",
-            icon: "solar:buildings-outline",
-            children: [
-                { title: "Sectores", icon: "solar:buildings-outline", url: "/admin/sectors" },
-            ],
-        },
-        {
-            title: "Novedades",
-            icon: "solar:document-text-outline",
-            children: [
-                { title: "Publicaciones", icon: "solar:document-text-outline", url: "/admin/posts" },
+                { title: "Productos",       icon: "solar:box-outline",              url: "/admin/products" },
+                { title: "Marcas",          icon: "solar:tag-outline",              url: "/admin/brands" },
+                { title: "Cajas de cambio", icon: "solar:settings-minimalistic-outline", url: "/admin/gearboxes" },
+                { title: "Importar Excel",  icon: "solar:import-outline",           url: "/admin/import" },
             ],
         },
         {
@@ -72,8 +66,8 @@ export default function Sidebar() {
             title: "Extras",
             icon: "solar:widget-add-outline",
             children: [
-                { title: "Metadatos SEO", icon: "solar:tag-outline",              url: "/admin/seo" },
-                { title: "Usuarios Admin", icon: "solar:users-group-two-rounded-outline", url: "/admin/users" },
+                { title: "Metadatos SEO",   icon: "solar:tag-outline",                       url: "/admin/seo" },
+                { title: "Usuarios Admin",  icon: "solar:users-group-two-rounded-outline",    url: "/admin/users" },
             ],
         },
     ];

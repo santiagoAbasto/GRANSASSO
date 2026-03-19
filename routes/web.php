@@ -9,10 +9,17 @@ use App\Http\Controllers\Web\NewsletterController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\BrandController;
 use App\Http\Controllers\Admin\GearboxController;
+use App\Http\Controllers\Admin\HeroController;
+use App\Http\Controllers\Admin\CmsController;
+use App\Http\Controllers\Admin\ContactMessageController;
+use App\Http\Controllers\Admin\NewsletterAdminController;
+use App\Http\Controllers\Admin\SeoController;
+use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\Admin\HomeCalidadController;
 use App\Http\Controllers\Admin\ImportController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Web\ContactController;
 
 /*
 |--------------------------------------------------------------------------
@@ -33,9 +40,9 @@ Route::prefix('productos')->name('products.')->group(function () {
     Route::get('/{brand:slug}/{gearbox:slug}/{product}', [ProductController::class, 'show'])->name('show');
 });
 
-// Stubs — se desarrollan en iteraciones posteriores
-Route::view('/calidad',   'web.about.index')->name('calidad');
-Route::view('/contacto',  'web.contact.index')->name('contact.index');
+Route::view('/calidad',  'web.about.index')->name('calidad');
+Route::view('/contacto', 'web.contact.index')->name('contact.index');
+Route::post('/contacto', [ContactController::class, 'store'])->name('contact.store');
 
 // Idioma
 Route::get('/lang/{locale}', function (string $locale) {
@@ -68,10 +75,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
         // Marcas
-        Route::get('/brands',           [BrandController::class, 'index'])->name('brands.index');
-        Route::post('/brands',          [BrandController::class, 'store'])->name('brands.store');
-        Route::put('/brands/{brand}',   [BrandController::class, 'update'])->name('brands.update');
-        Route::delete('/brands/{brand}',[BrandController::class, 'destroy'])->name('brands.destroy');
+        Route::get('/brands',                            [BrandController::class, 'index'])->name('brands.index');
+        Route::post('/brands',                           [BrandController::class, 'store'])->name('brands.store');
+        Route::match(['POST','PUT'], '/brands/{brand}',  [BrandController::class, 'update'])->name('brands.update');
+        Route::delete('/brands/{brand}',                 [BrandController::class, 'destroy'])->name('brands.destroy');
 
         // Cajas de cambios
         Route::get('/gearboxes',              [GearboxController::class, 'index'])->name('gearboxes.index');
@@ -96,6 +103,56 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // Importación masiva desde Excel
         Route::get('/import',          [ImportController::class, 'index'])->name('import.index');
         Route::post('/import/products',[ImportController::class, 'products'])->name('import.products');
+
+        // ── CMS: Hero / Slider ────────────────────────────────────────────
+        Route::get('/hero',                    [HeroController::class, 'index'])->name('hero.index');
+        Route::get('/hero/create',             [HeroController::class, 'create'])->name('hero.create');
+        Route::post('/hero',                   [HeroController::class, 'store'])->name('hero.store');
+        Route::get('/hero/{hero}/edit',        [HeroController::class, 'edit'])->name('hero.edit');
+        Route::put('/hero/{hero}',             [HeroController::class, 'update'])->name('hero.update');
+        Route::delete('/hero/{hero}',          [HeroController::class, 'destroy'])->name('hero.destroy');
+
+        // ── CMS: Home → About ─────────────────────────────────────────────
+        Route::get('/home-about',              [CmsController::class, 'homeAbout'])->name('home-about.index');
+
+        // ── CMS: Empresa ──────────────────────────────────────────────────
+        Route::get('/empresa',                 [CmsController::class, 'empresa'])->name('cms.empresa');
+
+        // ── CMS: Calidad ──────────────────────────────────────────────────
+        Route::get('/calidad',                 [CmsController::class, 'calidad'])->name('cms.calidad');
+
+        // ── CMS: Contacto ─────────────────────────────────────────────────
+        Route::get('/contacto',                [CmsController::class, 'contacto'])->name('cms.contacto');
+        Route::post('/contacto/info',          [CmsController::class, 'updateContactInfo'])->name('cms.contacto.info');
+
+        // ── Secciones genéricas ───────────────────────────────────────────
+        Route::post('/pages/{page}/sections',                    [CmsController::class, 'createSection'])->name('sections.create');
+        Route::match(['POST', 'PUT'], '/sections/{section}',  [CmsController::class, 'updateSection'])->name('sections.update');
+        Route::delete('/sections/{section}',                  [CmsController::class, 'destroySection'])->name('sections.destroy');
+
+        // ── Imágenes de sección (banner Empresa, galería, etc.) ──────────
+        Route::post('/sections/{section}/images',              [CmsController::class, 'addSectionImage'])->name('section-images.store');
+        Route::delete('/section-images/{image}',              [CmsController::class, 'destroySectionImage'])->name('section-images.destroy');
+
+        // ── Mensajes de Contacto ──────────────────────────────────────────
+        Route::get('/contact-messages',               [ContactMessageController::class, 'index'])->name('contact-messages.index');
+        Route::get('/contact-messages/{contactMessage}', [ContactMessageController::class, 'show'])->name('contact-messages.show');
+        Route::delete('/contact-messages/{contactMessage}', [ContactMessageController::class, 'destroy'])->name('contact-messages.destroy');
+
+        // ── Newsletter ────────────────────────────────────────────────────
+        Route::get('/newsletter',              [NewsletterAdminController::class, 'index'])->name('newsletter.index');
+        Route::post('/newsletter/send',         [NewsletterAdminController::class, 'send'])->name('newsletter.send');
+        Route::delete('/newsletter/{newsletterSubscriber}', [NewsletterAdminController::class, 'destroy'])->name('newsletter.destroy');
+
+        // ── SEO ───────────────────────────────────────────────────────────
+        Route::get('/seo',                     [SeoController::class, 'index'])->name('seo.index');
+        Route::post('/seo',                    [SeoController::class, 'upsert'])->name('seo.upsert');
+
+        // ── Usuarios Admin ────────────────────────────────────────────────
+        Route::get('/users',                   [UserController::class, 'index'])->name('users.index');
+        Route::post('/users',                  [UserController::class, 'store'])->name('users.store');
+        Route::put('/users/{user}',            [UserController::class, 'update'])->name('users.update');
+        Route::delete('/users/{user}',         [UserController::class, 'destroy'])->name('users.destroy');
 
     });
 

@@ -23,9 +23,7 @@ $about = $page?->sections
                 {{ $about->getTitle() }}
             </h2>
 
-            @foreach(array_filter(array_map('trim', explode("\n", $about->getContent()))) as $paragraph)
-            <p class="about-section__text">{{ $paragraph }}</p>
-            @endforeach
+            <div class="about-section__text">{!! $about->getContent() !!}</div>
 
             @if($about->getButtonText())
             <a href="{{ $about->button_link ?? '#' }}" class="about-section__btn">

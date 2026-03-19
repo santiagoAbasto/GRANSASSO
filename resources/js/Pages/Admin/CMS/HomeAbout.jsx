@@ -1,23 +1,73 @@
 import AdminLayout from "@/Layouts/AdminLayout";
-import { useForm, router } from "@inertiajs/react";
+import { useForm } from "@inertiajs/react";
 import { Icon } from "@iconify/react";
-
 import ImageUploadField from "@/Components/Admin/ImageUploadField";
 
-export default function HomeAbout({ page, section }) {
+const LANGS = ["es", "en", "pt"];
 
+function LangBadge({ lang }) {
+    const colors = { es: "bg-red-100 text-red-600", en: "bg-blue-100 text-blue-600", pt: "bg-green-100 text-green-600" };
+    return (
+        <span className={`inline-block text-[10px] font-bold px-1.5 py-0.5 rounded uppercase leading-none ${colors[lang]}`}>
+            {lang}
+        </span>
+    );
+}
+
+function MultiInput({ label, field, data, setData, placeholder = "", type = "input" }) {
+    return (
+        <div>
+            <label className="block text-sm font-medium text-gray-600 mb-2">{label}</label>
+            <div className={type === "textarea" ? "space-y-2" : "grid grid-cols-3 gap-3"}>
+                {LANGS.map((lang) => (
+                    <div key={lang} className="flex flex-col gap-1">
+                        <LangBadge lang={lang} />
+                        {type === "textarea" ? (
+                            <textarea
+                                value={data[`${field}_${lang}`]}
+                                onChange={(e) => setData(`${field}_${lang}`, e.target.value)}
+                                rows={4}
+                                placeholder={placeholder}
+                                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#25A7CA]/30 resize-y"
+                            />
+                        ) : (
+                            <input
+                                type="text"
+                                value={data[`${field}_${lang}`]}
+                                onChange={(e) => setData(`${field}_${lang}`, e.target.value)}
+                                placeholder={placeholder}
+                                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#25A7CA]/30"
+                            />
+                        )}
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+}
+
+export default function HomeAbout({ page, section }) {
     const isNew = !section;
 
     const { data, setData, post, processing, errors } = useForm({
-        _method:      isNew ? undefined : "PUT",
-        type:         "about",
-        title:        section?.title       || "",
-        content:      section?.content     || "",
-        button_text:  section?.button_text || "",
-        button_link:  section?.button_link || "",
-        is_active:    section?.is_active   ?? true,
-        order:        section?.order       ?? 0,
-        image:        null,
+        _method:         isNew ? undefined : "PUT",
+        type:            "about",
+        title_es:        section?.title_es        ?? "",
+        title_en:        section?.title_en        ?? "",
+        title_pt:        section?.title_pt        ?? "",
+        subtitle_es:     section?.subtitle_es     ?? "",
+        subtitle_en:     section?.subtitle_en     ?? "",
+        subtitle_pt:     section?.subtitle_pt     ?? "",
+        content_es:      section?.content_es      ?? "",
+        content_en:      section?.content_en      ?? "",
+        content_pt:      section?.content_pt      ?? "",
+        button_text_es:  section?.button_text_es  ?? "",
+        button_text_en:  section?.button_text_en  ?? "",
+        button_text_pt:  section?.button_text_pt  ?? "",
+        button_link:     section?.button_link     ?? "",
+        is_active:       section?.is_active       ?? true,
+        order:           section?.order           ?? "A",
+        image:           null,
     });
 
     const submit = (e) => {
@@ -30,22 +80,18 @@ export default function HomeAbout({ page, section }) {
 
     return (
         <AdminLayout>
-            <div className="max-w-2xl">
-
-                {/* HEADER */}
+            <div className="max-w-3xl">
                 <div className="mb-6">
-                    <h1 className="text-2xl font-bold text-gray-800">Home – About</h1>
+                    <h1 className="text-2xl font-bold text-gray-800">Home – Bloque "Nosotros"</h1>
                     <p className="text-sm text-gray-500 mt-1">
                         Edita el bloque "Sobre nosotros" que aparece en la página de inicio.
                     </p>
                 </div>
 
-                {/* FORM */}
-                <form onSubmit={submit} className="bg-white rounded-xl border border-gray-100 shadow-sm p-6 space-y-5">
-
+                <form onSubmit={submit} className="space-y-6">
                     {/* Imagen */}
-                    <div>
-                        <label className="block text-xs font-medium text-gray-500 mb-2">Imagen</label>
+                    <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
+                        <h2 className="font-semibold text-gray-700 mb-4">Imagen</h2>
                         <ImageUploadField
                             currentUrl={section?.image_url}
                             onChange={(f) => setData("image", f)}
@@ -54,77 +100,61 @@ export default function HomeAbout({ page, section }) {
                         />
                     </div>
 
-                    <hr className="border-gray-100" />
+                    {/* Contenido multilenguaje */}
+                    <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6 space-y-5">
+                        <h2 className="font-semibold text-gray-700">Contenido multilenguaje</h2>
 
-                    {/* Título */}
-                    <div>
-                        <label className="block text-xs font-medium text-gray-500 mb-1">Título</label>
-                        <input
-                            type="text"
-                            value={data.title}
-                            onChange={(e) => setData("title", e.target.value)}
-                            placeholder="Ej: Sobre Gran Sasso"
-                            className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#25A7CA]/30"
+                        <MultiInput label="Título" field="title" data={data} setData={setData} placeholder="Ej: Sobre Gran Sasso" />
+                        <MultiInput label="Subtítulo" field="subtitle" data={data} setData={setData} placeholder="Ej: Líderes en repuestos" />
+                        <MultiInput
+                            label="Contenido (cada línea es un párrafo)"
+                            field="content"
+                            data={data}
+                            setData={setData}
+                            placeholder="Escribí el texto..."
+                            type="textarea"
                         />
-                        {errors.title && <p className="text-xs text-red-500 mt-1">{errors.title}</p>}
+                        <MultiInput label="Texto del botón" field="button_text" data={data} setData={setData} placeholder="Ej: Más información" />
                     </div>
 
-                    {/* Contenido */}
-                    <div>
-                        <label className="block text-xs font-medium text-gray-500 mb-1">
-                            Contenido
-                            <span className="text-gray-400 font-normal ml-1">(cada línea es un párrafo)</span>
-                        </label>
-                        <textarea
-                            value={data.content}
-                            onChange={(e) => setData("content", e.target.value)}
-                            rows={5}
-                            placeholder="Escribe el texto que aparece junto a la imagen..."
-                            className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#25A7CA]/30 resize-y"
-                        />
-                        {errors.content && <p className="text-xs text-red-500 mt-1">{errors.content}</p>}
-                    </div>
-
-                    <hr className="border-gray-100" />
-
-                    {/* Botón */}
-                    <div className="grid grid-cols-2 gap-4">
+                    {/* Campos fijos */}
+                    <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6 space-y-4">
+                        <h2 className="font-semibold text-gray-700">Configuración</h2>
                         <div>
-                            <label className="block text-xs font-medium text-gray-500 mb-1">Texto del botón</label>
-                            <input
-                                type="text"
-                                value={data.button_text}
-                                onChange={(e) => setData("button_text", e.target.value)}
-                                placeholder="Ej: Más información"
-                                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#25A7CA]/30"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-xs font-medium text-gray-500 mb-1">URL del botón</label>
+                            <label className="block text-sm font-medium text-gray-600 mb-1">URL del botón</label>
                             <input
                                 type="text"
                                 value={data.button_link}
                                 onChange={(e) => setData("button_link", e.target.value)}
-                                placeholder="/nosotros"
+                                placeholder="/empresa"
                                 className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#25A7CA]/30"
                             />
                         </div>
+                        <div className="flex items-center gap-6">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-600 mb-1">Orden</label>
+                                <input
+                                    type="text"
+                                    maxLength={20}
+                                    value={data.order}
+                                    onChange={(e) => setData("order", e.target.value.toUpperCase())}
+                                    placeholder="A"
+                                    className="w-24 border border-gray-200 rounded-lg px-3 py-2 text-sm font-mono uppercase focus:outline-none focus:ring-2 focus:ring-[#25A7CA]/30"
+                                />
+                            </div>
+                            <label className="flex items-center gap-2 cursor-pointer mt-5">
+                                <input
+                                    type="checkbox"
+                                    checked={data.is_active}
+                                    onChange={(e) => setData("is_active", e.target.checked)}
+                                    className="w-4 h-4 rounded accent-[#25A7CA]"
+                                />
+                                <span className="text-sm text-gray-700">Sección activa</span>
+                            </label>
+                        </div>
                     </div>
 
-                    <hr className="border-gray-100" />
-
-                    {/* Footer del form */}
-                    <div className="flex items-center justify-between">
-                        <label className="flex items-center gap-2 cursor-pointer">
-                            <input
-                                type="checkbox"
-                                checked={data.is_active}
-                                onChange={(e) => setData("is_active", e.target.checked)}
-                                className="w-4 h-4 rounded accent-[#25A7CA]"
-                            />
-                            <span className="text-sm text-gray-700">Sección activa</span>
-                        </label>
-
+                    <div className="flex justify-end">
                         <button
                             type="submit"
                             disabled={processing}
@@ -134,7 +164,6 @@ export default function HomeAbout({ page, section }) {
                             {processing ? "Guardando..." : "Guardar cambios"}
                         </button>
                     </div>
-
                 </form>
             </div>
         </AdminLayout>

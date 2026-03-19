@@ -23,6 +23,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             SiteSettingSeeder::class,
             HomeSeeder::class,
+            EmpresaSeeder::class,
             BrandSeeder::class,
             GearboxSeeder::class,
         ]);

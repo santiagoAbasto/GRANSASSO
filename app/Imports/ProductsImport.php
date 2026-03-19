@@ -29,10 +29,16 @@ class ProductsImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
      * Las columnas de variantes son dinámicas (G60, G85, G3/36, etc.)
      * y se detectan automáticamente como todo lo que no sea una columna conocida.
      */
+    /**
+     * Columnas del catálogo base (no se interpretan como variantes).
+     * nota_comercial y nota_interna son campos EXTRA (no vienen del catálogo oficial).
+     */
     private const KNOWN_COLUMNS = [
         'marca', 'modelo_caja', 'modelos_vehiculo', 'fig', 'cod_gs',
         'codigo_oem', 'nombre', 'descripcion', 'referencia_original',
         'referencias_adicionales', 'aplicaciones',
+        // Campos extra opcionales — no son del catálogo de fábrica
+        'nota_comercial', 'nota_interna',
     ];
 
     public function collection(Collection $rows): void
@@ -44,6 +50,19 @@ class ProductsImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
                 $this->errors[] = "Fila " . ($rowIndex + 2) . ": " . $e->getMessage();
             }
         }
+    }
+
+    private function generateSlug(string $base): string
+    {
+        $slug      = Str::slug($base);
+        $candidate = $slug;
+        $i         = 2;
+
+        while (Product::where('slug', $candidate)->exists()) {
+            $candidate = $slug . '-' . $i++;
+        }
+
+        return $candidate;
     }
 
     private function processRow(array $row, int $line): void
@@ -92,17 +111,25 @@ class ProductsImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
         $descEs   = trim($row['descripcion'] ?? '');
         $refs     = trim($row['referencias_adicionales'] ?? '');
 
+        // Generar slug único basado en code_oem
+        $existingProduct = Product::where('code_oem', $codeOem)->first();
+        $slug = $existingProduct?->slug ?? $this->generateSlug($codeOem);
+
         $productData = [
             'gearbox_id'              => $gearbox->id,
             'figure'                  => trim($row['fig'] ?? '') ?: null,
             'cod_gs'                  => trim($row['cod_gs'] ?? '') ?: null,
             'code_oem'                => $codeOem,
+            'slug'                    => $slug,
             'nombre'                  => ['es' => $nombreEs ?: null, 'en' => null, 'pt' => null],
             'referencia_original'     => trim($row['referencia_original'] ?? '') ?: null,
             'referencias_adicionales' => $refs
                 ? array_values(array_filter(array_map('trim', explode(';', $refs))))
                 : null,
             'description'             => ['es' => $descEs ?: null, 'en' => null, 'pt' => null],
+            // Campos extra (opcionales en el Excel — datos no provenientes del catálogo):
+            'nota_comercial'          => trim($row['nota_comercial'] ?? '') ?: ($existingProduct?->nota_comercial),
+            'nota_interna'            => trim($row['nota_interna'] ?? '') ?: ($existingProduct?->nota_interna),
             'is_active'               => true,
         ];
 

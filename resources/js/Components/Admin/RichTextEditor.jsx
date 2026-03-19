@@ -22,6 +22,30 @@ export default function RichTextEditor({ value = "", onChange, placeholder = "Es
         }
     }, [onChange]);
 
+    const cleanHtml = (html) => {
+        const tmp = document.createElement('div');
+        tmp.innerHTML = html;
+        tmp.querySelectorAll('*').forEach((el) => {
+            // Remove all data-* attributes
+            [...el.attributes].forEach((attr) => {
+                if (attr.name.startsWith('data-')) el.removeAttribute(attr.name);
+            });
+            // Remove empty style attributes
+            if (el.getAttribute('style') === '' || el.getAttribute('style')?.trim() === '') {
+                el.removeAttribute('style');
+            }
+        });
+        return tmp.innerHTML;
+    };
+
+    const handlePaste = useCallback((e) => {
+        e.preventDefault();
+        const html = e.clipboardData.getData('text/html');
+        const text = e.clipboardData.getData('text/plain');
+        const clean = html ? cleanHtml(html) : text.replace(/\n/g, '<br>');
+        document.execCommand('insertHTML', false, clean);
+    }, []);
+
     const insertLink = () => {
         const url = window.prompt("URL del enlace:");
         if (url) exec("createLink", url);
@@ -97,6 +121,7 @@ export default function RichTextEditor({ value = "", onChange, placeholder = "Es
                 contentEditable
                 suppressContentEditableWarning
                 onInput={handleInput}
+                onPaste={handlePaste}
                 data-placeholder={placeholder}
                 className="min-h-[200px] p-4 text-sm text-gray-800 focus:outline-none prose prose-sm max-w-none
                     [&[data-placeholder]:empty]:before:content-[attr(data-placeholder)]

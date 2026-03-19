@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Brand;
 use App\Models\Gearbox;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 
@@ -13,8 +14,24 @@ class GearboxController extends Controller
 {
     public function index()
     {
-        $gearboxes = Gearbox::with('brand')->orderBy('name')->get();
-        $brands    = Brand::active()->ordered()->get();
+        $gearboxes = Gearbox::with('brand')->orderBy('order')->orderBy('name')->get()
+            ->map(fn ($g) => [
+                'id'                 => $g->id,
+                'brand_id'           => $g->brand_id,
+                'brand_name'         => $g->brand ? (is_array($g->brand->name) ? ($g->brand->name['es'] ?? '') : $g->brand->name) : '',
+                'name'               => $g->name,
+                'slug'               => $g->slug,
+                'compatible_vehicles'=> $g->compatible_vehicles,
+                'image_url'          => $g->image ? asset('storage/' . $g->image) : null,
+                'is_active'          => $g->is_active,
+                'order'              => $g->order,
+            ]);
+
+        $brands = Brand::active()->orderBy('order')->get()
+            ->map(fn ($b) => [
+                'id'   => $b->id,
+                'name' => is_array($b->name) ? ($b->name['es'] ?? '') : $b->name,
+            ]);
 
         return Inertia::render('Admin/Gearboxes/Index', compact('gearboxes', 'brands'));
     }
@@ -26,7 +43,8 @@ class GearboxController extends Controller
             'name'                => 'required|string|max:100',
             'compatible_vehicles' => 'nullable|string',
             'image'               => 'nullable|image|max:4096',
-            'is_active'           => 'boolean',
+            'is_active'           => 'nullable|boolean',
+            'order'               => 'nullable|string|max:20',
         ]);
 
         $imagePath = null;
@@ -40,7 +58,8 @@ class GearboxController extends Controller
             'slug'                => Str::slug($data['name']),
             'compatible_vehicles' => $data['compatible_vehicles'] ?? null,
             'image'               => $imagePath,
-            'is_active'           => $data['is_active'] ?? true,
+            'is_active'           => isset($data['is_active']) ? (bool) $data['is_active'] : true,
+            'order'               => strtoupper(trim($data['order'] ?? 'A')),
         ]);
 
         return back()->with('success', 'Caja de cambios creada.');
@@ -53,11 +72,13 @@ class GearboxController extends Controller
             'name'                => 'required|string|max:100',
             'compatible_vehicles' => 'nullable|string',
             'image'               => 'nullable|image|max:4096',
-            'is_active'           => 'boolean',
+            'is_active'           => 'nullable|boolean',
+            'order'               => 'nullable|string|max:20',
         ]);
 
         $imagePath = $gearbox->image;
         if ($request->hasFile('image')) {
+            if ($imagePath) Storage::disk('public')->delete($imagePath);
             $imagePath = $request->file('image')->store('gearboxes', 'public');
         }
 
@@ -67,7 +88,8 @@ class GearboxController extends Controller
             'slug'                => Str::slug($data['name']),
             'compatible_vehicles' => $data['compatible_vehicles'] ?? null,
             'image'               => $imagePath,
-            'is_active'           => $data['is_active'] ?? $gearbox->is_active,
+            'is_active'           => isset($data['is_active']) ? (bool) $data['is_active'] : $gearbox->is_active,
+            'order'               => strtoupper(trim($data['order'] ?? $gearbox->order)),
         ]);
 
         return back()->with('success', 'Caja de cambios actualizada.');
@@ -75,6 +97,9 @@ class GearboxController extends Controller
 
     public function destroy(Gearbox $gearbox)
     {
+        if ($gearbox->image) {
+            Storage::disk('public')->delete($gearbox->image);
+        }
         $gearbox->delete();
         return back()->with('success', 'Caja de cambios eliminada.');
     }

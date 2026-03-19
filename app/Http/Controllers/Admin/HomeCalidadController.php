@@ -6,11 +6,13 @@ use App\Http\Controllers\Controller;
 use App\Models\Page;
 use App\Models\PageSection;
 use App\Models\PageSectionImage;
+use App\Traits\SanitizesHtml;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class HomeCalidadController extends Controller
 {
+    use SanitizesHtml;
     /*
     |--------------------------------------------------------------------------
     | EDIT / SHOW
@@ -75,6 +77,8 @@ class HomeCalidadController extends Controller
             'image_2'        => 'nullable|image|max:3072',
             'image_3'        => 'nullable|image|max:3072',
         ]);
+
+        $data = $this->sanitizeDataFields($data, ['title', 'content', 'button_text']);
 
         $page    = Page::where('slug', 'home')->firstOrFail();
         $section = $page->sections()->where('type', 'quality')->first();

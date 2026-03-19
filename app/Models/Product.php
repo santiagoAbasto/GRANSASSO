@@ -11,15 +11,17 @@ class Product extends Model
     protected $fillable = [
         'gearbox_id',
         'figure',
-        'code_gs',
+        'cod_gs',
         'code_oem',
+        'slug',
         'nombre',
         'referencia_original',
         'referencias_adicionales',
         'description',
         'image',
-        'extra_1',
-        'extra_2',
+        // Campos extra: datos que NO vienen del catálogo Excel
+        'nota_comercial',  // Visible al cliente: precios, promo, disponibilidad especial
+        'nota_interna',    // Nota privada para equipo de ventas / admin
         'is_active',
     ];
 

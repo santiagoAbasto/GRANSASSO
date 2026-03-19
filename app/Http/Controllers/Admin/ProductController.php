@@ -8,6 +8,7 @@ use App\Models\Gearbox;
 use App\Models\Product;
 use App\Models\ProductImage;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 
 class ProductController extends Controller
@@ -52,23 +53,30 @@ class ProductController extends Controller
             'referencia_original'     => 'nullable|string|max:100',
             'referencias_adicionales' => 'nullable|string',
             'description'             => 'nullable|string',
+            'nota_comercial'          => 'nullable|string|max:1000',
+            'nota_interna'            => 'nullable|string|max:1000',
             'is_active'               => 'boolean',
             'versions'                => 'nullable|array',
             'images'                  => 'nullable|array',
             'images.*'                => 'image|max:4096',
         ]);
 
+        $slug = $this->generateSlug($data['code_oem']);
+
         $product = Product::create([
             'gearbox_id'              => $data['gearbox_id'],
             'figure'                  => $data['figure'] ?? null,
             'cod_gs'                  => $data['cod_gs'] ?? null,
             'code_oem'                => $data['code_oem'],
+            'slug'                    => $slug,
             'nombre'                  => ['es' => $data['nombre'] ?? null, 'en' => null, 'pt' => null],
             'referencia_original'     => $data['referencia_original'] ?? null,
             'referencias_adicionales' => $data['referencias_adicionales']
                 ? array_map('trim', explode(';', $data['referencias_adicionales']))
                 : null,
             'description'             => ['es' => $data['description'] ?? null, 'en' => null, 'pt' => null],
+            'nota_comercial'          => $data['nota_comercial'] ?? null,
+            'nota_interna'            => $data['nota_interna'] ?? null,
             'is_active'               => $data['is_active'] ?? true,
         ]);
 
@@ -105,21 +113,32 @@ class ProductController extends Controller
             'referencia_original'     => 'nullable|string|max:100',
             'referencias_adicionales' => 'nullable|string',
             'description'             => 'nullable|string',
+            'nota_comercial'          => 'nullable|string|max:1000',
+            'nota_interna'            => 'nullable|string|max:1000',
             'is_active'               => 'boolean',
             'versions'                => 'nullable|array',
         ]);
+
+        // Regenerar slug si cambió el code_oem
+        $slug = $product->slug;
+        if ($product->code_oem !== $data['code_oem']) {
+            $slug = $this->generateSlug($data['code_oem'], $product->id);
+        }
 
         $product->update([
             'gearbox_id'              => $data['gearbox_id'],
             'figure'                  => $data['figure'] ?? null,
             'cod_gs'                  => $data['cod_gs'] ?? null,
             'code_oem'                => $data['code_oem'],
+            'slug'                    => $slug,
             'nombre'                  => ['es' => $data['nombre'] ?? null, 'en' => $product->nombre['en'] ?? null, 'pt' => $product->nombre['pt'] ?? null],
             'referencia_original'     => $data['referencia_original'] ?? null,
             'referencias_adicionales' => $data['referencias_adicionales']
                 ? array_map('trim', explode(';', $data['referencias_adicionales']))
                 : null,
             'description'             => ['es' => $data['description'] ?? null, 'en' => $product->description['en'] ?? null, 'pt' => $product->description['pt'] ?? null],
+            'nota_comercial'          => $data['nota_comercial'] ?? $product->nota_comercial,
+            'nota_interna'            => $data['nota_interna'] ?? $product->nota_interna,
             'is_active'               => $data['is_active'] ?? $product->is_active,
         ]);
 
@@ -169,7 +188,20 @@ class ProductController extends Controller
         return back()->with('success', 'Imagen asignada a ' . count($request->product_ids) . ' productos.');
     }
 
-    // ── Helper ──────────────────────────────────────────────────────────
+    // ── Helpers ──────────────────────────────────────────────────────────
+
+    private function generateSlug(string $base, ?int $excludeId = null): string
+    {
+        $slug      = \Illuminate\Support\Str::slug($base);
+        $candidate = $slug;
+        $i         = 2;
+
+        while (Product::where('slug', $candidate)->when($excludeId, fn ($q) => $q->where('id', '!=', $excludeId))->exists()) {
+            $candidate = $slug . '-' . $i++;
+        }
+
+        return $candidate;
+    }
 
     private function storeImages(Request $request, Product $product): void
     {

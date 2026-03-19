@@ -11,12 +11,12 @@ class Brand extends Model
         'slug',
         'logo',
         'order',
-        'is_active'
+        'is_active',
     ];
 
     protected $casts = [
-        'name' => 'array',
-        'is_active' => 'boolean'
+        'name'      => 'array',
+        'is_active' => 'boolean',
     ];
 
     /*

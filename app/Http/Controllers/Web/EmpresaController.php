@@ -10,9 +10,13 @@ class EmpresaController extends Controller
     public function index()
     {
         $page = Page::where('slug', 'empresa')
-            ->with(['sections' => fn ($q) => $q->where('is_active', true)->orderBy('order')])
+            ->with(['sections' => function ($q) {
+                $q->where('is_active', true)
+                  ->orderBy('order')
+                  ->with(['images' => fn ($q) => $q->orderBy('order')]);
+            }])
             ->first();
 
-        return view('web.about.index', compact('page'));
+        return view('web.empresa.index', compact('page'));
     }
 }
