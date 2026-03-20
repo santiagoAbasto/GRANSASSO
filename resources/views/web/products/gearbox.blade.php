@@ -56,8 +56,6 @@
                 @else
                 <div class="products-grid">
                     @foreach($products as $product)
-
-                    {{-- El OEM code viene del primer item (accessor backward-compat) --}}
                     @php
                         $primaryItem = $product->items->first();
                         $oemCode     = $primaryItem?->oem_code ?? $product->code_gs ?? '—';
@@ -65,20 +63,17 @@
                     @endphp
 
                     <a href="{{ route('products.show', [$brand->slug, $gearbox->slug, $product->id]) }}"
-                       class="product-card">
+                       class="prd-card">
 
                         {{-- IMAGEN --}}
-                        <div class="product-card__img-wrap">
+                        <div class="prd-card__img">
                             @if($product->primaryImage)
                                 <img src="{{ asset('storage/' . $product->primaryImage->path) }}"
-                                     alt="{{ $oemCode }}"
-                                     loading="lazy">
+                                     alt="{{ $oemCode }}" loading="lazy">
                             @elseif($product->image)
                                 <img src="{{ asset('storage/' . $product->image) }}"
-                                     alt="{{ $oemCode }}"
-                                     loading="lazy">
+                                     alt="{{ $oemCode }}" loading="lazy">
                             @else
-                                {{-- Placeholder SVG si no hay imagen --}}
                                 <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64"
                                      viewBox="0 0 24 24" fill="none" stroke="#D1D5DB"
                                      stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
@@ -87,17 +82,19 @@
                                     <polyline points="21 15 16 10 5 21"/>
                                 </svg>
                             @endif
-                            <div class="product-card__overlay">
-                                <span class="product-card__plus">+</span>
-                            </div>
+                            <div class="prd-card__overlay"></div>
+                            <span class="prd-card__plus">+</span>
                         </div>
 
+                        {{-- DIVISOR --}}
+                        <span class="prd-card__divider"></span>
+
                         {{-- INFO --}}
-                        <div class="product-card__body">
-                            <span class="product-card__category">{{ strtoupper($brand->getName()) }}</span>
-                            <h3 class="product-card__name">{{ $oemCode }}</h3>
+                        <div class="prd-card__body">
+                            <span class="prd-card__brand">{{ strtoupper($brand->getName()) }}</span>
+                            <h3 class="prd-card__name">{{ $oemCode }}</h3>
                             @if($productName)
-                            <p class="product-card__subtitle">{{ $productName }}</p>
+                            <p class="prd-card__subtitle">{{ $productName }}</p>
                             @endif
                         </div>
 

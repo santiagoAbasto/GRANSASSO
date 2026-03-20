@@ -51,7 +51,7 @@
                     <a href="{{ route('products.gearbox', [$brand->slug, $gearbox->slug]) }}"
                        class="gearbox-card">
 
-                        {{-- Imagen: imagen propia de la caja o logo de la marca --}}
+                        {{-- Imagen --}}
                         <div class="gearbox-card__img">
                             @if($gearbox->image)
                                 <img src="{{ asset('storage/' . $gearbox->image) }}"
@@ -62,13 +62,17 @@
                                      alt="{{ $brand->getName() }}"
                                      loading="lazy">
                             @else
-                                <span style="font-family:'Open Sans',sans-serif;font-size:14px;color:#9CA3AF;">
-                                    {{ $gearbox->name }}
-                                </span>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64"
+                                     viewBox="0 0 24 24" fill="none" stroke="#D1D5DB"
+                                     stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="3" y="3" width="18" height="18" rx="2"/>
+                                    <circle cx="8.5" cy="8.5" r="1.5"/>
+                                    <polyline points="21 15 16 10 5 21"/>
+                                </svg>
                             @endif
+                            <div class="gearbox-card__overlay"></div>
+                            <span class="gearbox-card__plus">+</span>
                         </div>
-
-                        <span class="gearbox-card__divider"></span>
 
                         <div class="gearbox-card__body">
                             <span class="gearbox-card__brand">{{ strtoupper($brand->getName()) }}</span>

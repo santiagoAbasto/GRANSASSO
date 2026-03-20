@@ -259,38 +259,78 @@ export default function ProductEdit({ product, brands, gearboxes }) {
                     )}
 
                     {/* ── Imágenes existentes ──────────────────────────────── */}
-                    {product.images?.length > 0 && (
-                        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-                            <h2 className="font-semibold text-gray-700 mb-3 flex items-center gap-2">
-                                <Icon icon="solar:gallery-outline" width={18} className="text-[#25A7CA]" />
-                                Imágenes actuales
-                            </h2>
-                            <div className="flex flex-wrap gap-3">
+                    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+                        <h2 className="font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                            <Icon icon="solar:gallery-outline" width={18} className="text-[#25A7CA]" />
+                            Imágenes
+                            {product.images?.length > 0 && (
+                                <span className="text-xs font-normal text-gray-400 ml-1">— click en ★ para marcar como principal</span>
+                            )}
+                        </h2>
+
+                        {product.images?.length > 0 ? (
+                            <div className="flex flex-wrap gap-3 mb-4">
                                 {product.images.map((img) => (
-                                    <img
-                                        key={img.id}
-                                        src={img.url}
-                                        className="h-20 w-20 object-cover rounded-xl border border-gray-100"
-                                        alt=""
-                                    />
+                                    <div key={img.id} className="relative group">
+                                        <img
+                                            src={img.url}
+                                            className={`h-24 w-24 object-cover rounded-xl border-2 transition ${img.is_primary ? "border-[#25A7CA]" : "border-gray-100"}`}
+                                            alt=""
+                                        />
+                                        {/* Badge principal */}
+                                        {img.is_primary && (
+                                            <span className="absolute top-1 left-1 bg-[#25A7CA] text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full leading-none">
+                                                PRINCIPAL
+                                            </span>
+                                        )}
+                                        {/* Botones: aparecer en hover */}
+                                        <div className="absolute inset-0 bg-black/40 rounded-xl opacity-0 group-hover:opacity-100 transition flex items-center justify-center gap-1.5">
+                                            {/* Set primary */}
+                                            {!img.is_primary && (
+                                                <button
+                                                    type="button"
+                                                    title="Marcar como principal"
+                                                    onClick={() => router.patch(`/admin/products/images/${img.id}/primary`)}
+                                                    className="p-1.5 bg-[#25A7CA] hover:bg-[#1d96b8] rounded-lg text-white transition"
+                                                >
+                                                    <Icon icon="solar:star-bold" width={14} />
+                                                </button>
+                                            )}
+                                            {/* Delete */}
+                                            <button
+                                                type="button"
+                                                title="Eliminar imagen"
+                                                onClick={() => {
+                                                    if (confirm("¿Eliminar esta imagen?")) {
+                                                        router.delete(`/admin/products/images/${img.id}`);
+                                                    }
+                                                }}
+                                                className="p-1.5 bg-red-500 hover:bg-red-600 rounded-lg text-white transition"
+                                            >
+                                                <Icon icon="solar:trash-bin-trash-outline" width={14} />
+                                            </button>
+                                        </div>
+                                    </div>
                                 ))}
                             </div>
-                        </div>
-                    )}
+                        ) : (
+                            <p className="text-sm text-gray-400 mb-4">Sin imágenes cargadas.</p>
+                        )}
 
-                    {/* ── Subir nuevas imágenes ─────────────────────────── */}
-                    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-3">
-                        <h2 className="font-semibold text-gray-700 flex items-center gap-2">
-                            <Icon icon="solar:upload-outline" width={18} className="text-[#25A7CA]" />
-                            Agregar imágenes
-                        </h2>
-                        <input
-                            type="file"
-                            multiple
-                            accept="image/*"
-                            onChange={(e) => setData("images", Array.from(e.target.files))}
-                            className="block w-full text-sm text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-medium file:bg-[#25A7CA]/10 file:text-[#25A7CA]"
-                        />
+                        {/* Subir nuevas */}
+                        <div className="border border-dashed border-gray-200 rounded-xl p-4">
+                            <p className="text-xs text-gray-400 mb-2">Agregar imágenes (se puede subir varias a la vez)</p>
+                            <input
+                                type="file"
+                                multiple
+                                accept="image/*"
+                                onChange={(e) => setData("images", Array.from(e.target.files))}
+                                className="block w-full text-sm text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-medium file:bg-[#25A7CA]/10 file:text-[#25A7CA]"
+                            />
+                            {data.images?.length > 0 && (
+                                <p className="text-xs text-[#25A7CA] mt-1.5">{data.images.length} imagen(es) seleccionada(s) — se guardarán al guardar el producto</p>
+                            )}
+                        </div>
                     </div>
 
                     {/* ── Config ──────────────────────────────────────────── */}

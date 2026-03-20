@@ -9,6 +9,7 @@ use App\Models\Product;
 use App\Models\ProductImage;
 use App\Models\ProductItem;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 
@@ -211,23 +212,43 @@ class ProductController extends Controller
     public function bulkImage(Request $request)
     {
         $request->validate([
-            'product_ids'   => 'required|array',
-            'product_ids.*' => 'exists:products,id',
-            'image'         => 'required|image|max:4096',
+            'product_ids'    => 'required|array',
+            'product_ids.*'  => 'exists:products,id',
+            'images'         => 'required|array|min:1',
+            'images.*'       => 'image|max:8192',
+            'primary_index'  => 'nullable|integer|min:0',
         ]);
 
-        $path = $request->file('image')->store('products', 'public');
+        $primaryIndex = (int) ($request->input('primary_index', 0));
 
-        foreach ($request->product_ids as $productId) {
-            ProductImage::create([
-                'product_id' => $productId,
-                'path'       => $path,
-                'is_primary' => false,
-                'sort_order' => 99,
-            ]);
+        // Store all files once (shared paths across products)
+        $paths = [];
+        foreach ($request->file('images') as $file) {
+            $paths[] = $file->store('products', 'public');
         }
 
-        return back()->with('success', 'Imagen asignada a ' . count($request->product_ids) . ' productos.');
+        // Clamp primary index to valid range
+        $primaryIndex = min($primaryIndex, count($paths) - 1);
+
+        foreach ($request->product_ids as $productId) {
+            // Remove existing images (DB only, not physical files — paths may be shared)
+            ProductImage::where('product_id', $productId)->delete();
+
+            // Create new images
+            foreach ($paths as $i => $path) {
+                ProductImage::create([
+                    'product_id' => (int) $productId,
+                    'path'       => $path,
+                    'is_primary' => $i === $primaryIndex,
+                    'sort_order' => $i,
+                ]);
+            }
+        }
+
+        $count = count($request->product_ids);
+        $imgCount = count($paths);
+
+        return back()->with('success', "{$imgCount} imagen(es) asignada(s) a {$count} producto(s).");
     }
 
     /*
@@ -327,9 +348,10 @@ class ProductController extends Controller
             ])->values(),
             // ── Imágenes ──────────────────────────────────────────────────
             'images'         => $p->images->map(fn ($img) => [
-                'id'   => $img->id,
-                'url'  => asset('storage/' . $img->path),
-                'path' => $img->path,
+                'id'         => $img->id,
+                'url'        => asset('storage/' . $img->path),
+                'path'       => $img->path,
+                'is_primary' => (bool) $img->is_primary,
             ])->values(),
         ];
     }
@@ -447,6 +469,25 @@ class ProductController extends Controller
         }
 
         return $candidate;
+    }
+
+    public function setPrimaryImage(ProductImage $image)
+    {
+        ProductImage::where('product_id', $image->product_id)->update(['is_primary' => false]);
+        $image->update(['is_primary' => true]);
+        return back()->with('success', 'Imagen principal actualizada.');
+    }
+
+    public function destroyImage(ProductImage $image)
+    {
+        Storage::disk('public')->delete($image->path);
+        $wasPrimary = $image->is_primary;
+        $productId  = $image->product_id;
+        $image->delete();
+        if ($wasPrimary) {
+            ProductImage::where('product_id', $productId)->orderBy('sort_order')->first()?->update(['is_primary' => true]);
+        }
+        return back()->with('success', 'Imagen eliminada.');
     }
 
     private function storeImages(Request $request, Product $product): void

@@ -12,12 +12,17 @@ function toTitleCase(str) {
 }
 
 export default function ProductsIndex({ products, brands, gearboxes }) {
-    const params      = new URLSearchParams(window.location.search);
+    const params         = new URLSearchParams(window.location.search);
+    const urlGearboxId   = params.get("gearbox_id") || "";
     const [search,    setSearch]  = useState(params.get("search")     || "");
     const [brandId,   setBrandId] = useState(params.get("brand_id")   || "");
-    const [gearboxId, setGbId]    = useState(params.get("gearbox_id") || "");
+    const [gearboxId, setGbId]    = useState(urlGearboxId);
     const [oemExact,  setOemExact]  = useState(params.get("oem_exact")  || "");
     const [codGs,     setCodGs]     = useState(params.get("cod_gs")     || "");
+    const [bulkFiles,      setBulkFiles]    = useState([]);
+    const [bulkPrimary,    setBulkPrimary]  = useState(0);
+    const [bulkPreviews,   setBulkPreviews] = useState([]);
+    const [bulkUploading,  setBulkUploading] = useState(false);
 
     const applyFilters = () => {
         router.get(
@@ -40,6 +45,36 @@ export default function ProductsIndex({ products, brands, gearboxes }) {
     };
 
     const hasFilters = search || brandId || gearboxId || oemExact || codGs;
+
+    const onBulkFilesChange = (e) => {
+        const files = Array.from(e.target.files);
+        setBulkFiles(files);
+        setBulkPrimary(0);
+        // Generate previews
+        const previews = files.map((f) => URL.createObjectURL(f));
+        setBulkPreviews(previews);
+    };
+
+    const submitBulkImage = () => {
+        if (bulkFiles.length === 0 || !gearboxId) return;
+        const ids = products.data.map((p) => p.id);
+        if (ids.length === 0) return alert("No hay productos en esta caja.");
+        if (!confirm(`¿Asignar ${bulkFiles.length} imagen(es) a ${ids.length} producto(s)? Se reemplazarán las imágenes actuales.`)) return;
+        setBulkUploading(true);
+        const fd = new FormData();
+        ids.forEach((id) => fd.append("product_ids[]", id));
+        bulkFiles.forEach((f) => fd.append("images[]", f));
+        fd.append("primary_index", bulkPrimary);
+        router.post("/admin/products/bulk-image", fd, {
+            forceFormData: true,
+            onFinish: () => {
+                setBulkUploading(false);
+                setBulkFiles([]);
+                setBulkPreviews([]);
+                setBulkPrimary(0);
+            },
+        });
+    };
 
     const destroy = (id) => {
         if (!confirm("¿Eliminar este producto y todos sus items?")) return;
@@ -118,7 +153,13 @@ export default function ProductsIndex({ products, brands, gearboxes }) {
                         {/* Marca */}
                         <select
                             value={brandId}
-                            onChange={(e) => { setBrandId(e.target.value); setGbId(""); }}
+                            onChange={(e) => {
+                                const val = e.target.value;
+                                setBrandId(val);
+                                setGbId("");
+                                // Navegar inmediatamente para que el servidor devuelva las cajas de esta marca
+                                router.get("/admin/products", { brand_id: val, search, oem_exact: oemExact, cod_gs: codGs }, { preserveState: true });
+                            }}
                             className="border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-600 focus:outline-none focus:ring-2 focus:ring-[#25A7CA]/30"
                         >
                             <option value="">Todas las marcas</option>
@@ -127,13 +168,17 @@ export default function ProductsIndex({ products, brands, gearboxes }) {
                             ))}
                         </select>
 
-                        {/* Caja */}
+                        {/* Caja — se puebla automáticamente al seleccionar marca */}
                         <select
                             value={gearboxId}
-                            onChange={(e) => setGbId(e.target.value)}
+                            onChange={(e) => {
+                                setGbId(e.target.value);
+                                router.get("/admin/products", { brand_id: brandId, gearbox_id: e.target.value, search, oem_exact: oemExact, cod_gs: codGs }, { preserveState: true });
+                            }}
                             className="border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-600 focus:outline-none focus:ring-2 focus:ring-[#25A7CA]/30"
+                            disabled={!brandId}
                         >
-                            <option value="">Todas las cajas</option>
+                            <option value="">{brandId ? "Todas las cajas" : "— primero elegí marca —"}</option>
                             {gearboxes.map((g) => (
                                 <option key={g.id} value={g.id}>{g.name}</option>
                             ))}
@@ -157,6 +202,65 @@ export default function ProductsIndex({ products, brands, gearboxes }) {
                         )}
                     </div>
                 </div>
+
+                {/* ── Imagen masiva por caja ──────────────────────────────── */}
+                {urlGearboxId && (
+                    <div className="bg-white border border-amber-200 rounded-2xl p-5 mb-5 shadow-sm">
+                        <div className="flex items-center gap-2 mb-4">
+                            <Icon icon="solar:gallery-add-outline" width={20} className="text-amber-500" />
+                            <div>
+                                <p className="text-sm font-semibold text-gray-700">Imagen masiva para la caja</p>
+                                <p className="text-xs text-gray-400">Se asignarán a los {products.data.length} productos filtrados · reemplaza imágenes existentes</p>
+                            </div>
+                        </div>
+
+                        {/* File input */}
+                        <input
+                            type="file"
+                            accept="image/*"
+                            multiple
+                            onChange={onBulkFilesChange}
+                            className="block w-full text-sm text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-medium file:bg-amber-50 file:text-amber-700 mb-3"
+                        />
+
+                        {/* Previews + primary selector */}
+                        {bulkPreviews.length > 0 && (
+                            <div className="mb-4">
+                                <p className="text-xs text-gray-400 mb-2">Seleccioná cuál será la imagen del card (★ = principal):</p>
+                                <div className="flex flex-wrap gap-3">
+                                    {bulkPreviews.map((src, i) => (
+                                        <button
+                                            key={i}
+                                            type="button"
+                                            onClick={() => setBulkPrimary(i)}
+                                            className={`relative rounded-xl overflow-hidden border-2 transition ${bulkPrimary === i ? "border-[#25A7CA]" : "border-gray-200 hover:border-gray-300"}`}
+                                        >
+                                            <img src={src} className="h-20 w-20 object-cover" alt="" />
+                                            {bulkPrimary === i && (
+                                                <span className="absolute top-1 left-1 bg-[#25A7CA] text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full leading-none">
+                                                    CARD
+                                                </span>
+                                            )}
+                                            {bulkPrimary !== i && (
+                                                <span className="absolute top-1 left-1 bg-black/40 text-white text-[9px] px-1.5 py-0.5 rounded-full leading-none">
+                                                    detalle
+                                                </span>
+                                            )}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        <button
+                            onClick={submitBulkImage}
+                            disabled={bulkFiles.length === 0 || bulkUploading}
+                            className="px-5 py-2 bg-amber-500 hover:bg-amber-600 disabled:opacity-40 text-white rounded-xl text-sm font-semibold transition"
+                        >
+                            {bulkUploading ? "Subiendo…" : `Aplicar a ${products.data.length} productos`}
+                        </button>
+                    </div>
+                )}
 
                 {/* ── Tabla ───────────────────────────────────────────────── */}
                 <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-x-auto">

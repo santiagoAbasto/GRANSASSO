@@ -497,8 +497,8 @@
     align-items: center;
     gap: 6px;
     flex-wrap: wrap;
-    padding-top: 28px;
-    padding-bottom: 40px;
+    padding-top: 11px;
+    padding-bottom: 73px;
 }
 
 .products-bc__link {
@@ -526,44 +526,47 @@
     white-space: nowrap;
 }
 
-/* 2 columnas: sidebar 185px · gap 40px · main 1fr */
+/* 2 columnas: sidebar 288px · gap 40px · main 1fr */
 .products-layout {
     display: grid;
-    grid-template-columns: 185px 1fr;
-    gap: 40px;
+    grid-template-columns: 288px 1fr;
+    gap: 24px;
     align-items: start;
 }
 
 
 /* ══════════════════════════════════════════
    B / C — SIDEBAR: lista de marcas
-   Figma: texto uppercase, active = bold
+   Figma: 288px · separadores #E3E0E0 · 31px entre líneas
 ══════════════════════════════════════════ */
 
 .products-sidebar {
-    padding-top: 4px;
+    width: 288px;
+    /* Primera línea superior */
+    border-top: 1px solid rgba(227, 224, 224, 0.652);
 }
 
-.products-sidebar__item {
+.products-sidebar a.products-sidebar__item {
     display: block;
     color: #1D1E20;
     font-family: "Open Sans", sans-serif;
-    font-size: 13px;
+    font-size: 16px;
+    font-style: normal;
     font-weight: 400;
-    line-height: 1;
+    line-height: 31px;
     text-decoration: none;
-    padding: 9px 0;
+    padding: 0 0 0 24px;
     text-transform: uppercase;
-    letter-spacing: 0.3px;
     white-space: nowrap;
+    border-bottom: 1px solid rgba(227, 224, 224, 0.652);
     transition: color 0.2s ease;
 }
 
-.products-sidebar__item:hover {
+.products-sidebar a.products-sidebar__item:hover {
     color: #1F589C;
 }
 
-.products-sidebar__item.active {
+.products-sidebar a.products-sidebar__item.active {
     font-weight: 700;
     color: #1D1E20;
 }
@@ -577,7 +580,7 @@
 
 .gearboxes-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, 288px);
     gap: 24px;
     align-items: start;
 }
@@ -585,66 +588,102 @@
 .gearbox-card {
     display: flex;
     flex-direction: column;
+    width: 288px;
+    height: 311px;
     border-radius: 10px;
-    border: 1px solid #E3E0E0;
     background: #FFF;
+    border: 1px solid var(--Linea, #E3E0E0);
     text-decoration: none;
     overflow: hidden;
-    transition: box-shadow 0.2s ease;
-}
-
-.gearbox-card:hover {
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-}
-
-.gearbox-card__img {
-    aspect-ratio: 1 / 1;
-    overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 28px;
-    box-sizing: border-box;
-    background: #FAFAFA;
-}
-
-.gearbox-card__img img {
-    max-width: 100%;
-    max-height: 100%;
-    object-fit: contain;
-    display: block;
-}
-
-.gearbox-card__divider {
-    display: block;
-    height: 1px;
-    background: #E3E0E0;
-    margin: 0 20px;
     flex-shrink: 0;
 }
 
+/* Imagen: 288×209px con overlay hover */
+.gearbox-card__img {
+    position: relative;
+    width: 288px;
+    height: 209px;
+    overflow: hidden;
+    border-radius: 9px 9px 0 0;
+    background: #F3F4F6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.gearbox-card__img img {
+    width: 100%;
+    height: 100%;
+    background: #fff;
+    object-fit: contain;
+    padding: 47px 35px 35px 35px;
+    box-sizing: border-box;
+    display: block;
+    transition: transform 0.3s ease;
+}
+
+.gearbox-card__img:hover img {
+    transform: scale(1.04);
+}
+
+.gearbox-card__overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(31, 88, 156, 0);
+    mix-blend-mode: multiply;
+    z-index: 2;
+    pointer-events: none;
+    transition: background 0.25s ease;
+}
+
+.gearbox-card__img:hover .gearbox-card__overlay {
+    background: rgba(31, 88, 156, 0.60);
+}
+
+.gearbox-card__plus {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #FFF;
+    font-size: 32px;
+    font-weight: 300;
+    line-height: 1;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+    user-select: none;
+    z-index: 3;
+    pointer-events: none;
+}
+
+.gearbox-card__img:hover .gearbox-card__plus {
+    opacity: 1;
+}
+
+/* Cuerpo: padding 10px 120px 28px 24px */
 .gearbox-card__body {
-    padding: 12px 20px 18px;
+    padding: 10px 24px 28px;
     display: flex;
     flex-direction: column;
-    gap: 3px;
 }
 
 .gearbox-card__brand {
     color: #1F589C;
     font-family: "Open Sans", sans-serif;
-    font-size: 11px;
+    font-size: 14px;
+    font-style: normal;
     font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+    line-height: 31px;
 }
 
 .gearbox-card__name {
-    color: #1D1E20;
+    color: #333;
     font-family: "Open Sans", sans-serif;
-    font-size: 16px;
-    font-weight: 600;
-    line-height: 1.25;
+    font-size: 24px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
 }
 
 
@@ -654,70 +693,80 @@
    Override completo de los estilos viejos (Montserrat/288px)
 ══════════════════════════════════════════ */
 
+/* ══════════════════════════════════════════
+   C — PRODUCT CARDS (gearbox page)
+   Mismo estilo visual que gearbox-card
+   Clases propias: prd-card / prd-card__*
+══════════════════════════════════════════ */
+
 .products-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, 288px);
     gap: 24px;
     align-items: start;
 }
 
-.product-card {
+.prd-card {
     display: flex;
     flex-direction: column;
+    width: 288px;
+    height: 360px;
     border-radius: 10px;
-    border: 1px solid #E3E0E0;
+    border: 1px solid var(--Linea, #E3E0E0);
     background: #FFF;
     text-decoration: none;
     overflow: hidden;
-    transition: box-shadow 0.2s ease;
-    /* reset fixed dimensions del CSS viejo */
-    width: auto;
-    height: auto;
-}
-
-.product-card:hover {
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-}
-
-/* imagen cuadrada */
-.product-card__img-wrap {
-    position: relative;
-    aspect-ratio: 1 / 1;
-    overflow: hidden;
-    background: #F5F5F5;
     flex-shrink: 0;
 }
 
-.product-card__img-wrap img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;   /* contain para productos industriales */
-    object-position: center;
-    display: block;
-    transition: transform 0.3s ease;
-    padding: 8px;
-    box-sizing: border-box;
-}
-
-.product-card:hover .product-card__img-wrap img {
-    transform: scale(1.04);
-}
-
-.product-card__overlay {
-    position: absolute;
-    inset: 0;
-    background: rgba(0, 0, 0, 0);
+/* Imagen: 288×209px */
+.prd-card__img {
+    position: relative;
+    width: 288px;
+    height: 209px;
+    overflow: hidden;
+    border-radius: 9px 9px 0 0;
+    background: #fff;
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-shrink: 0;
+}
+
+.prd-card__img img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    padding: 47px 35px 35px 35px;
+    box-sizing: border-box;
+    display: block;
+    transition: transform 0.3s ease;
+}
+
+.prd-card__img:hover img {
+    transform: scale(1.04);
+}
+
+/* Overlay azul multiply — aparece al hover */
+.prd-card__overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(31, 88, 156, 0);
+    mix-blend-mode: multiply;
+    z-index: 2;
+    pointer-events: none;
     transition: background 0.25s ease;
 }
 
-.product-card:hover .product-card__overlay {
-    background: rgba(0, 0, 0, 0.12);
+.prd-card__img:hover .prd-card__overlay {
+    background: rgba(31, 88, 156, 0.60);
 }
 
-.product-card__plus {
+.prd-card__plus {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     color: #FFF;
     font-size: 32px;
     font-weight: 300;
@@ -725,55 +774,61 @@
     opacity: 0;
     transition: opacity 0.25s ease;
     user-select: none;
+    z-index: 3;
+    pointer-events: none;
 }
 
-.product-card:hover .product-card__plus {
+.prd-card__img:hover .prd-card__plus {
     opacity: 1;
 }
 
-.product-card__body {
-    padding: 12px 16px 16px;
+/* Divisor — línea centrada 240px */
+.prd-card__divider {
+    display: block;
+    width: 240px;
+    height: 1px;
+    background: #E3E0E0;
+    flex-shrink: 0;
+    align-self: center;
+}
+
+/* Cuerpo */
+.prd-card__body {
+    padding: 10px 24px 11px 24px;
     display: flex;
     flex-direction: column;
-    gap: 4px;
 }
 
-/* label de marca en azul — "MERCEDES BENZ" */
-.product-card__category {
+.prd-card__brand {
     color: #1F589C;
     font-family: "Open Sans", sans-serif;
-    font-size: 11px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-/* OEM code — identificador principal */
-.product-card__name {
-    color: #1D1E20;
-    font-family: "Open Sans", sans-serif;
     font-size: 14px;
-    font-weight: 700;
-    line-height: 1.3;
-    overflow: hidden;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    line-clamp: 2;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 31px;
 }
 
-/* nombre del producto */
-.product-card__subtitle {
-    color: #4B5563;
+.prd-card__name {
+    color: #333;
     font-family: "Open Sans", sans-serif;
-    font-size: 12px;
+    font-size: 24px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.prd-card__subtitle {
+    color: #6B7280;
+    font-family: "Open Sans", sans-serif;
+    font-size: 13px;
     font-weight: 400;
     line-height: 1.4;
     overflow: hidden;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    line-clamp: 2;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
 
 
@@ -1174,7 +1229,7 @@
     }
 
     .products-layout {
-        grid-template-columns: 160px 1fr;
+        grid-template-columns: 220px 1fr;
         gap: 24px;
     }
 
@@ -1244,6 +1299,8 @@
         display: flex;
         flex-wrap: wrap;
         gap: 4px 16px;
+        width: auto;
+        border-top: none;
         padding-top: 0;
         padding-bottom: 8px;
         border-bottom: 1px solid #E3E0E0;
@@ -1251,7 +1308,9 @@
 
     .products-sidebar__item {
         padding: 4px 0;
+        padding-left: 0;
         font-size: 12px;
+        border-bottom: none;
     }
 
     .gearboxes-grid {

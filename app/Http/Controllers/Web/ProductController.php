@@ -64,7 +64,7 @@ class ProductController extends Controller
         abort_if($gearbox->brand_id !== $brand->id, 404);
         abort_if($product->gearbox_id !== $gearbox->id, 404);
 
-        $product->load(['images', 'versions', 'applications', 'documents']);
+        $product->load(['images', 'items']);
 
         $related = Product::where('gearbox_id', $gearbox->id)
             ->where('id', '!=', $product->id)
