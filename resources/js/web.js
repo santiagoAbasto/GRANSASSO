@@ -222,6 +222,62 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     /* =============================================
+       PRODUCTS BANNER SLIDER
+       - Mismo comportamiento que el hero slider
+       - Soporte imagen y video (data-src en iframe)
+    ============================================= */
+
+    const productsBanner = document.querySelector(".products-banner");
+
+    if (productsBanner) {
+
+        const pbSlides = productsBanner.querySelectorAll(".products-banner__slide");
+        const pbDots   = productsBanner.querySelectorAll(".products-banner__dot");
+
+        if (pbSlides.length > 1) {
+
+            let pbCurrent = 0;
+            let pbAutoplay;
+
+            function pbGoTo(index) {
+                pbSlides[pbCurrent].classList.remove("active");
+                if (pbDots[pbCurrent]) pbDots[pbCurrent].classList.remove("active");
+
+                const oldIframe = pbSlides[pbCurrent].querySelector("iframe");
+                if (oldIframe) oldIframe.src = "";
+
+                pbCurrent = (index + pbSlides.length) % pbSlides.length;
+
+                pbSlides[pbCurrent].classList.add("active");
+                if (pbDots[pbCurrent]) pbDots[pbCurrent].classList.add("active");
+
+                const newIframe = pbSlides[pbCurrent].querySelector("iframe");
+                if (newIframe && newIframe.dataset.src) {
+                    newIframe.src = newIframe.dataset.src;
+                }
+            }
+
+            function pbStartAutoplay() {
+                pbAutoplay = setInterval(() => pbGoTo(pbCurrent + 1), 6000);
+            }
+
+            function pbResetAutoplay() {
+                clearInterval(pbAutoplay);
+                pbStartAutoplay();
+            }
+
+            pbDots.forEach((dot, i) => {
+                dot.addEventListener("click", () => {
+                    if (i !== pbCurrent) { pbGoTo(i); pbResetAutoplay(); }
+                });
+            });
+
+            pbStartAutoplay();
+        }
+    }
+
+
+    /* =============================================
        HAMBURGER MENU
     ============================================= */
 

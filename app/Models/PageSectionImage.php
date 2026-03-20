@@ -9,7 +9,8 @@ class PageSectionImage extends Model
     protected $fillable = [
         'section_id',
         'image',
-        'order'
+        'video_url',
+        'order',
     ];
 
     /*

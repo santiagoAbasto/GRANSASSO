@@ -41,10 +41,11 @@ export default function Sidebar() {
             title: "Productos",
             icon: "solar:box-outline",
             children: [
-                { title: "Productos",       icon: "solar:box-outline",              url: "/admin/products" },
-                { title: "Marcas",          icon: "solar:tag-outline",              url: "/admin/brands" },
-                { title: "Cajas de cambio", icon: "solar:settings-minimalistic-outline", url: "/admin/gearboxes" },
-                { title: "Importar Excel",  icon: "solar:import-outline",           url: "/admin/import" },
+                { title: "Productos",        icon: "solar:box-outline",                   url: "/admin/products" },
+                { title: "Marcas",           icon: "solar:tag-outline",                   url: "/admin/brands" },
+                { title: "Cajas de cambio",  icon: "solar:settings-minimalistic-outline", url: "/admin/gearboxes" },
+                { title: "Banner Productos", icon: "solar:gallery-wide-outline",          url: "/admin/products-banner" },
+                { title: "Importar Excel",   icon: "solar:import-outline",                url: "/admin/import" },
             ],
         },
         {

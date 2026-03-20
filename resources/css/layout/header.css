@@ -37,6 +37,46 @@
     box-shadow: none;
 }
 
+/* Páginas internas de productos: fondo blanco sólido */
+.navbar--light {
+    background: #FFFFFF;
+    box-shadow: 0 1px 8px rgba(0, 0, 0, 0.08);
+}
+
+.navbar--light .nav-links > a {
+    color: #6B7280;
+}
+
+.navbar--light .nav-links > a.active {
+    color: #0D2038;
+}
+
+.navbar--light .nav-lang-sep {
+    color: #6B7280;
+}
+
+.navbar--light .nav-lang__current {
+    color: #6B7280;
+}
+
+.navbar--light .nav-lang__current svg path {
+    stroke: #6B7280;
+}
+
+.navbar--light .hamburger__line {
+    background: #6B7280;
+}
+
+.navbar--light .btn-zona-privada {
+    border: 1px solid #1F589C;
+    background: #FFFFFF;
+    color: #1F589C;
+}
+
+.navbar--light .btn-zona-privada:hover {
+    background: rgba(31, 88, 156, 0.06);
+}
+
 .nav-container {
     max-width: 1366px;
     width: 100%;

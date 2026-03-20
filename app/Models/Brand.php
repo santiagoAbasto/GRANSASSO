@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Brand extends Model
 {
@@ -12,11 +13,13 @@ class Brand extends Model
         'logo',
         'order',
         'is_active',
+        'show_in_home',
     ];
 
     protected $casts = [
-        'name'      => 'array',
-        'is_active' => 'boolean',
+        'name'         => 'array',
+        'is_active'    => 'boolean',
+        'show_in_home' => 'boolean',
     ];
 
     /*
@@ -24,6 +27,11 @@ class Brand extends Model
     | RELATIONS
     |--------------------------------------------------------------------------
     */
+
+    public function gearboxes(): HasMany
+    {
+        return $this->hasMany(Gearbox::class);
+    }
 
     public function models()
     {

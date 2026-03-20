@@ -40,6 +40,27 @@ function MultiInput({ label, field, data, setData, placeholder = "" }) {
     );
 }
 
+function HomeSwitch({ brand }) {
+    const active = brand.show_in_home;
+    return (
+        <div className="flex flex-col items-center gap-1">
+            <button
+                type="button"
+                onClick={() => router.patch(`/admin/brands/${brand.id}/toggle-home`)}
+                className={`relative inline-flex h-5 w-9 flex-shrink-0 rounded-full border-2 transition-colors focus:outline-none ${
+                    active ? "bg-[#25A7CA] border-[#25A7CA]" : "bg-gray-200 border-gray-200"
+                }`}
+                title={active ? "Ocultar de Home" : "Mostrar en Home"}
+            >
+                <span className={`inline-block h-3.5 w-3.5 rounded-full bg-white shadow transition-transform ${
+                    active ? "translate-x-3.5" : "translate-x-0.5"
+                }`} />
+            </button>
+            <span className="text-[10px] text-gray-400 leading-none">{active ? "Home" : "Oculta"}</span>
+        </div>
+    );
+}
+
 function BrandForm({ initial = null, onCancel }) {
     const isNew = !initial;
     const { data, setData, post, processing, errors, reset } = useForm(
@@ -52,12 +73,14 @@ function BrandForm({ initial = null, onCancel }) {
                 logo: null,
                 order: initial.order ?? "A",
                 is_active: initial.is_active,
+                show_in_home: initial.show_in_home ?? true,
             }
             : {
                 name_es: "", name_en: "", name_pt: "",
                 logo: null,
                 order: "A",
                 is_active: true,
+                show_in_home: true,
             }
     );
 
@@ -124,12 +147,27 @@ function BrandForm({ initial = null, onCancel }) {
                 <label className="flex items-center gap-2 cursor-pointer mb-2">
                     <input
                         type="checkbox"
-                        checked={data.is_active}
+                        checked={!!data.is_active}
                         onChange={(e) => setData("is_active", e.target.checked)}
                         className="w-4 h-4 rounded accent-[#25A7CA]"
                     />
                     <span className="text-sm text-gray-700">Activa</span>
                 </label>
+                <div className="flex flex-col gap-1 mb-2">
+                    <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide">Visible en Home</label>
+                    <button
+                        type="button"
+                        onClick={() => setData("show_in_home", !data.show_in_home)}
+                        className={`relative inline-flex h-5 w-9 flex-shrink-0 rounded-full border-2 transition-colors focus:outline-none ${
+                            data.show_in_home ? "bg-[#25A7CA] border-[#25A7CA]" : "bg-gray-200 border-gray-200"
+                        }`}
+                    >
+                        <span className={`inline-block h-3.5 w-3.5 rounded-full bg-white shadow transition-transform ${
+                            data.show_in_home ? "translate-x-3.5" : "translate-x-0.5"
+                        }`} />
+                    </button>
+                    <span className="text-xs text-gray-400">{data.show_in_home ? "Se muestra en Home" : "Oculta en Home"}</span>
+                </div>
             </div>
 
             {/* Acciones */}
@@ -240,6 +278,9 @@ export default function BrandsIndex({ brands }) {
                                         </div>
                                         <p className="text-xs text-gray-400 mt-0.5">slug: {brand.slug}</p>
                                     </div>
+
+                                    {/* Home switch */}
+                                    <HomeSwitch brand={brand} />
 
                                     {/* Acciones */}
                                     <div className="flex items-center gap-1 flex-shrink-0">

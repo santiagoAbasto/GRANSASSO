@@ -1,18 +1,28 @@
 @php
     $isHome = request()->routeIs('home');
-    $hasTransparentNav = $isHome || request()->routeIs('empresa');
+    $hasTransparentNav = $isHome || request()->routeIs('empresa') || request()->routeIs('products.index');
+    $hasLightNav = request()->routeIs('products.brand')
+                || request()->routeIs('products.gearbox')
+                || request()->routeIs('products.show')
+                || request()->routeIs('products.search');
 @endphp
 
-<header class="navbar{{ $hasTransparentNav ? ' navbar--home' : '' }}" id="mainNav">
+<header class="navbar{{ $hasTransparentNav ? ' navbar--home' : '' }}{{ $hasLightNav ? ' navbar--light' : '' }}" id="mainNav">
 
     <div class="nav-container">
 
-        {{-- LOGO — guardar en: storage/app/public/images/logos/logo.svg --}}
+        {{-- LOGO --}}
         <div class="logo">
             <a href="{{ route('home') }}">
-                <img src="{{ asset('storage/images/logos/logo.svg') }}"
-                     alt="Gran Sasso"
-                     onerror="this.onerror=null;this.src='{{ asset('storage/images/logos/logo.png') }}'">
+                @if($hasLightNav)
+                    <img src="{{ asset('storage/images/logos/logo-color.svg') }}"
+                         alt="Gran Sasso"
+                         onerror="this.onerror=null;this.src='{{ asset('storage/images/logos/logo.png') }}'">
+                @else
+                    <img src="{{ asset('storage/images/logos/logo.svg') }}"
+                         alt="Gran Sasso"
+                         onerror="this.onerror=null;this.src='{{ asset('storage/images/logos/logo.png') }}'">
+                @endif
             </a>
         </div>
 

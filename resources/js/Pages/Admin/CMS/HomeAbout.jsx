@@ -82,11 +82,19 @@ export default function HomeAbout({ page, section }) {
     return (
         <AdminLayout>
             <div className="max-w-3xl">
-                <div className="mb-6">
-                    <h1 className="text-2xl font-bold text-gray-800">Home – Bloque "Nosotros"</h1>
-                    <p className="text-sm text-gray-500 mt-1">
-                        Edita el bloque "Sobre nosotros" que aparece en la página de inicio.
-                    </p>
+                <div className="mb-6 flex items-start justify-between gap-4">
+                    <div>
+                        <h1 className="text-2xl font-bold text-gray-800">Home – Bloque "Nosotros"</h1>
+                        <p className="text-sm text-gray-500 mt-1">
+                            Edita el bloque "Sobre nosotros" que aparece en la página de inicio.
+                        </p>
+                    </div>
+                    <span className={`inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full font-medium ${
+                        data.is_active ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"
+                    }`}>
+                        <span className={`w-1.5 h-1.5 rounded-full ${data.is_active ? "bg-green-500" : "bg-gray-400"}`} />
+                        {data.is_active ? "Visible en el sitio" : "Oculta"}
+                    </span>
                 </div>
 
                 <form onSubmit={submit} className="space-y-6">
@@ -153,7 +161,7 @@ export default function HomeAbout({ page, section }) {
                             <label className="flex items-center gap-2 cursor-pointer mt-5">
                                 <input
                                     type="checkbox"
-                                    checked={data.is_active}
+                                    checked={!!data.is_active}
                                     onChange={(e) => setData("is_active", e.target.checked)}
                                     className="w-4 h-4 rounded accent-[#25A7CA]"
                                 />

@@ -8,6 +8,10 @@ export default function HeroIndex({ slides }) {
         router.delete(`/admin/hero/${id}`);
     };
 
+    const toggle = (id) => {
+        router.patch(`/admin/hero/${id}/toggle`);
+    };
+
     return (
         <AdminLayout>
             <div className="flex items-center justify-between mb-6">
@@ -47,9 +51,17 @@ export default function HeroIndex({ slides }) {
                                 </div>
                             )}
                             <div className="absolute top-2 right-2">
-                                <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${slide.is_active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
+                                <button
+                                    onClick={() => toggle(slide.id)}
+                                    title={slide.is_active ? "Click para desactivar" : "Click para activar"}
+                                    className={`text-xs px-2 py-0.5 rounded-full font-medium transition hover:opacity-80 ${
+                                        slide.is_active
+                                            ? 'bg-green-500 text-white'
+                                            : 'bg-gray-400 text-white'
+                                    }`}
+                                >
                                     {slide.is_active ? 'Activo' : 'Inactivo'}
-                                </span>
+                                </button>
                             </div>
                             <div className="absolute top-2 left-2 bg-black/40 text-white text-xs px-2 py-0.5 rounded-full font-medium">
                                 {slide.order || '—'}

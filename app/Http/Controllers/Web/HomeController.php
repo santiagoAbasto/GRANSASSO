@@ -26,6 +26,7 @@ class HomeController extends Controller
         }
 
         $brands = Brand::active()
+            ->where('show_in_home', true)
             ->ordered()
             ->get();
 

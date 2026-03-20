@@ -30,6 +30,37 @@ class CmsController extends Controller
         ]);
     }
 
+    // ── PRODUCTOS → Banner ───────────────────────────────────────────────
+
+    public function productsBanner()
+    {
+        $page = Page::firstOrCreate(
+            ['slug' => 'products'],
+            ['title' => ['es' => 'Productos', 'en' => 'Products', 'pt' => 'Produtos']]
+        );
+
+        // Auto-create the banner section so images can always be added
+        $section = $page->sections()->firstOrCreate(
+            ['type' => 'banner'],
+            ['is_active' => true, 'order' => 'A']
+        );
+
+        $section->load('images');
+
+        return Inertia::render('Admin/CMS/ProductsBanner', [
+            'section' => [
+                'id'        => $section->id,
+                'is_active' => $section->is_active,
+                'slides'    => $section->images->sortBy('order')->map(fn ($img) => [
+                    'id'        => $img->id,
+                    'image_url' => $img->image ? asset('storage/' . $img->image) : null,
+                    'video_url' => $img->video_url,
+                    'order'     => $img->order,
+                ])->values(),
+            ],
+        ]);
+    }
+
     // ── EMPRESA ──────────────────────────────────────────────────────────
 
     public function empresa()
@@ -193,23 +224,113 @@ class CmsController extends Controller
 
     public function addSectionImage(Request $request, PageSection $section)
     {
-        $request->validate(['image' => 'required|image|max:5120']);
+        $request->validate([
+            'image'     => 'nullable|image|max:5120',
+            'video_url' => 'nullable|string|max:500',
+            'order'     => 'nullable|string|max:20',
+        ]);
 
-        $nextOrder = $section->images()->max('order') + 1;
-        $path = $request->file('image')->store('pages/banner', 'public');
+        if (! $request->hasFile('image') && ! $request->filled('video_url')) {
+            return back()->withErrors(['image' => 'Se requiere una imagen o URL de video.']);
+        }
 
-        $section->images()->create(['image' => $path, 'order' => $nextOrder]);
+        // Calcular siguiente orden alfanumérico si no se provee uno
+        $order = $request->filled('order')
+            ? strtoupper(trim($request->input('order')))
+            : $this->nextAlphaOrder($section->images()->pluck('order')->toArray());
 
-        return back()->with('success', 'Imagen agregada.');
+        $path = null;
+        if ($request->hasFile('image')) {
+            $path = $request->file('image')->store('pages/banner', 'public');
+        }
+
+        $section->images()->create([
+            'image'     => $path,
+            'video_url' => $request->filled('video_url') ? $request->input('video_url') : null,
+            'order'     => $order,
+        ]);
+
+        return back()->with('success', 'Slide agregado.');
+    }
+
+    // ── Actualizar un slide (orden + imagen o video) ──────────────────────
+
+    public function updateSectionImage(Request $request, PageSectionImage $image)
+    {
+        $request->validate([
+            'order'     => 'nullable|string|max:20',
+            'image'     => 'nullable|image|max:5120',
+            'video_url' => 'nullable|string|max:500',
+        ]);
+
+        $path = $image->image;
+        if ($request->hasFile('image')) {
+            if ($path) Storage::disk('public')->delete($path);
+            $path = $request->file('image')->store('pages/banner', 'public');
+        }
+
+        $image->update([
+            'order'     => $request->filled('order') ? strtoupper(trim($request->input('order'))) : $image->order,
+            'image'     => $path,
+            'video_url' => $request->has('video_url') ? ($request->filled('video_url') ? $request->input('video_url') : null) : $image->video_url,
+        ]);
+
+        return back()->with('success', 'Slide actualizado.');
+    }
+
+    // ── Helper: siguiente orden alfanumérico (A→B→...→Z→AA→AB...) ────────
+
+    private function nextAlphaOrder(array $existing): string
+    {
+        $existing = array_map('strtoupper', array_filter($existing));
+
+        if (empty($existing)) return 'A';
+
+        // Función para incrementar una cadena alfabética
+        $increment = function (string $s): string {
+            $s = strtoupper($s);
+            $i = strlen($s) - 1;
+            while ($i >= 0) {
+                if ($s[$i] < 'Z') {
+                    $s[$i] = chr(ord($s[$i]) + 1);
+                    return $s;
+                }
+                $s[$i] = 'A';
+                $i--;
+            }
+            return 'A' . $s; // overflow: Z→AA, AZ→BA, etc.
+        };
+
+        // Ordenar las existentes alfabéticamente y tomar la última
+        usort($existing, 'strcmp');
+        $last = end($existing);
+
+        // Incrementar hasta encontrar una libre
+        $next = $increment($last);
+        while (in_array($next, $existing, true)) {
+            $next = $increment($next);
+        }
+
+        return $next;
     }
 
     // ── Eliminar una imagen de sección ────────────────────────────────────
 
     public function destroySectionImage(PageSectionImage $image)
     {
-        Storage::disk('public')->delete($image->image);
+        if ($image->image) {
+            Storage::disk('public')->delete($image->image);
+        }
         $image->delete();
-        return back()->with('success', 'Imagen eliminada.');
+        return back()->with('success', 'Slide eliminado.');
+    }
+
+    // ── GENERIC: toggle is_active ─────────────────────────────────────────
+
+    public function toggleSection(PageSection $section)
+    {
+        $section->update(['is_active' => ! $section->is_active]);
+        return back()->with('success', $section->is_active ? 'Sección activada.' : 'Sección desactivada.');
     }
 
     // ── GENERIC: eliminar una sección ────────────────────────────────────

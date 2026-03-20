@@ -3,31 +3,64 @@ import { router } from "@inertiajs/react";
 import { Icon } from "@iconify/react";
 import { useState } from "react";
 
+/** Convierte texto ALL-CAPS a Title Case suave */
+function toTitleCase(str) {
+    if (!str) return str;
+    return str
+        .toLowerCase()
+        .replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
 export default function ProductsIndex({ products, brands, gearboxes }) {
-    const params  = new URLSearchParams(window.location.search);
+    const params      = new URLSearchParams(window.location.search);
     const [search,    setSearch]  = useState(params.get("search")     || "");
     const [brandId,   setBrandId] = useState(params.get("brand_id")   || "");
     const [gearboxId, setGbId]    = useState(params.get("gearbox_id") || "");
+    const [oemExact,  setOemExact]  = useState(params.get("oem_exact")  || "");
+    const [codGs,     setCodGs]     = useState(params.get("cod_gs")     || "");
 
     const applyFilters = () => {
-        router.get("/admin/products", { search, brand_id: brandId, gearbox_id: gearboxId }, { preserveState: true });
+        router.get(
+            "/admin/products",
+            {
+                search,
+                brand_id:   brandId,
+                gearbox_id: gearboxId,
+                oem_exact:  oemExact,
+                cod_gs:     codGs,
+            },
+            { preserveState: true }
+        );
     };
+
+    const clearFilters = () => {
+        setSearch(""); setBrandId(""); setGbId("");
+        setOemExact(""); setCodGs("");
+        router.get("/admin/products");
+    };
+
+    const hasFilters = search || brandId || gearboxId || oemExact || codGs;
 
     const destroy = (id) => {
         if (!confirm("¿Eliminar este producto y todos sus items?")) return;
         router.delete(`/admin/products/${id}`);
     };
 
-    const thClass = "text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide";
+    const Th = ({ children, className = "" }) => (
+        <th className={`px-3 py-3 bg-gray-50/80 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider ${className}`}>
+            {children}
+        </th>
+    );
 
     return (
         <AdminLayout>
             <div>
-                {/* Header */}
+
+                {/* ── Header ─────────────────────────────────────────────── */}
                 <div className="flex items-center justify-between mb-6">
                     <div>
                         <h1 className="text-2xl font-bold text-gray-800">Productos</h1>
-                        <p className="text-sm text-gray-500">{products.total} productos en total</p>
+                        <p className="text-sm text-gray-400 mt-0.5">{products.total} productos</p>
                     </div>
                     <button
                         onClick={() => router.visit("/admin/products/create")}
@@ -38,196 +71,267 @@ export default function ProductsIndex({ products, brands, gearboxes }) {
                     </button>
                 </div>
 
-                {/* Filtros */}
-                <div className="flex flex-wrap gap-3 mb-5">
-                    <input
-                        type="text"
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                        onKeyDown={(e) => e.key === "Enter" && applyFilters()}
-                        placeholder="OEM, Cod. GS, Figura..."
-                        className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#25A7CA]/30 w-52"
-                    />
-                    <select
-                        value={brandId}
-                        onChange={(e) => { setBrandId(e.target.value); setGbId(""); }}
-                        className="border border-gray-200 rounded-lg px-3 py-2 text-sm"
-                    >
-                        <option value="">Todas las marcas</option>
-                        {brands.map((b) => (
-                            <option key={b.id} value={b.id}>{b.name?.es ?? b.name}</option>
-                        ))}
-                    </select>
-                    <select
-                        value={gearboxId}
-                        onChange={(e) => setGbId(e.target.value)}
-                        className="border border-gray-200 rounded-lg px-3 py-2 text-sm"
-                    >
-                        <option value="">Todas las cajas</option>
-                        {gearboxes.map((g) => (
-                            <option key={g.id} value={g.id}>{g.name}</option>
-                        ))}
-                    </select>
-                    <button
-                        onClick={applyFilters}
-                        className="px-4 py-2 bg-gray-100 rounded-lg text-sm text-gray-700 hover:bg-gray-200"
-                    >
-                        Filtrar
-                    </button>
+                {/* ── Filtros ─────────────────────────────────────────────── */}
+                <div className="bg-white border border-gray-100 rounded-2xl shadow-sm p-4 mb-5">
+                    <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-3">Filtros</p>
+                    <div className="flex flex-wrap gap-2">
+
+                        {/* Texto libre */}
+                        <div className="relative">
+                            <Icon icon="solar:magnifer-outline" className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" width={14} />
+                            <input
+                                type="text"
+                                value={search}
+                                onChange={(e) => setSearch(e.target.value)}
+                                onKeyDown={(e) => e.key === "Enter" && applyFilters()}
+                                placeholder="Descripción..."
+                                className="border border-gray-200 rounded-lg pl-8 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#25A7CA]/30 w-44"
+                            />
+                        </div>
+
+                        {/* OEM exacto */}
+                        <div className="relative">
+                            <Icon icon="solar:code-outline" className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" width={14} />
+                            <input
+                                type="text"
+                                value={oemExact}
+                                onChange={(e) => setOemExact(e.target.value)}
+                                onKeyDown={(e) => e.key === "Enter" && applyFilters()}
+                                placeholder="OEM exacto..."
+                                className="border border-gray-200 rounded-lg pl-8 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#25A7CA]/30 w-36"
+                            />
+                        </div>
+
+                        {/* Cod GS */}
+                        <div className="relative">
+                            <Icon icon="solar:hashtag-circle-outline" className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" width={14} />
+                            <input
+                                type="text"
+                                value={codGs}
+                                onChange={(e) => setCodGs(e.target.value)}
+                                onKeyDown={(e) => e.key === "Enter" && applyFilters()}
+                                placeholder="Cod. GS..."
+                                className="border border-gray-200 rounded-lg pl-8 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#25A7CA]/30 w-32"
+                            />
+                        </div>
+
+                        {/* Marca */}
+                        <select
+                            value={brandId}
+                            onChange={(e) => { setBrandId(e.target.value); setGbId(""); }}
+                            className="border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-600 focus:outline-none focus:ring-2 focus:ring-[#25A7CA]/30"
+                        >
+                            <option value="">Todas las marcas</option>
+                            {brands.map((b) => (
+                                <option key={b.id} value={b.id}>{b.name?.es ?? b.name}</option>
+                            ))}
+                        </select>
+
+                        {/* Caja */}
+                        <select
+                            value={gearboxId}
+                            onChange={(e) => setGbId(e.target.value)}
+                            className="border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-600 focus:outline-none focus:ring-2 focus:ring-[#25A7CA]/30"
+                        >
+                            <option value="">Todas las cajas</option>
+                            {gearboxes.map((g) => (
+                                <option key={g.id} value={g.id}>{g.name}</option>
+                            ))}
+                        </select>
+
+                        <button
+                            onClick={applyFilters}
+                            className="px-4 py-2 bg-[#25A7CA] text-white rounded-lg text-sm font-medium hover:bg-[#1d96b8] transition"
+                        >
+                            Filtrar
+                        </button>
+
+                        {hasFilters && (
+                            <button
+                                onClick={clearFilters}
+                                className="px-3 py-2 text-sm text-gray-400 hover:text-gray-600 flex items-center gap-1"
+                            >
+                                <Icon icon="solar:close-circle-outline" width={14} />
+                                Limpiar
+                            </button>
+                        )}
+                    </div>
                 </div>
 
-                {/* Tabla */}
+                {/* ── Tabla ───────────────────────────────────────────────── */}
                 <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-x-auto">
-                    <table className="w-full text-sm">
+                    <table className="w-full text-sm border-collapse">
                         <thead>
-                            <tr className="border-b border-gray-100 bg-gray-50/60">
-                                {/* Imagen */}
-                                <th className="w-12 px-3 py-3"></th>
-                                {/* Fig. */}
-                                <th className={`${thClass} w-20`}>Fig.</th>
-                                {/* Cod. GS */}
-                                <th className={`${thClass} w-24`}>Cod. GS</th>
-                                {/* Código OEM */}
-                                <th className={thClass}>Código OEM</th>
-                                {/* Caja de cambios */}
-                                <th className={`${thClass} hidden md:table-cell`}>Caja de cambios</th>
-                                {/* Descripción */}
-                                <th className={`${thClass} hidden lg:table-cell`}>Descripción</th>
-                                {/* Variantes */}
-                                <th className={`${thClass} hidden lg:table-cell`}>Variantes</th>
-                                {/* Acciones */}
-                                <th className="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide text-right">Acciones</th>
+                            <tr className="border-b border-gray-100">
+                                {/* img */}
+                                <th className="w-14 px-3 py-3 bg-gray-50/80 rounded-tl-2xl" />
+                                <Th className="w-12">Fig.</Th>
+                                <Th className="w-20">Cod. GS</Th>
+                                <Th>Código OEM</Th>
+                                <Th className="hidden lg:table-cell w-36">Caja</Th>
+                                <Th className="hidden lg:table-cell w-60">Modelos</Th>
+                                <Th className="hidden md:table-cell">Descripción</Th>
+                                <Th className="w-28">Variantes</Th>
+                                <th className="px-3 py-3 bg-gray-50/80 text-right text-[11px] font-semibold text-gray-400 uppercase tracking-wider rounded-tr-2xl">
+                                    Acciones
+                                </th>
                             </tr>
                         </thead>
-                        <tbody>
-                            {products.data.map((product, i) => (
-                                <tr
-                                    key={product.id}
-                                    className={`border-b border-gray-50 last:border-0 ${i % 2 === 0 ? "" : "bg-gray-50/30"}`}
-                                >
-                                    {/* Imagen */}
-                                    <td className="px-3 py-2">
+
+                        <tbody className="divide-y divide-gray-50">
+                            {products.data.map((product) => (
+                                <tr key={product.id} className="hover:bg-slate-50/60 transition-colors">
+
+                                    {/* ── Imagen ────────────────────────── */}
+                                    <td className="px-3 py-2.5">
                                         {product.primary_image ? (
                                             <img
                                                 src={product.primary_image.url}
-                                                className="w-10 h-10 object-cover rounded-lg border border-gray-100"
+                                                className="w-10 h-10 object-cover rounded-xl border border-gray-100"
                                                 alt=""
                                             />
                                         ) : (
-                                            <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
-                                                <Icon icon="solar:gallery-outline" width={16} className="text-gray-300" />
+                                            <div className="w-10 h-10 bg-gray-50 rounded-xl border border-dashed border-gray-200 flex items-center justify-center">
+                                                <Icon icon="solar:box-outline" width={15} className="text-gray-300" />
                                             </div>
                                         )}
                                     </td>
 
-                                    {/* Fig. */}
-                                    <td className="px-4 py-3 text-gray-600">
-                                        {product.figure
-                                            ? <span className="font-mono text-xs">{product.figure}</span>
-                                            : <span className="text-gray-300">—</span>
-                                        }
-                                    </td>
-
-                                    {/* Cod. GS */}
-                                    <td className="px-4 py-3">
-                                        {product.code_gs
-                                            ? <span className="font-semibold text-gray-800">{product.code_gs}</span>
-                                            : <span className="text-gray-300">—</span>
-                                        }
-                                        {product.items_count > 1 && (
-                                            <div className="mt-0.5">
-                                                <span className="text-[10px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full font-medium">
-                                                    {product.items_count} items
-                                                </span>
-                                            </div>
+                                    {/* ── Fig. ─────────────────────────── */}
+                                    <td className="px-3 py-2.5">
+                                        {product.figure ? (
+                                            <span className="font-mono text-xs font-semibold text-gray-600">{product.figure}</span>
+                                        ) : (
+                                            <span className="text-gray-200">—</span>
                                         )}
                                     </td>
 
-                                    {/* Código OEM */}
-                                    <td className="px-4 py-3">
-                                        {product.oem_codes?.length > 0
-                                            ? (
-                                                <div className="flex flex-col gap-0.5">
-                                                    {product.oem_codes.map((oem) => (
-                                                        <span key={oem} className="font-mono text-xs text-gray-700">{oem}</span>
-                                                    ))}
-                                                </div>
-                                            )
-                                            : <span className="text-gray-300">—</span>
-                                        }
+                                    {/* ── Cod. GS ───────────────────────── */}
+                                    <td className="px-3 py-2.5">
+                                        {product.code_gs ? (
+                                            <div className="flex flex-col items-start gap-1">
+                                                <span className="font-bold text-gray-800">{product.code_gs}</span>
+                                                {/* Badge SOLO si tiene más de 1 item (variantes reales) */}
+                                                {product.items_count > 1 && (
+                                                    <span className="inline-flex items-center gap-0.5 text-[10px] bg-amber-50 text-amber-500 border border-amber-100 px-1.5 py-0.5 rounded font-medium">
+                                                        <Icon icon="solar:layers-minimalistic-outline" width={9} />
+                                                        {product.items_count} vars
+                                                    </span>
+                                                )}
+                                            </div>
+                                        ) : (
+                                            <span className="text-gray-200">—</span>
+                                        )}
                                     </td>
 
-                                    {/* Caja de cambios */}
-                                    <td className="px-4 py-3 hidden md:table-cell max-w-[220px]">
-                                        <div className="text-xs text-gray-400 uppercase tracking-wide">
+                                    {/* ── Código OEM ────────────────────── */}
+                                    <td className="px-3 py-2.5">
+                                        {product.oem_codes?.length > 0 ? (
+                                            <div className="flex flex-col gap-1">
+                                                {product.oem_codes.map((oem) => (
+                                                    <code
+                                                        key={oem}
+                                                        className="inline-block font-mono text-[12px] text-gray-400 bg-gray-50 border border-gray-100 px-2 py-0.5 rounded-md"
+                                                    >
+                                                        {oem}
+                                                    </code>
+                                                ))}
+                                            </div>
+                                        ) : (
+                                            <span className="text-gray-200">—</span>
+                                        )}
+                                    </td>
+
+                                    {/* ── Caja ──────────────────────────── */}
+                                    <td className="px-3 py-2.5 hidden lg:table-cell">
+                                        <div className="text-[10px] text-gray-400 uppercase tracking-wide font-medium">
                                             {product.gearbox?.brand?.name?.es ?? product.gearbox?.brand?.name ?? ""}
                                         </div>
-                                        <div className="text-sm text-gray-700 font-medium">
-                                            {product.gearbox?.name}
+                                        <div className="text-sm font-semibold text-gray-700 mt-0.5">
+                                            {product.gearbox?.name ?? <span className="text-gray-300">—</span>}
                                         </div>
-                                        {product.gearbox?.compatible_vehicles && (
-                                            <div
-                                                className="text-[11px] text-gray-400 mt-0.5 leading-tight truncate"
-                                                title={product.gearbox.compatible_vehicles}
-                                            >
+                                    </td>
+
+                                    {/* ── Modelos ── completo, hace wrap ─── */}
+                                    <td className="px-3 py-2.5 hidden lg:table-cell">
+                                        {product.gearbox?.compatible_vehicles ? (
+                                            <span className="text-xs text-gray-400 leading-relaxed whitespace-normal">
                                                 {product.gearbox.compatible_vehicles}
-                                            </div>
+                                            </span>
+                                        ) : (
+                                            <span className="text-gray-200">—</span>
                                         )}
                                     </td>
 
-                                    {/* Descripción */}
-                                    <td className="px-4 py-3 text-gray-600 hidden lg:table-cell max-w-xs">
-                                        <div className="truncate">{product.name_es || "—"}</div>
+                                    {/* ── Descripción ── Title Case + semibold */}
+                                    <td className="px-3 py-2.5 hidden md:table-cell">
+                                        {product.name_es ? (
+                                            <span
+                                                className="text-xs font-semibold text-gray-700 line-clamp-2 leading-snug"
+                                                title={product.name_es}
+                                            >
+                                                {toTitleCase(product.name_es)}
+                                            </span>
+                                        ) : (
+                                            <span className="text-gray-200">—</span>
+                                        )}
                                     </td>
 
-                                    {/* Variantes */}
-                                    <td className="px-4 py-3 hidden lg:table-cell">
+                                    {/* ── Variantes ─────────────────────── */}
+                                    <td className="px-3 py-2.5">
                                         <div className="flex flex-wrap gap-1">
-                                            {(product.variants ?? []).slice(0, 5).map((v) => (
+                                            {(product.variants ?? []).slice(0, 4).map((v) => (
                                                 <span
                                                     key={v}
-                                                    className="text-[10px] bg-[#25A7CA]/10 text-[#25A7CA] px-1.5 py-0.5 rounded-full font-medium uppercase"
+                                                    className="inline-block text-[11px] font-semibold bg-[#25A7CA]/10 text-[#1d96b8] px-2 py-0.5 rounded-md uppercase"
                                                 >
                                                     {v}
                                                 </span>
                                             ))}
-                                            {product.variants?.length > 5 && (
-                                                <span className="text-[10px] text-gray-400">
-                                                    +{product.variants.length - 5}
-                                                </span>
+                                            {product.variants?.length > 4 && (
+                                                <span className="text-[11px] text-gray-400">+{product.variants.length - 4}</span>
+                                            )}
+                                            {(!product.variants || product.variants.length === 0) && (
+                                                <span className="text-[11px] text-gray-300 italic">Genérico</span>
                                             )}
                                         </div>
                                     </td>
 
-                                    {/* Acciones */}
-                                    <td className="px-4 py-3">
-                                        <div className="flex items-center justify-end gap-2">
-                                            <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${product.is_active ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"}`}>
+                                    {/* ── Acciones ──────────────────────── */}
+                                    <td className="px-3 py-2.5">
+                                        <div className="flex items-center justify-end gap-1">
+                                            <span className={`text-[10px] px-2 py-0.5 rounded-full font-semibold border ${
+                                                product.is_active
+                                                    ? "bg-emerald-50 text-emerald-600 border-emerald-100"
+                                                    : "bg-gray-50 text-gray-400 border-gray-200"
+                                            }`}>
                                                 {product.is_active ? "Activo" : "Inactivo"}
                                             </span>
                                             <button
                                                 onClick={() => router.visit(`/admin/products/${product.id}/edit`)}
-                                                className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-600"
+                                                className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-700 transition-colors"
                                                 title="Editar"
                                             >
-                                                <Icon icon="solar:pen-outline" width={15} />
+                                                <Icon icon="solar:pen-outline" width={14} />
                                             </button>
                                             <button
                                                 onClick={() => destroy(product.id)}
-                                                className="p-1.5 rounded-lg hover:bg-red-50 text-red-400"
+                                                className="p-1.5 rounded-lg hover:bg-red-50 text-gray-300 hover:text-red-400 transition-colors"
                                                 title="Eliminar"
                                             >
-                                                <Icon icon="solar:trash-bin-trash-outline" width={15} />
+                                                <Icon icon="solar:trash-bin-trash-outline" width={14} />
                                             </button>
                                         </div>
                                     </td>
+
                                 </tr>
                             ))}
 
                             {products.data.length === 0 && (
                                 <tr>
-                                    <td colSpan={8} className="px-5 py-12 text-center text-sm text-gray-400">
-                                        Sin productos. Usá el importador Excel o creá uno manualmente.
+                                    <td colSpan={9} className="py-16 text-center">
+                                        <Icon icon="solar:box-outline" width={36} className="text-gray-200 mx-auto mb-2" />
+                                        <p className="text-sm text-gray-400">Sin productos. Usá el importador Excel o creá uno manualmente.</p>
                                     </td>
                                 </tr>
                             )}
@@ -235,30 +339,31 @@ export default function ProductsIndex({ products, brands, gearboxes }) {
                     </table>
                 </div>
 
-                {/* Paginación */}
+                {/* ── Paginación ──────────────────────────────────────────── */}
                 {products.last_page > 1 && (
-                    <div className="flex items-center justify-between mt-4 text-sm text-gray-500">
-                        <span>Página {products.current_page} de {products.last_page} ({products.total} productos)</span>
-                        <div className="flex gap-2">
+                    <div className="flex items-center justify-between mt-4 text-sm text-gray-400">
+                        <span>Página {products.current_page} de {products.last_page}</span>
+                        <div className="flex gap-1.5">
                             {products.prev_page_url && (
                                 <button
                                     onClick={() => router.get(products.prev_page_url)}
-                                    className="px-3 py-1.5 border border-gray-200 rounded-lg hover:bg-gray-50"
+                                    className="flex items-center gap-1 px-3 py-1.5 border border-gray-200 rounded-lg hover:bg-gray-50 text-gray-600 transition"
                                 >
-                                    Anterior
+                                    <Icon icon="solar:arrow-left-outline" width={13} /> Anterior
                                 </button>
                             )}
                             {products.next_page_url && (
                                 <button
                                     onClick={() => router.get(products.next_page_url)}
-                                    className="px-3 py-1.5 border border-gray-200 rounded-lg hover:bg-gray-50"
+                                    className="flex items-center gap-1 px-3 py-1.5 border border-gray-200 rounded-lg hover:bg-gray-50 text-gray-600 transition"
                                 >
-                                    Siguiente
+                                    Siguiente <Icon icon="solar:arrow-right-outline" width={13} />
                                 </button>
                             )}
                         </div>
                     </div>
                 )}
+
             </div>
         </AdminLayout>
     );

@@ -40,6 +40,17 @@ Route::prefix('productos')->name('products.')->group(function () {
     Route::get('/{brand:slug}/{gearbox:slug}/{product}', [ProductController::class, 'show'])->name('show');
 });
 
+// API interna: gearboxes por marca (usada por los buscadores via AJAX)
+Route::get('/api/gearboxes', function (\Illuminate\Http\Request $request) {
+    $brand = \App\Models\Brand::where('slug', $request->input('brand'))->first();
+    if (! $brand) return response()->json([]);
+    $gearboxes = \App\Models\Gearbox::where('brand_id', $brand->id)
+        ->where('is_active', true)
+        ->orderBy('name')
+        ->get(['id', 'name', 'slug']);
+    return response()->json($gearboxes);
+})->name('api.gearboxes');
+
 Route::view('/calidad',  'web.about.index')->name('calidad');
 Route::view('/contacto', 'web.contact.index')->name('contact.index');
 Route::post('/contacto', [ContactController::class, 'store'])->name('contact.store');
@@ -75,10 +86,11 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
         // Marcas
-        Route::get('/brands',                            [BrandController::class, 'index'])->name('brands.index');
-        Route::post('/brands',                           [BrandController::class, 'store'])->name('brands.store');
-        Route::match(['POST','PUT'], '/brands/{brand}',  [BrandController::class, 'update'])->name('brands.update');
-        Route::delete('/brands/{brand}',                 [BrandController::class, 'destroy'])->name('brands.destroy');
+        Route::get('/brands',                              [BrandController::class, 'index'])->name('brands.index');
+        Route::post('/brands',                             [BrandController::class, 'store'])->name('brands.store');
+        Route::match(['POST','PUT'], '/brands/{brand}',    [BrandController::class, 'update'])->name('brands.update');
+        Route::patch('/brands/{brand}/toggle-home',        [BrandController::class, 'toggleHome'])->name('brands.toggle-home');
+        Route::delete('/brands/{brand}',                   [BrandController::class, 'destroy'])->name('brands.destroy');
 
         // Cajas de cambios
         Route::get('/gearboxes',              [GearboxController::class, 'index'])->name('gearboxes.index');
@@ -96,9 +108,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('/products/bulk-image',               [AdminProductController::class, 'bulkImage'])->name('products.bulk-image');
 
         // Home – Calidad (sección del home)
-        Route::get('/home-calidad',                   [HomeCalidadController::class, 'edit'])->name('home-calidad.edit');
-        Route::post('/home-calidad',                  [HomeCalidadController::class, 'update'])->name('home-calidad.update');
-        Route::put('/home-calidad',                   [HomeCalidadController::class, 'update'])->name('home-calidad.update.put');
+        Route::get('/home-calidad',              [HomeCalidadController::class, 'edit'])->name('home-calidad.edit');
+        Route::post('/home-calidad',             [HomeCalidadController::class, 'update'])->name('home-calidad.update');
         Route::delete('/home-calidad/images/{image}', [HomeCalidadController::class, 'destroyImage'])->name('home-calidad.images.destroy');
 
         // Importación masiva desde Excel
@@ -111,10 +122,14 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('/hero',                   [HeroController::class, 'store'])->name('hero.store');
         Route::get('/hero/{hero}/edit',        [HeroController::class, 'edit'])->name('hero.edit');
         Route::put('/hero/{hero}',             [HeroController::class, 'update'])->name('hero.update');
+        Route::patch('/hero/{hero}/toggle',    [HeroController::class, 'toggle'])->name('hero.toggle');
         Route::delete('/hero/{hero}',          [HeroController::class, 'destroy'])->name('hero.destroy');
 
         // ── CMS: Home → About ─────────────────────────────────────────────
         Route::get('/home-about',              [CmsController::class, 'homeAbout'])->name('home-about.index');
+
+        // ── CMS: Banner Productos ─────────────────────────────────────────
+        Route::get('/products-banner',         [CmsController::class, 'productsBanner'])->name('cms.products-banner');
 
         // ── CMS: Empresa ──────────────────────────────────────────────────
         Route::get('/empresa',                 [CmsController::class, 'empresa'])->name('cms.empresa');
@@ -129,10 +144,12 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // ── Secciones genéricas ───────────────────────────────────────────
         Route::post('/pages/{page}/sections',                    [CmsController::class, 'createSection'])->name('sections.create');
         Route::match(['POST', 'PUT'], '/sections/{section}',  [CmsController::class, 'updateSection'])->name('sections.update');
+        Route::patch('/sections/{section}/toggle',            [CmsController::class, 'toggleSection'])->name('sections.toggle');
         Route::delete('/sections/{section}',                  [CmsController::class, 'destroySection'])->name('sections.destroy');
 
         // ── Imágenes de sección (banner Empresa, galería, etc.) ──────────
         Route::post('/sections/{section}/images',              [CmsController::class, 'addSectionImage'])->name('section-images.store');
+        Route::patch('/section-images/{image}',               [CmsController::class, 'updateSectionImage'])->name('section-images.update');
         Route::delete('/section-images/{image}',              [CmsController::class, 'destroySectionImage'])->name('section-images.destroy');
 
         // ── Mensajes de Contacto ──────────────────────────────────────────

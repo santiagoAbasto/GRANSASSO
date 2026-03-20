@@ -132,6 +132,12 @@ class HeroController extends Controller
         return redirect()->route('admin.hero.index')->with('success', 'Slide actualizado correctamente.');
     }
 
+    public function toggle(Slider $hero)
+    {
+        $hero->update(['is_active' => ! $hero->is_active]);
+        return back()->with('success', $hero->is_active ? 'Slide activado.' : 'Slide desactivado.');
+    }
+
     public function destroy(Slider $hero)
     {
         if ($hero->image) {

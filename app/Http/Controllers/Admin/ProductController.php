@@ -28,11 +28,19 @@ class ProductController extends Controller
                 fn ($q) => $q->whereHas('gearbox', fn ($q2) => $q2->where('brand_id', $request->brand_id))
             )
             ->when($request->gearbox_id, fn ($q) => $q->where('gearbox_id', $request->gearbox_id))
+            // Búsqueda libre: descripción, cod GS o figura
             ->when($request->search, fn ($q) => $q->where(function ($q2) use ($request) {
-                $q2->where('code_gs', 'like', "%{$request->search}%")
-                   ->orWhere('figure', 'like', "%{$request->search}%")
-                   ->orWhereHas('items', fn ($q3) => $q3->where('oem_code', 'like', "%{$request->search}%"));
+                $term = "%{$request->search}%";
+                $q2->where('code_gs', 'like', $term)
+                   ->orWhere('figure', 'like', $term)
+                   ->orWhereRaw("JSON_UNQUOTE(JSON_EXTRACT(name, '$.es')) LIKE ?", [$term]);
             }))
+            // OEM exacto: match exacto en cualquiera de los items
+            ->when($request->oem_exact, fn ($q) => $q->whereHas(
+                'items', fn ($q2) => $q2->where('oem_code', trim($request->oem_exact))
+            ))
+            // Cod GS: match parcial en el campo code_gs del producto
+            ->when($request->cod_gs, fn ($q) => $q->where('code_gs', 'like', "%{$request->cod_gs}%"))
             ->orderBy('gearbox_id')
             ->orderBy('figure');
 
