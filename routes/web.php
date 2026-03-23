@@ -38,6 +38,7 @@ Route::prefix('productos')->name('products.')->group(function () {
     Route::get('/{brand:slug}',               [ProductController::class, 'brand'])->name('brand');
     Route::get('/{brand:slug}/{gearbox:slug}', [ProductController::class, 'gearbox'])->name('gearbox');
     Route::get('/{brand:slug}/{gearbox:slug}/{product}', [ProductController::class, 'show'])->name('show');
+    Route::get('/{brand:slug}/{gearbox:slug}/{product}/pdf', [ProductController::class, 'pdf'])->name('pdf');
 });
 
 // API interna: gearboxes por marca (usada por los buscadores via AJAX)

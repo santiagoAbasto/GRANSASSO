@@ -59,7 +59,8 @@
                     @php
                         $primaryItem = $product->items->first();
                         $oemCode     = $primaryItem?->oem_code ?? $product->code_gs ?? '—';
-                        $productName = $product->getName();
+                        $rawName     = $product->getName();
+                        $productName = $rawName ? ucwords(mb_strtolower($rawName)) : null;
                     @endphp
 
                     <a href="{{ route('products.show', [$brand->slug, $gearbox->slug, $product->id]) }}"

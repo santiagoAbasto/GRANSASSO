@@ -325,8 +325,10 @@ class ProductController extends Controller
             'gearbox_id'      => $p->gearbox_id,
             'figure'          => $p->figure,
             'code_gs'         => $p->code_gs,
-            'name_es'         => $p->name['es'] ?? null,
-            'description_es'  => $p->description['es'] ?? null,
+            'name_es'         => null, // campo manual — no se auto-rellena
+            // description['es'] tiene el texto del Excel (nuevos imports)
+            // name['es'] tiene el texto en productos viejos → fallback
+            'description_es'  => $p->description['es'] ?? $p->name['es'] ?? null,
             'is_active'       => $p->is_active,
             'gearbox'         => ['brand_id' => $p->gearbox->brand_id],
             // ── Item principal (editable) ──────────────────────────────────

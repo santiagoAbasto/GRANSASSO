@@ -1,19 +1,23 @@
 @extends('web.layouts.app')
 
 @php
-    /* ── Datos del producto ───────────────────────────────────────────────
-     * Con el nuevo modelo (ProductItem), un Product tiene N items.
-     * La ficha muestra el primer item como "principal" y agrega
-     * referencias / aplicaciones de todos los items.
-     * ─────────────────────────────────────────────────────────────────── */
-
     $primaryItem   = $product->items->first();
     $oemCode       = $primaryItem?->oem_code ?? $product->code_gs ?? '—';
-    $productName   = $product->getName();
-    $productDesc   = $product->getDescription();
+    $productName   = $product->getName()
+        ? ucwords(mb_strtolower($product->getName()))
+        : null;
+    $rawDesc     = $product->getDescription();
+    $productDesc = $rawDesc ? ucwords(mb_strtolower($rawDesc)) : null;
+
+    // Figura: del producto o del primer item que la tenga
+    $figure = $product->figure
+        ?? $product->items->pluck('figure')->filter()->first();
+
+    // Código GS
+    $codeGs = $product->code_gs;
 
     // Referencias: del primer item que tenga dato
-    $refOriginal   = $product->items
+    $refOriginal = $product->items
         ->map(fn ($i) => $i->getReferenciaOriginal())
         ->filter()
         ->first();
@@ -25,16 +29,11 @@
         ->unique()
         ->values();
 
-    // ── Variantes de caja (G60, G85, etc.) ─────────────────────────────
-    // Con la nueva arquitectura cada variante = 1 item con application="G60".
-    // Se muestran como badges de compatibilidad.
+    // Variantes de caja (G60, G85, etc.)
     $variants = collect($product->getAvailableVariants())
         ->map(fn ($v) => strtoupper($v));
 
-    // ── Aplicaciones de vehículo ────────────────────────────────────────
-    // Solo aplica al formato plano donde modelos_vehiculo viene por fila.
-    // En el formato catálogo las applications SON las variantes (ya mostradas
-    // como badges), así que las excluimos para evitar duplicar la información.
+    // Aplicaciones de vehículo (las que NO son variantes de caja)
     $variantSet   = $variants->map(fn ($v) => strtolower($v))->toArray();
     $applications = $product->items
         ->filter(fn ($i) => $i->application !== null)
@@ -43,15 +42,19 @@
         ->filter(fn ($app) => ! in_array(strtolower($app), $variantSet, true))
         ->values();
 
-    // ── OEM codes alternativos ──────────────────────────────────────────
-    // Todos los OEM únicos del producto EXCEPTO el principal.
-    // Con el nuevo modelo un producto puede tener el mismo OEM en G60 y G85
-    // (mismo OEM, distinta application) → se deduplica correctamente.
+    // OEM codes alternativos (todos excepto el principal)
     $altOemCodes = $product->items
         ->pluck('oem_code')
         ->filter()
         ->unique()
         ->filter(fn ($oem) => $oem !== $oemCode)
+        ->values();
+
+    // Notas de items (deduplicadas, non-empty)
+    $notes = $product->items
+        ->pluck('notes')
+        ->filter()
+        ->unique()
         ->values();
 @endphp
 
@@ -114,7 +117,9 @@
                          id="productMainImg">
                     <button class="product-detail__zoom"
                             aria-label="{{ __('ui.product_detail.zoom') }}">
-                        +
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <path d="M5 12H19M12 5V19" stroke="#1D1E20" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
                     </button>
                 </div>
 
@@ -129,6 +134,9 @@
                 {{-- OEM code como título principal --}}
                 <h1 class="product-detail__code">{{ $oemCode }}</h1>
 
+                {{-- Divisor 1: directo bajo el código OEM --}}
+                <hr class="product-detail__sep">
+
                 {{-- Nombre del producto --}}
                 @if($productName)
                 <p class="product-detail__name">{{ $productName }}</p>
@@ -139,9 +147,63 @@
                 <p class="product-detail__desc">{{ $productDesc }}</p>
                 @endif
 
-                {{-- ── Tabla de referencias ──────────────────────────── --}}
+                {{-- ── Tabla de datos ─────────────────────────────────── --}}
                 <table class="product-detail__refs">
 
+                    {{-- Código GS --}}
+                    @if($codeGs)
+                    <tr>
+                        <td>Código GS</td>
+                        <td>{{ $codeGs }}</td>
+                    </tr>
+                    @endif
+
+                    {{-- Figura --}}
+                    @if($figure)
+                    <tr>
+                        <td>Figura</td>
+                        <td>{{ $figure }}</td>
+                    </tr>
+                    @endif
+
+                    {{-- Modelo de caja --}}
+                    <tr>
+                        <td>Modelo de caja</td>
+                        <td>{{ $gearbox->name }}</td>
+                    </tr>
+
+                    {{-- Vehículos compatibles de la caja --}}
+                    @if($gearbox->compatible_vehicles)
+                    <tr>
+                        <td>Vehículos compatibles</td>
+                        <td>{{ $gearbox->compatible_vehicles }}</td>
+                    </tr>
+                    @endif
+
+                    {{-- Campos extra de la caja --}}
+                    @if($gearbox->extra_field_1)
+                    <tr>
+                        <td>Información adicional</td>
+                        <td>{{ $gearbox->extra_field_1 }}</td>
+                    </tr>
+                    @endif
+
+                    @if($gearbox->extra_field_2)
+                    <tr>
+                        <td></td>
+                        <td>{{ $gearbox->extra_field_2 }}</td>
+                    </tr>
+                    @endif
+
+                    {{-- Variantes compatibles --}}
+                    @if($variants->isNotEmpty())
+                    <tr>
+                        <td>Modelos compatibles</td>
+                        <td>{{ $variants->implode(' / ') }}</td>
+                    </tr>
+                    @endif
+
+                    {{-- Referencia Original --}}
                     @if($refOriginal)
                     <tr>
                         <td>{{ __('ui.product_detail.original_ref') }}</td>
@@ -149,6 +211,7 @@
                     </tr>
                     @endif
 
+                    {{-- Referencias Adicionales --}}
                     @if($refsAdicionales->isNotEmpty())
                     <tr>
                         <td>{{ __('ui.product_detail.additional_ref') }}</td>
@@ -156,6 +219,7 @@
                     </tr>
                     @endif
 
+                    {{-- Códigos OEM alternativos --}}
                     @if($altOemCodes->isNotEmpty())
                     <tr>
                         <td>{{ __('ui.product_detail.alt_oem') }}</td>
@@ -163,6 +227,7 @@
                     </tr>
                     @endif
 
+                    {{-- Aplicaciones de vehículo --}}
                     @if($applications->isNotEmpty())
                     <tr>
                         <td>{{ __('ui.product_detail.application') }}</td>
@@ -174,35 +239,29 @@
                     </tr>
                     @endif
 
-                </table>
+                    {{-- Notas --}}
+                    @if($notes->isNotEmpty())
+                    <tr>
+                        <td>Notas</td>
+                        <td>
+                            @foreach($notes as $note)
+                            {{ $note }}@if(!$loop->last)<br>@endif
+                            @endforeach
+                        </td>
+                    </tr>
+                    @endif
 
-                {{-- ── Variantes / compatibilidad ───────────────────── --}}
-                @if($variants->isNotEmpty())
-                <div class="product-detail__versions">
-                    @foreach($variants as $variant)
-                    <span class="product-detail__version-badge">{{ $variant }}</span>
-                    @endforeach
-                </div>
-                @endif
+                </table>
 
                 {{-- ── Acciones ──────────────────────────────────────── --}}
                 <div class="product-detail__actions">
 
-                    @php $doc = $product->getTechnicalSheet(); @endphp
-
-                    @if($doc)
-                    <a href="{{ asset('storage/' . $doc->file) }}"
+                    <a href="{{ route('products.pdf', [$brand->slug, $gearbox->slug, $product->id]) }}"
                        target="_blank"
                        rel="noopener"
                        class="btn btn--outline">
                         {{ __('ui.product_detail.technical_sheet') }}
                     </a>
-                    @else
-                    <a href="{{ route('contact.index') }}?tipo=ficha&producto={{ $oemCode }}"
-                       class="btn btn--outline">
-                        {{ __('ui.product_detail.technical_sheet') }}
-                    </a>
-                    @endif
 
                     <a href="{{ route('contact.index') }}?producto={{ $oemCode }}"
                        class="btn btn--primary">
@@ -225,14 +284,14 @@
                     $relOem  = $relItem?->oem_code ?? $rel->code_gs ?? '—';
                 @endphp
                 <a href="{{ route('products.show', [$brand->slug, $gearbox->slug, $rel->id]) }}"
-                   class="product-card">
+                   class="rel-card">
 
-                    <div class="product-card__img-wrap">
+                    <div class="rel-card__img">
                         @if($rel->primaryImage)
                             <img src="{{ asset('storage/' . $rel->primaryImage->path) }}"
                                  alt="{{ $relOem }}" loading="lazy">
                         @else
-                            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48"
+                            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40"
                                  viewBox="0 0 24 24" fill="none" stroke="#D1D5DB"
                                  stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
                                 <rect x="3" y="3" width="18" height="18" rx="2"/>
@@ -240,16 +299,17 @@
                                 <polyline points="21 15 16 10 5 21"/>
                             </svg>
                         @endif
-                        <div class="product-card__overlay">
-                            <span class="product-card__plus">+</span>
-                        </div>
+                        <div class="rel-card__overlay"></div>
+                        <span class="rel-card__plus">+</span>
                     </div>
 
-                    <div class="product-card__body">
-                        <span class="product-card__category">{{ strtoupper($brand->getName()) }}</span>
-                        <h3 class="product-card__name">{{ $relOem }}</h3>
+                    <span class="rel-card__divider"></span>
+
+                    <div class="rel-card__body">
+                        <span class="rel-card__brand">{{ strtoupper($brand->getName()) }}</span>
+                        <h3 class="rel-card__name">{{ $relOem }}</h3>
                         @if($rel->getName())
-                        <p class="product-card__subtitle">{{ $rel->getName() }}</p>
+                        <p class="rel-card__subtitle">{{ ucwords(mb_strtolower($rel->getName())) }}</p>
                         @endif
                     </div>
 

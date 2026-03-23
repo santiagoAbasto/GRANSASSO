@@ -7,6 +7,7 @@ use App\Models\Brand;
 use App\Models\Gearbox;
 use App\Models\Page;
 use App\Models\Product;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 
 class ProductController extends Controller
@@ -74,6 +75,40 @@ class ProductController extends Controller
             ->get();
 
         return view('web.products.show', compact('brand', 'gearbox', 'product', 'related'));
+    }
+
+    /**
+     * /productos/{brand}/{gearbox}/{product}/pdf — ficha técnica en PDF
+     */
+    public function pdf(Brand $brand, Gearbox $gearbox, Product $product)
+    {
+        abort_if($gearbox->brand_id !== $brand->id, 404);
+        abort_if($product->gearbox_id !== $gearbox->id, 404);
+
+        $product->load(['images', 'items']);
+
+        $primaryItem     = $product->items->first();
+        $oemCode         = $primaryItem?->oem_code ?? $product->code_gs ?? '—';
+        $productName     = $product->getName();
+        $productDesc     = $product->getDescription();
+        $refOriginal     = $product->items->map(fn ($i) => $i->getReferenciaOriginal())->filter()->first();
+        $refsAdicionales = $product->items->flatMap(fn ($i) => $i->getReferenciasAdicionales())->filter()->unique()->values();
+        $variants        = collect($product->getAvailableVariants())->map(fn ($v) => strtoupper($v));
+        $variantSet      = $variants->map(fn ($v) => strtolower($v))->toArray();
+        $applications    = $product->items->filter(fn ($i) => $i->application !== null)->pluck('application')->unique()->filter(fn ($a) => !in_array(strtolower($a), $variantSet, true))->values();
+        $altOemCodes     = $product->items->pluck('oem_code')->filter()->unique()->filter(fn ($o) => $o !== $oemCode)->values();
+        $mainImage       = $product->primaryImage ?? $product->images->first();
+        $allImages       = $product->images;
+        $codeGs          = $product->code_gs;
+        $figure          = $product->figure;
+
+        $pdf = Pdf::loadView('web.products.pdf', compact(
+            'brand', 'gearbox', 'product', 'oemCode', 'productName', 'productDesc',
+            'refOriginal', 'refsAdicionales', 'altOemCodes', 'applications', 'variants',
+            'mainImage', 'allImages', 'codeGs', 'figure'
+        ))->setPaper('a4');
+
+        return $pdf->stream("ficha-{$oemCode}.pdf");
     }
 
     /**

@@ -282,8 +282,8 @@ class CatalogProductsImport implements ToArray
                 'gearbox_id'  => $gearbox->id,
                 'figure'      => $figure,
                 'code_gs'     => $codeGs,
-                'name'        => ['es' => $desc ?: null, 'en' => null, 'pt' => null],
-                'description' => ['es' => null, 'en' => null, 'pt' => null],
+                'name'        => ['es' => null, 'en' => null, 'pt' => null],
+                'description' => ['es' => $desc ?: null, 'en' => null, 'pt' => null],
                 'slug'        => $this->generateUniqueSlug($slugBase),
                 'is_active'   => true,
             ]);
@@ -299,10 +299,10 @@ class CatalogProductsImport implements ToArray
             $updates['figure'] = $figure;
         }
 
-        if ($desc !== '' && empty($product->name['es'] ?? null)) {
-            $name       = $product->name ?? [];
-            $name['es'] = $desc;
-            $updates['name'] = $name;
+        if ($desc !== '' && empty($product->description['es'] ?? null)) {
+            $description       = $product->description ?? [];
+            $description['es'] = $desc;
+            $updates['description'] = $description;
         }
 
         if (! empty($updates)) {
