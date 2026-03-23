@@ -263,7 +263,7 @@
                         {{ __('ui.product_detail.technical_sheet') }}
                     </a>
 
-                    <a href="{{ route('contact.index') }}?producto={{ $oemCode }}"
+                    <a href="{{ url('/contacto') }}?producto={{ $oemCode }}"
                        class="btn btn--primary">
                         {{ __('ui.product_detail.inquire') }}
                     </a>

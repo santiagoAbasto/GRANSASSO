@@ -60,6 +60,28 @@ return [
         'slide_aria'  => 'Ir al slide :num',
     ],
 
+    /* ── Desarrollos especiales ── */
+    'desarrollos' => [
+        'page_title'        => 'Desarrollos especiales',
+        'section_title'     => 'Desarrollo y fabricación a medida',
+        'p1' => 'Nuestra experiencia en el sector, combinada con tecnología de última generación y un equipo técnico altamente capacitado, nos permite desarrollar y fabricar engranajes y piezas especiales según los requerimientos específicos de cada cliente.',
+        'p2' => 'Trabajamos con precisión y compromiso en cada proyecto, otorgando soluciones confiables y adaptadas a las necesidades de cada aplicación.',
+        'p3' => 'Realizamos el diseño y la producción de repuestos para maquinaria industrial a partir de muestras físicas o planos técnicos de los equipos, garantizando compatibilidad, funcionalidad y altos estándares de calidad.',
+        'p4' => 'Este servicio permite optimizar el rendimiento de los equipos y extender su vida útil, incluso cuando se trata de componentes discontinuados o de difícil acceso.',
+        'p5' => 'Ofrecemos soluciones de nacionalización de repuestos, reduciendo tiempos de espera y costos de importación, así como la fabricación de piezas unitarias o en series, según las necesidades de producción de cada cliente.',
+        'p6' => 'Nuestro enfoque flexible nos permite adaptarnos tanto a proyectos puntuales como a demandas continuas, siempre manteniendo el foco en la precisión, la eficiencia y la confiabilidad.',
+        'gallery_title'     => 'Trabajos realizados',
+        'form_name'         => 'Nombre y Apellido',
+        'form_phone'        => 'Teléfono',
+        'form_email'        => 'Email',
+        'form_file'         => 'Adjuntar archivo',
+        'form_file_ph'      => 'Seleccionar archivo',
+        'form_message'      => 'Mensaje',
+        'form_required'     => '*Campos obligatorios',
+        'form_submit'       => 'Enviar mensaje',
+        'form_success'      => 'Su mensaje fue enviado correctamente. Nos pondremos en contacto a la brevedad.',
+    ],
+
     /* ── Detalle de producto ── */
     'product_detail' => [
         'original_ref'    => 'Referencia Original',

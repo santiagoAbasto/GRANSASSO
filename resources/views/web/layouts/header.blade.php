@@ -1,6 +1,6 @@
 @php
     $isHome = request()->routeIs('home');
-    $hasTransparentNav = $isHome || request()->routeIs('empresa') || request()->routeIs('products.index');
+    $hasTransparentNav = $isHome || request()->routeIs('empresa') || request()->routeIs('products.index') || request()->routeIs('desarrollos');
     $hasLightNav = request()->routeIs('products.brand')
                 || request()->routeIs('products.gearbox')
                 || request()->routeIs('products.show')
@@ -47,7 +47,7 @@
             <a href="{{ route('products.index') }}"
                class="{{ request()->routeIs('products.*') ? 'active' : '' }}">{{ __('ui.nav.products') }}</a>
 
-            <a href="#"
+            <a href="{{ route('desarrollos') }}"
                class="{{ request()->routeIs('desarrollos*') ? 'active' : '' }}">{{ __('ui.nav.special_dev') }}</a>
 
             <a href="{{ route('calidad') }}"

@@ -7,327 +7,303 @@
 
 body {
     font-family: DejaVu Sans, sans-serif;
-    font-size: 9.5px;
-    color: #1D1E20;
+    font-size: 9px;
+    color: #1a1a2e;
     background: #fff;
-    padding: 0 32px 0 32px;
+    padding: 30px 40px 40px 40px;
 }
 
-/* ════════════════════════════════════════
-   HEADER
-════════════════════════════════════════ */
+@page {
+    margin: 20mm 20mm 26mm 20mm;
+}
+
+/* ── PAGE NUMBER ────────────────────────────────── */
+.pagenum:before { content: counter(page); }
+
+/* ── HEADER ─────────────────────────────────────── */
 .hd {
     display: table;
     width: 100%;
-    padding: 20px 0 14px;
-    border-bottom: 3px solid #1F589C;
+    padding-bottom: 10px;
+    margin-bottom: 16px;
+    border-bottom: 2px solid #1F589C;
 }
-.hd__l { display: table-cell; vertical-align: middle; width: 60%; }
-.hd__r { display: table-cell; vertical-align: middle; width: 40%; text-align: right; }
+.hd__l { display: table-cell; vertical-align: middle; width: 55%; }
+.hd__r { display: table-cell; vertical-align: middle; width: 45%; text-align: right; }
 
-.hd__label {
-    font-size: 7px;
-    font-weight: 700;
-    color: #1F589C;
-    letter-spacing: 2.5px;
-    text-transform: uppercase;
-}
-.hd__brand-logo img  { max-height: 28px; max-width: 120px; }
-.hd__brand-text {
-    font-size: 11px;
-    font-weight: 700;
-    color: #374151;
-    letter-spacing: 0.5px;
-}
-
-/* ════════════════════════════════════════
-   HERO STRIP (código + nombre, fondo azul)
-════════════════════════════════════════ */
+/* ── HERO ────────────────────────────────────────── */
 .hero {
-    background: #1F589C;
-    color: #fff;
-    padding: 14px 18px;
-    margin-top: 16px;
-    border-radius: 6px;
+    display: table;
+    width: 100%;
+    margin-bottom: 14px;
 }
-.hero__brand {
-    font-size: 8px;
-    font-weight: 700;
+.hero__l {
+    display: table-cell;
+    vertical-align: middle;
+    width: 65%;
+}
+.hero__r {
+    display: table-cell;
+    vertical-align: middle;
+    width: 35%;
+    text-align: right;
+}
+.hero__brand-label {
+    font-size: 7.5px;
+    font-weight: bold;
+    color: #9CA3AF;
     letter-spacing: 2px;
     text-transform: uppercase;
-    opacity: 0.75;
-    margin-bottom: 3px;
+    margin-bottom: 4px;
 }
 .hero__oem {
-    font-size: 24px;
-    font-weight: 700;
-    line-height: 1.1;
+    font-size: 22px;
+    font-weight: bold;
+    color: #1F589C;
     letter-spacing: 0.5px;
+    line-height: 1;
 }
 .hero__name {
-    font-size: 10px;
-    opacity: 0.85;
-    margin-top: 4px;
-    line-height: 1.4;
-}
-
-/* ════════════════════════════════════════
-   BODY: dos columnas
-════════════════════════════════════════ */
-.body {
-    display: table;
-    width: 100%;
-    margin-top: 16px;
-}
-.body__left  { display: table-cell; width: 34%; vertical-align: top; padding-right: 18px; }
-.body__right { display: table-cell; width: 66%; vertical-align: top; }
-
-/* ── Imagen principal ─────────────────── */
-.main-img-box {
-    border: 1px solid #E5E7EB;
-    border-radius: 8px;
-    background: #fff;
-    padding: 12px;
-    text-align: center;
-    margin-bottom: 10px;
-}
-.main-img-box img {
-    max-width: 100%;
-    max-height: 170px;
-    display: block;
-    margin: 0 auto;
-}
-
-/* ── Galería extra ────────────────────── */
-.gallery {
-    display: table;
-    width: 100%;
-    margin-top: 0;
-}
-.gallery-row { display: table-row; }
-.gallery-cell {
-    display: table-cell;
-    width: 33.33%;
-    padding: 2px;
-}
-.gallery-cell__inner {
-    border: 1px solid #E5E7EB;
-    border-radius: 5px;
-    background: #fff;
-    padding: 5px;
-    text-align: center;
-}
-.gallery-cell__inner img {
-    max-width: 100%;
-    max-height: 55px;
-    display: block;
-    margin: 0 auto;
-}
-
-/* ── Marca bajo imagen ────────────────── */
-.brand-box {
-    text-align: center;
-    margin-top: 10px;
-    padding: 8px;
-    border: 1px solid #F3F4F6;
-    border-radius: 6px;
-    background: #F9FAFB;
-}
-.brand-box img  { max-height: 26px; max-width: 110px; }
-.brand-box-text {
     font-size: 9px;
-    font-weight: 700;
-    color: #374151;
+    color: #6B7280;
+    margin-top: 5px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.hero__divider {
+    border: none;
+    border-top: 1px solid #E5E7EB;
+    margin-bottom: 16px;
 }
 
-/* ── Tabla de datos ───────────────────── */
-.section-title {
+/* ── TWO-COLUMN BODY ─────────────────────────────── */
+.body { display: table; width: 100%; }
+.body__left  { display: table-cell; width: 36%; vertical-align: top; padding-right: 20px; }
+.body__right { display: table-cell; width: 64%; vertical-align: top; }
+
+/* ── MAIN IMAGE ──────────────────────────────────── */
+.img-main {
+    text-align: center;
+    margin-bottom: 15px;
+}
+.img-main img {
+    max-width: 100%;
+    max-height: 200px;
+    width: auto;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+}
+
+/* ── EXTRA IMAGES STACK ────────────────────────── */
+.img-extra {
+    text-align: center;
+    margin-bottom: 15px;
+}
+.img-extra img {
+    max-width: 100%;
+    max-height: 200px;
+    width: auto;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+}
+
+/* ── SECTION TITLE ───────────────────────────────── */
+.sec {
     font-size: 7px;
-    font-weight: 700;
-    color: #1F589C;
+    font-weight: bold;
+    color: #9CA3AF;
     text-transform: uppercase;
     letter-spacing: 1.8px;
-    border-bottom: 1.5px solid #1F589C;
     padding-bottom: 4px;
-    margin-bottom: 8px;
+    border-bottom: 1px solid #E5E7EB;
+    margin-bottom: 7px;
     margin-top: 16px;
 }
-.section-title:first-child { margin-top: 0; }
+.sec:first-child { margin-top: 0; }
 
-.data-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 9px;
-}
-.data-table td {
-    padding: 5px 4px;
-    vertical-align: top;
-    border-bottom: 1px solid #F3F4F6;
-    line-height: 1.5;
-}
-.data-table td:first-child {
-    width: 36%;
-    color: #6B7280;
-    font-weight: 700;
-    white-space: nowrap;
-    padding-right: 10px;
-}
-.data-table td:last-child { color: #1D1E20; }
-.data-table tr:last-child td { border-bottom: none; }
+/* ── DATA TABLE ──────────────────────────────────── */
+.dt { width: 100%; border-collapse: collapse; font-size: 8.5px; }
+.dt tr { border-bottom: 1px solid #F3F4F6; }
+.dt tr:last-child { border-bottom: none; }
+.dt td { padding: 5px 4px; vertical-align: top; line-height: 1.45; }
+.dt td:first-child { width: 40%; color: #9CA3AF; font-weight: bold; padding-right: 8px; }
+.dt td:last-child  { color: #111827; }
 
-/* ── Aplicaciones ─────────────────────── */
-.apps-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 9px;
-}
-.apps-table td {
-    padding: 4px 6px;
-    border-bottom: 1px solid #F9FAFB;
+/* ── DESCRIPTION ─────────────────────────────────── */
+.desc {
+    font-size: 8.5px;
     color: #374151;
-    line-height: 1.4;
+    line-height: 1.7;
 }
-.apps-table tr:last-child td { border-bottom: none; }
 
-/* ════════════════════════════════════════
-   GEARBOX SECTION
-════════════════════════════════════════ */
-.gearbox-section {
-    border-top: 2px solid #E5E7EB;
-    margin-top: 18px;
-    padding-top: 12px;
+/* ── APPLICATIONS ────────────────────────────────── */
+.apps { width: 100%; border-collapse: collapse; font-size: 8.5px; }
+.apps tr { border-bottom: 1px solid #F3F4F6; }
+.apps tr:last-child { border-bottom: none; }
+.apps td { padding: 4px 4px; color: #374151; line-height: 1.4; }
+
+/* ── GEARBOX SECTION ─────────────────────────────── */
+.gb {
+    margin-top: 22px;
+    page-break-inside: avoid;
+    border-top: 1px solid #E5E7EB;
+    padding-top: 16px;
 }
-.gearbox-grid { display: table; width: 100%; }
-.gearbox-cell { display: table-cell; width: 33.33%; vertical-align: top; padding-right: 12px; }
-.gearbox-cell__label {
+.gb__title {
     font-size: 7px;
-    font-weight: 700;
+    font-weight: bold;
+    color: #9CA3AF;
+    text-transform: uppercase;
+    letter-spacing: 1.8px;
+    margin-bottom: 12px;
+}
+.gb__grid { display: table; width: 100%; }
+.gb__cell { display: table-cell; vertical-align: top; padding-right: 24px; }
+.gb__cell:last-child { padding-right: 0; }
+.gb__label {
+    font-size: 7px;
+    font-weight: bold;
     color: #9CA3AF;
     text-transform: uppercase;
     letter-spacing: 1px;
     margin-bottom: 3px;
 }
-.gearbox-cell__value {
-    font-size: 9.5px;
-    color: #1D1E20;
-    line-height: 1.5;
-    font-weight: 600;
+.gb__value {
+    font-size: 10px;
+    font-weight: bold;
+    color: #1F589C;
+    line-height: 1.3;
 }
 
 .badge {
     display: inline-block;
     background: #EFF6FF;
-    color: #1F589C;
+    color: #1E40AF;
     border: 1px solid #BFDBFE;
-    border-radius: 3px;
-    font-size: 8px;
-    font-weight: 700;
-    padding: 2px 8px;
-    margin: 2px 3px 0 0;
+    border-radius: 2px;
+    font-size: 7.5px;
+    font-weight: bold;
+    padding: 2px 5px;
+    margin: 1px 2px 1px 0;
 }
 
-/* ════════════════════════════════════════
-   FOOTER
-════════════════════════════════════════ */
-.footer {
-    border-top: 1px solid #E5E7EB;
-    margin-top: 22px;
-    padding: 8px 0 16px;
-    font-size: 7.5px;
+.gb__compat {
+    margin-top: 12px;
+    border-top: 1px solid #F3F4F6;
+    padding-top: 10px;
+}
+.gb__compat-label {
+    font-size: 7px;
+    font-weight: bold;
     color: #9CA3AF;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 3px;
+}
+.gb__compat-val {
+    font-size: 8.5px;
+    color: #374151;
+    line-height: 1.5;
+}
+
+/* ── FOOTER FLOW ─────────────────────────────────── */
+.footer-flow {
+    margin-top: 80px;
+    border-top: 1px solid #E5E7EB;
+    padding-top: 10px;
+    font-size: 8px;
+    color: #9CA3AF;
+    text-align: center;
 }
 </style>
 </head>
 <body>
 
 @php
-    $gsLogo    = storage_path('app/public/images/logos/logo-color.svg');
+    $gsLogo    = storage_path('app/public/images/logos/logo-color.png');
+    $gsLogoSvg = storage_path('app/public/images/logos/logo-color.svg');
+
+    if (file_exists($gsLogoSvg)) {
+        $logoPath = $gsLogoSvg;
+    } elseif (file_exists($gsLogo)) {
+        $logoPath = $gsLogo;
+    } else {
+        $logoPath = null;
+    }
+
     $extraImgs = $allImages->filter(fn($img) => !$mainImage || $img->id !== $mainImage->id)->values();
 @endphp
 
-{{-- ════ HEADER ════════════════════════════════════════════ --}}
+{{-- ── HEADER ──────────────────────────────────────────────────────── --}}
 <div class="hd">
     <div class="hd__l">
-        @if(file_exists($gsLogo))
-            <img src="{{ $gsLogo }}" alt="GranSasso" style="max-height:44px; max-width:150px;">
+        @if($logoPath)
+            <img src="{{ $logoPath }}" alt="GranSasso" style="max-height:48px; max-width:180px;">
         @else
-            <span style="font-size:20px; font-weight:700; color:#1F589C;">GranSasso</span>
-            <span style="display:block; font-size:7px; color:#9CA3AF; letter-spacing:3px; text-transform:uppercase; margin-top:2px;">Engranajes</span>
+            <div style="font-size:22px; font-weight:900; color:#1F589C; letter-spacing:-0.5px;">GRANSASSO</div>
+            <div style="font-size:6.5px; font-weight:bold; color:#9CA3AF; letter-spacing:3px; text-transform:uppercase; margin-top:2px;">REPUESTOS DE TRANSMISIÓN</div>
         @endif
     </div>
     <div class="hd__r">
-        <div class="hd__label">Ficha Técnica de Producto</div>
-        @if($brand->logo)
-        <div class="hd__brand-logo" style="margin-top:6px;">
-            <img src="{{ storage_path('app/public/' . $brand->logo) }}" alt="{{ $brand->getName() }}">
-        </div>
-        @else
-        <div class="hd__brand-text" style="margin-top:6px;">{{ $brand->getName() }}</div>
-        @endif
+        <div style="font-size:16px; font-weight:bold; color:#1F589C; letter-spacing:1px; text-transform:uppercase;">FICHA TÉCNICA</div>
+        <div style="font-size:7px; font-weight:bold; color:#9CA3AF; text-transform:uppercase; letter-spacing:2px; margin-top:3px;">Información de Producto</div>
     </div>
 </div>
 
-{{-- ════ HERO ═════════════════════════════════════════════ --}}
+{{-- ── HERO ─────────────────────────────────────────────────────────── --}}
 <div class="hero">
-    <div class="hero__brand">{{ $brand->getName() }}</div>
-    <div class="hero__oem">{{ $oemCode }}</div>
-    @if($productName)
-    <div class="hero__name">{{ ucwords(mb_strtolower($productName)) }}</div>
-    @endif
+    <div class="hero__l">
+        <div class="hero__brand-label">{{ $brand->getName() }}</div>
+        <div class="hero__oem">{{ $oemCode }}</div>
+        @if($productName)
+        <div class="hero__name">{{ mb_strtoupper($productName) }}</div>
+        @endif
+    </div>
+    <div class="hero__r">
+        @if($brand->logo)
+            <img src="{{ storage_path('app/public/' . $brand->logo) }}" alt="{{ $brand->getName() }}" style="max-height:30px; max-width:100px;">
+        @else
+            <span style="font-size:11px; font-weight:bold; color:#6B7280; text-transform:uppercase; letter-spacing:1px;">{{ $brand->getName() }}</span>
+        @endif
+    </div>
 </div>
+<hr class="hero__divider">
 
-{{-- ════ BODY ══════════════════════════════════════════════ --}}
+{{-- ── BODY ─────────────────────────────────────────────────────────── --}}
 <div class="body">
 
-    {{-- ── Columna izquierda: imágenes ─────────────────── --}}
+    {{-- Columna izquierda: imágenes --}}
     <div class="body__left">
 
-        {{-- Imagen principal --}}
-        <div class="main-img-box">
+        <div class="img-main">
             @if($mainImage)
                 <img src="{{ storage_path('app/public/' . $mainImage->path) }}" alt="{{ $oemCode }}">
             @else
-                <div style="height:140px; color:#D1D5DB; font-size:9px; padding-top:58px; text-align:center;">Sin imagen</div>
+                <div style="height:130px; display:table; width:100%;">
+                    <div style="display:table-cell; vertical-align:middle; text-align:center; color:#D1D5DB; font-size:8px; text-transform:uppercase; letter-spacing:1px;">Sin imagen</div>
+                </div>
             @endif
         </div>
 
-        {{-- Imágenes extra (hasta 6 en grid 3×2) --}}
         @if($extraImgs->isNotEmpty())
-        <div class="gallery">
-            @foreach($extraImgs->chunk(3) as $row)
-            <div class="gallery-row">
-                @foreach($row as $img)
-                <div class="gallery-cell">
-                    <div class="gallery-cell__inner">
-                        <img src="{{ storage_path('app/public/' . $img->path) }}" alt="">
-                    </div>
-                </div>
-                @endforeach
+            @foreach($extraImgs as $img)
+            <div class="img-extra">
+                <img src="{{ storage_path('app/public/' . $img->path) }}" alt="">
             </div>
             @endforeach
-        </div>
-        @endif
-
-        {{-- Logo marca --}}
-        @if($brand->logo || $brand->getName())
-        <div class="brand-box" style="margin-top:10px;">
-            @if($brand->logo)
-                <img src="{{ storage_path('app/public/' . $brand->logo) }}" alt="{{ $brand->getName() }}">
-            @else
-                <div class="brand-box-text">{{ $brand->getName() }}</div>
-            @endif
-        </div>
         @endif
 
     </div>
 
-    {{-- ── Columna derecha: datos ──────────────────────── --}}
+    {{-- Columna derecha: datos --}}
     <div class="body__right">
 
-        {{-- Datos del producto --}}
+        {{-- Especificaciones --}}
         @if($codeGs || $figure || $refOriginal || $refsAdicionales->isNotEmpty() || $altOemCodes->isNotEmpty())
-        <div class="section-title">Datos del producto</div>
-        <table class="data-table">
+        <div class="sec">Especificaciones</div>
+        <table class="dt">
             @if($codeGs)
             <tr><td>Código GS</td><td>{{ $codeGs }}</td></tr>
             @endif
@@ -341,15 +317,15 @@ body {
             <tr><td>Refs. Adicionales</td><td>{{ $refsAdicionales->implode(' ; ') }}</td></tr>
             @endif
             @if($altOemCodes->isNotEmpty())
-            <tr><td>OEM Alternativos</td><td>{{ $altOemCodes->implode(' / ') }}</td></tr>
+            <tr><td>OEMs Alternativos</td><td>{{ $altOemCodes->implode(' / ') }}</td></tr>
             @endif
         </table>
         @endif
 
         {{-- Aplicaciones --}}
         @if($applications->isNotEmpty())
-        <div class="section-title">Aplicaciones</div>
-        <table class="apps-table">
+        <div class="sec">Aplicaciones Compatibles</div>
+        <table class="apps">
             @foreach($applications as $app)
             <tr><td>{{ $app }}</td></tr>
             @endforeach
@@ -358,28 +334,28 @@ body {
 
         {{-- Descripción --}}
         @if($productDesc)
-        <div class="section-title">Descripción</div>
-        <p style="font-size:9px; color:#374151; line-height:1.7;">{{ ucwords(mb_strtolower($productDesc)) }}</p>
+        <div class="sec">Descripción</div>
+        <div class="desc">{{ ucfirst(mb_strtolower($productDesc)) }}</div>
         @endif
 
     </div>
 </div>
 
-{{-- ════ INFORMACIÓN DE CAJA ══════════════════════════════ --}}
-<div class="gearbox-section">
-    <div class="section-title" style="margin-top:0; border-bottom-color:#E5E7EB; color:#374151;">Información de caja</div>
-    <div class="gearbox-grid">
-        <div class="gearbox-cell">
-            <div class="gearbox-cell__label">Marca</div>
-            <div class="gearbox-cell__value">{{ $brand->getName() }}</div>
+{{-- ── GEARBOX ──────────────────────────────────────────────────────── --}}
+<div class="gb">
+    <div class="gb__title">Transmisión · Caja de Cambios</div>
+    <div class="gb__grid">
+        <div class="gb__cell">
+            <div class="gb__label">Marca</div>
+            <div class="gb__value">{{ $brand->getName() }}</div>
         </div>
-        <div class="gearbox-cell">
-            <div class="gearbox-cell__label">Modelo</div>
-            <div class="gearbox-cell__value">{{ $gearbox->name }}</div>
+        <div class="gb__cell">
+            <div class="gb__label">Modelo</div>
+            <div class="gb__value">{{ $gearbox->name }}</div>
         </div>
         @if($variants->isNotEmpty())
-        <div class="gearbox-cell">
-            <div class="gearbox-cell__label">Compatibilidad</div>
+        <div class="gb__cell">
+            <div class="gb__label">Variantes</div>
             <div style="margin-top:3px;">
                 @foreach($variants as $v)<span class="badge">{{ $v }}</span>@endforeach
             </div>
@@ -388,16 +364,16 @@ body {
     </div>
 
     @if($gearbox->compatible_vehicles)
-    <div style="margin-top:10px;">
-        <div class="gearbox-cell__label">Vehículos compatibles</div>
-        <div class="gearbox-cell__value" style="margin-top:3px; font-weight:400;">{{ $gearbox->compatible_vehicles }}</div>
+    <div class="gb__compat">
+        <div class="gb__compat-label">Vehículos Típicamente Compatibles</div>
+        <div class="gb__compat-val">{{ $gearbox->compatible_vehicles }}</div>
     </div>
     @endif
 </div>
 
-{{-- ════ FOOTER ════════════════════════════════════════════ --}}
-<div class="footer">
-    GranSasso Repuestos &mdash; Ficha generada el {{ now()->format('d/m/Y') }}
+{{-- ── FOOTER IN FLOW ────────────────────────────────────────────── --}}
+<div class="footer-flow">
+    <strong style="color:#6B7280;">GranSasso Repuestos</strong> &nbsp;·&nbsp; FICHA TÉCNICA GENERADA EL {{ now('America/Argentina/Buenos_Aires')->format('d/m/Y H:i') }}
 </div>
 
 </body>

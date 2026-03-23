@@ -69,6 +69,9 @@ $_metaDesc  = $_pageDesc
 
 <meta name="csrf-token" content="{{ csrf_token() }}">
 
+{{-- ── Suave transición de páginas (View Transitions API) ── --}}
+<meta name="view-transition" content="same-origin">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

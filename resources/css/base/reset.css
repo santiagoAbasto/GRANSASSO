@@ -23,9 +23,20 @@ html {
     overflow-x: clip;
 }
 
+/* VIEW TRANSITIONS */
+@view-transition {
+    navigation: auto;
+}
+
 body {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    animation: fadeInPage 0.4s ease-out forwards;
+}
+
+@keyframes fadeInPage {
+    from { opacity: 0; }
+    to { opacity: 1; }
 }
 
 img,

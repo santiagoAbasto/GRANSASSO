@@ -49,6 +49,14 @@ export default function Sidebar() {
             ],
         },
         {
+            title: "Desarrollos",
+            icon: "solar:settings-outline",
+            children: [
+                { title: "Contenido", icon: "solar:document-text-outline",  url: "/admin/desarrollos" },
+                { title: "Mensajes",  icon: "solar:letter-outline",          url: "/admin/desarrollos-messages" },
+            ],
+        },
+        {
             title: "Contacto",
             icon: "solar:chat-round-outline",
             children: [

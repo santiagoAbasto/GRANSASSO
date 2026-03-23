@@ -125,6 +125,36 @@ class CmsController extends Controller
         ]);
     }
 
+    // ── DESARROLLOS ESPECIALES ───────────────────────────────────────────
+
+    public function desarrollos()
+    {
+        $page = Page::where('slug', 'desarrollos-especiales')
+            ->with(['sections' => fn ($q) => $q->orderBy('order')->with('images')])
+            ->firstOrCreate(
+                ['slug' => 'desarrollos-especiales'],
+                ['title' => ['es' => 'Desarrollos especiales', 'en' => 'Special Developments', 'pt' => 'Desenvolvimentos especiais']]
+            );
+
+        // Auto-create banner section
+        $page->sections()->firstOrCreate(
+            ['type' => 'banner'],
+            ['is_active' => true, 'order' => 'A']
+        );
+
+        // Auto-create gallery section
+        $page->sections()->firstOrCreate(
+            ['type' => 'desarrollos_gallery'],
+            ['is_active' => true, 'order' => 'B']
+        );
+
+        $page->load(['sections' => fn ($q) => $q->orderBy('order')->with('images')]);
+
+        $sections = $page->sections->map(fn ($s) => $this->expandSection($s, withImages: true))->values();
+
+        return Inertia::render('Admin/CMS/Desarrollos', ['page' => $page, 'sections' => $sections]);
+    }
+
     // ── GENERIC: crear una sección en una página ─────────────────────────
 
     public function createSection(Request $request, Page $page)

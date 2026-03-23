@@ -280,7 +280,7 @@ class ProductController extends Controller
             'figure'        => $p->figure,
             'code_gs'       => $p->code_gs,
             'oem_codes'     => $oemCodes,
-            'name_es'       => $p->getName(),
+            'name_es'       => $p->getName() ?? $p->getDescription(),
             'gearbox'       => [
                 'id'                  => $p->gearbox->id,
                 'name'                => $p->gearbox->name,

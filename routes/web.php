@@ -20,6 +20,8 @@ use App\Http\Controllers\Admin\HomeCalidadController;
 use App\Http\Controllers\Admin\ImportController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Web\ContactController;
+use App\Http\Controllers\Web\DesarrollosController;
+use App\Http\Controllers\Admin\DesarrollosMessageController;
 
 /*
 |--------------------------------------------------------------------------
@@ -51,6 +53,9 @@ Route::get('/api/gearboxes', function (\Illuminate\Http\Request $request) {
         ->get(['id', 'name', 'slug']);
     return response()->json($gearboxes);
 })->name('api.gearboxes');
+
+Route::get('/desarrollos-especiales',  [DesarrollosController::class, 'index'])->name('desarrollos');
+Route::post('/desarrollos-especiales', [DesarrollosController::class, 'store'])->name('desarrollos.store');
 
 Route::view('/calidad',  'web.about.index')->name('calidad');
 Route::view('/contacto', 'web.contact.index')->name('contact.index');
@@ -143,6 +148,14 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // ── CMS: Contacto ─────────────────────────────────────────────────
         Route::get('/contacto',                [CmsController::class, 'contacto'])->name('cms.contacto');
         Route::post('/contacto/info',          [CmsController::class, 'updateContactInfo'])->name('cms.contacto.info');
+
+        // ── CMS: Desarrollos especiales ───────────────────────────────────
+        Route::get('/desarrollos',             [CmsController::class, 'desarrollos'])->name('cms.desarrollos');
+
+        // ── Mensajes de Desarrollos ───────────────────────────────────────
+        Route::get('/desarrollos-messages',                         [DesarrollosMessageController::class, 'index'])->name('desarrollos-messages.index');
+        Route::get('/desarrollos-messages/{desarrollosMessage}',    [DesarrollosMessageController::class, 'show'])->name('desarrollos-messages.show');
+        Route::delete('/desarrollos-messages/{desarrollosMessage}', [DesarrollosMessageController::class, 'destroy'])->name('desarrollos-messages.destroy');
 
         // ── Secciones genéricas ───────────────────────────────────────────
         Route::post('/pages/{page}/sections',                    [CmsController::class, 'createSection'])->name('sections.create');

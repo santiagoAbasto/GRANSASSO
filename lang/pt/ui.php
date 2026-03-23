@@ -60,6 +60,28 @@ return [
         'slide_aria'  => 'Ir para o slide :num',
     ],
 
+    /* ── Desenvolvimentos especiais ── */
+    'desarrollos' => [
+        'page_title'    => 'Desenvolvimentos especiais',
+        'section_title' => 'Desenvolvimento e fabricação sob medida',
+        'p1' => 'Nossa experiência no setor, combinada com tecnologia de última geração e uma equipe técnica altamente capacitada, nos permite desenvolver e fabricar engrenagens e peças especiais de acordo com os requisitos específicos de cada cliente.',
+        'p2' => 'Trabalhamos com precisão e compromisso em cada projeto, fornecendo soluções confiáveis e adaptadas às necessidades de cada aplicação.',
+        'p3' => 'Realizamos o design e a produção de peças de reposição para maquinário industrial a partir de amostras físicas ou desenhos técnicos dos equipamentos, garantindo compatibilidade, funcionalidade e altos padrões de qualidade.',
+        'p4' => 'Este serviço otimiza o desempenho dos equipamentos e estende sua vida útil, mesmo para componentes descontinuados ou de difícil acesso.',
+        'p5' => 'Oferecemos soluções de nacionalização de peças de reposição, reduzindo prazos de espera e custos de importação, bem como a fabricação de peças unitárias ou em série, de acordo com as necessidades de produção de cada cliente.',
+        'p6' => 'Nossa abordagem flexível nos permite adaptar tanto a projetos pontuais quanto a demandas contínuas, sempre mantendo o foco na precisão, eficiência e confiabilidade.',
+        'gallery_title' => 'Trabalhos realizados',
+        'form_name'     => 'Nome e Sobrenome',
+        'form_phone'    => 'Telefone',
+        'form_email'    => 'E-mail',
+        'form_file'     => 'Anexar arquivo',
+        'form_file_ph'  => 'Selecionar arquivo',
+        'form_message'  => 'Mensagem',
+        'form_required' => '*Campos obrigatórios',
+        'form_submit'   => 'Enviar mensagem',
+        'form_success'  => 'Sua mensagem foi enviada com sucesso. Entraremos em contato em breve.',
+    ],
+
     /* ── Detalhe do produto ── */
     'product_detail' => [
         'original_ref'    => 'Referência Original',
