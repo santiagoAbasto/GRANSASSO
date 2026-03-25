@@ -68,7 +68,8 @@
             </div>
             @endforeach
 
-            {{-- SLIDER INDICATOR — siempre visible, una barra por slide --}}
+            {{-- SLIDER INDICATOR — solo visible cuando hay más de 1 slide --}}
+            @if($slides->count() > 1)
             <div class="hero-slider-dots">
                 @foreach($slides as $index => $slide)
                 <button
@@ -78,6 +79,7 @@
                 ></button>
                 @endforeach
             </div>
+            @endif
 
         </div>
     </div>

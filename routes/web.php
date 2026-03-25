@@ -19,8 +19,11 @@ use App\Http\Controllers\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\Admin\HomeCalidadController;
 use App\Http\Controllers\Admin\ImportController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Web\CalidadController;
 use App\Http\Controllers\Web\ContactController;
+use App\Http\Controllers\Web\ContactoWebController;
 use App\Http\Controllers\Web\DesarrollosController;
+use App\Http\Controllers\Admin\CalidadDownloadController;
 use App\Http\Controllers\Admin\DesarrollosMessageController;
 
 /*
@@ -57,8 +60,8 @@ Route::get('/api/gearboxes', function (\Illuminate\Http\Request $request) {
 Route::get('/desarrollos-especiales',  [DesarrollosController::class, 'index'])->name('desarrollos');
 Route::post('/desarrollos-especiales', [DesarrollosController::class, 'store'])->name('desarrollos.store');
 
-Route::view('/calidad',  'web.about.index')->name('calidad');
-Route::view('/contacto', 'web.contact.index')->name('contact.index');
+Route::get('/calidad', [CalidadController::class, 'index'])->name('calidad');
+Route::get('/contacto',  [ContactoWebController::class, 'index'])->name('contacto');
 Route::post('/contacto', [ContactController::class, 'store'])->name('contact.store');
 
 // Idioma
@@ -144,6 +147,11 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         // ── CMS: Calidad ──────────────────────────────────────────────────
         Route::get('/calidad',                 [CmsController::class, 'calidad'])->name('cms.calidad');
+
+        // ── Descargas de Calidad ──────────────────────────────────────────
+        Route::post('/calidad-downloads',                        [CalidadDownloadController::class, 'store'])->name('calidad-downloads.store');
+        Route::match(['POST', 'PUT'], '/calidad-downloads/{download}', [CalidadDownloadController::class, 'update'])->name('calidad-downloads.update');
+        Route::delete('/calidad-downloads/{download}',           [CalidadDownloadController::class, 'destroy'])->name('calidad-downloads.destroy');
 
         // ── CMS: Contacto ─────────────────────────────────────────────────
         Route::get('/contacto',                [CmsController::class, 'contacto'])->name('cms.contacto');

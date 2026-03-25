@@ -22,7 +22,7 @@ $_linksLeft = [
 ];
 $_linksRight = [
     ['title' => __('ui.nav.quality'),  'url' => route('calidad')],
-    ['title' => __('ui.nav.contact'),  'url' => route('contact.index')],
+    ['title' => __('ui.nav.contact'),  'url' => route('contacto')],
 ];
 @endphp
 

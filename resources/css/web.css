@@ -37,6 +37,14 @@
 
 @import "./web/desarrollos/desarrollos.css";
 
+/* CALIDAD */
+
+@import "./web/calidad/calidad.css";
+
+/* CONTACTO */
+
+@import "./web/contacto/contacto.css";
+
 /* PRODUCTS */
 
 @import "./web/products/products.css";

@@ -1,6 +1,6 @@
 @php
     $isHome = request()->routeIs('home');
-    $hasTransparentNav = $isHome || request()->routeIs('empresa') || request()->routeIs('products.index') || request()->routeIs('desarrollos');
+    $hasTransparentNav = $isHome || request()->routeIs('empresa') || request()->routeIs('products.index') || request()->routeIs('desarrollos') || request()->routeIs('calidad') || request()->routeIs('contacto');
     $hasLightNav = request()->routeIs('products.brand')
                 || request()->routeIs('products.gearbox')
                 || request()->routeIs('products.show')
@@ -53,8 +53,8 @@
             <a href="{{ route('calidad') }}"
                class="{{ request()->routeIs('calidad') ? 'active' : '' }}">{{ __('ui.nav.quality') }}</a>
 
-            <a href="{{ route('contact.index') }}"
-               class="{{ request()->routeIs('contact.*') ? 'active' : '' }}">{{ __('ui.nav.contact') }}</a>
+            <a href="{{ route('contacto') }}"
+               class="{{ request()->routeIs('contacto') ? 'active' : '' }}">{{ __('ui.nav.contact') }}</a>
 
             {{-- Separador | + Selector de idioma (gap 14px entre ambos) --}}
             <div class="nav-lang-group">

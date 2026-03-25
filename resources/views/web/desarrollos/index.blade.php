@@ -245,6 +245,32 @@ $galleryImages  = $gallerySection?->images->sortBy('order') ?? collect();
         });
     }
 }());
+
+(function () {
+    const banner = document.querySelector('.desarrollos-banner');
+    if (!banner) return;
+    const slides = banner.querySelectorAll('.desarrollos-banner__slide');
+    const dots   = banner.querySelectorAll('.desarrollos-banner__dot');
+    if (slides.length <= 1) return;
+    let current = 0;
+    let timer   = null;
+    function goTo(index) {
+        slides[current].classList.remove('active');
+        if (dots[current]) dots[current].classList.remove('active');
+        current = (index + slides.length) % slides.length;
+        slides[current].classList.add('active');
+        if (dots[current]) dots[current].classList.add('active');
+    }
+    function startTimer() { timer = setInterval(() => goTo(current + 1), 5000); }
+    dots.forEach(function (dot, i) {
+        dot.addEventListener('click', function () {
+            clearInterval(timer);
+            goTo(i);
+            startTimer();
+        });
+    });
+    startTimer();
+}());
 </script>
 @endpush
 

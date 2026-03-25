@@ -50,6 +50,16 @@ return [
         'home'     => 'Home',
         'products' => 'Products',
         'empresa'  => 'Company',
+        'calidad'  => 'Quality',
+    ],
+
+    /* ── Calidad slug ── */
+    'calidad' => [
+        'page_title'  => 'Quality',
+        'downloads'   => 'Downloads',
+        'cert_alt'    => 'ISO Certification',
+        'bc_aria'     => 'Breadcrumb',
+        'slide_aria'  => 'Go to slide :num',
     ],
 
     /* ── Empresa slug ── */
@@ -92,6 +102,22 @@ return [
         'inquire'         => 'Inquire',
         'related'         => 'Related products',
         'zoom'            => 'Zoom image',
+    ],
+
+    /* ── Contact slug ── */
+    'contacto' => [
+        'page_title'    => 'Contact',
+        'intro'         => 'Fill out the form so we can get in touch with you as soon as possible.',
+        'bc_aria'       => 'Breadcrumb',
+        'slide_aria'    => 'Go to slide :num',
+        'form_name'     => 'Full Name',
+        'form_phone'    => 'Phone',
+        'form_email'    => 'Email',
+        'form_company'  => 'Company',
+        'form_message'  => 'Message',
+        'form_required' => '*Required fields',
+        'form_submit'   => 'Send message',
+        'form_success'  => 'Message sent successfully. We will get back to you shortly.',
     ],
 
 ];

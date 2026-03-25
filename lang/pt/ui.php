@@ -50,6 +50,16 @@ return [
         'home'     => 'Início',
         'products' => 'Produtos',
         'empresa'  => 'Empresa',
+        'calidad'  => 'Qualidade',
+    ],
+
+    /* ── Calidad slug ── */
+    'calidad' => [
+        'page_title'  => 'Qualidade',
+        'downloads'   => 'Downloads',
+        'cert_alt'    => 'Certificação ISO',
+        'bc_aria'     => 'Miga de pão',
+        'slide_aria'  => 'Ir para o slide :num',
     ],
 
     /* ── Slug Empresa ── */
@@ -92,6 +102,22 @@ return [
         'inquire'         => 'Consultar',
         'related'         => 'Produtos relacionados',
         'zoom'            => 'Ampliar imagem',
+    ],
+
+    /* ── Slug Contato ── */
+    'contacto' => [
+        'page_title'    => 'Contato',
+        'intro'         => 'Preencha o formulário para que possamos entrar em contato com você o mais breve possível.',
+        'bc_aria'       => 'Navegação estrutural',
+        'slide_aria'    => 'Ir para o slide :num',
+        'form_name'     => 'Nome e Sobrenome',
+        'form_phone'    => 'Telefone',
+        'form_email'    => 'E-mail',
+        'form_company'  => 'Empresa',
+        'form_message'  => 'Mensagem',
+        'form_required' => '*Campos obrigatórios',
+        'form_submit'   => 'Enviar mensagem',
+        'form_success'  => 'Mensagem enviada com sucesso. Entraremos em contato em breve.',
     ],
 
 ];

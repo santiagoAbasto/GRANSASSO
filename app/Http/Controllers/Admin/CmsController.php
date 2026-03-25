@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\CalidadDownload;
 use App\Models\Page;
 use App\Models\PageSection;
 use App\Models\PageSectionImage;
@@ -88,9 +89,39 @@ class CmsController extends Controller
                 ['title' => ['es' => 'Calidad', 'en' => 'Quality', 'pt' => 'Qualidade']]
             );
 
-        $sections = $page->sections->map(fn ($s) => $this->flattenSection($s))->values();
+        // Auto-create banner section
+        $page->sections()->firstOrCreate(
+            ['type' => 'banner'],
+            ['is_active' => true, 'order' => 'A']
+        );
 
-        return Inertia::render('Admin/CMS/Calidad', ['page' => $page, 'sections' => $sections]);
+        // Auto-create main content section
+        $page->sections()->firstOrCreate(
+            ['type' => 'calidad_main'],
+            ['is_active' => true, 'order' => 'B']
+        );
+
+        $page->load(['sections' => fn ($q) => $q->orderBy('order')->with('images')]);
+        $sections = $page->sections->map(fn ($s) => $this->expandSection($s, withImages: true))->values();
+
+        $downloads = CalidadDownload::orderBy('order')->get()->map(fn ($d) => [
+            'id'          => $d->id,
+            'name_es'     => is_array($d->name) ? ($d->name['es'] ?? '') : ($d->name ?? ''),
+            'name_en'     => is_array($d->name) ? ($d->name['en'] ?? '') : '',
+            'name_pt'     => is_array($d->name) ? ($d->name['pt'] ?? '') : '',
+            'logo_url'    => $d->logo ? asset('storage/' . $d->logo) : null,
+            'file_url'    => $d->file ? asset('storage/' . $d->file) : null,
+            'file_format' => $d->file_format,
+            'file_size'   => $d->file_size,
+            'order'       => $d->order,
+            'is_active'   => $d->is_active,
+        ])->values();
+
+        return Inertia::render('Admin/CMS/Calidad', [
+            'page'      => $page,
+            'sections'  => $sections,
+            'downloads' => $downloads,
+        ]);
     }
 
     // ── CONTACTO → info (dirección, teléfono, email, mapa) ───────────────
@@ -98,30 +129,65 @@ class CmsController extends Controller
     public function contacto()
     {
         $page = Page::where('slug', 'contacto')
-            ->with(['sections' => fn ($q) => $q->orderBy('order')])
+            ->with(['sections' => fn ($q) => $q->orderBy('order')->with('images')])
             ->firstOrCreate(
                 ['slug' => 'contacto'],
                 ['title' => ['es' => 'Contacto', 'en' => 'Contact', 'pt' => 'Contato']]
             );
 
-        $infoSection = $page->sections()->firstOrCreate(
+        // Auto-crear secciones necesarias
+        $page->sections()->firstOrCreate(
+            ['type' => 'banner'],
+            ['is_active' => true, 'order' => 0]
+        );
+        $page->sections()->firstOrCreate(
             ['type' => 'contact_info'],
-            [
-                'order'     => 1,
-                'is_active' => true,
-                'title'     => ['es' => 'Datos de contacto', 'en' => 'Contact info', 'pt' => 'Dados de contato'],
-                'content'   => ['address' => '', 'phone' => '', 'email' => '', 'map_embed' => ''],
-            ]
+            ['order' => 1, 'is_active' => true,
+             'content' => ['address' => '', 'phones' => [], 'emails' => [], 'map_embed' => '']]
         );
 
-        $contactInfo = array_merge(
-            ['address' => '', 'phone' => '', 'email' => '', 'map_embed' => ''],
-            is_array($infoSection->content) ? $infoSection->content : []
-        );
+        // Recargar con imágenes
+        $page->load(['sections' => fn ($q) => $q->orderBy('order')->with('images')]);
+
+        $infoSection = $page->sections->where('type', 'contact_info')->first();
+        $raw = is_array($infoSection?->content) ? $infoSection->content : [];
+
+        // Compatibilidad con formato anterior (phone/email string → arrays)
+        $phones = $raw['phones'] ?? (isset($raw['phone']) && $raw['phone'] ? [$raw['phone']] : []);
+        $emails = $raw['emails'] ?? (isset($raw['email']) && $raw['email'] ? [$raw['email']] : []);
+
+        $contactInfo = [
+            'address'   => $raw['address']   ?? '',
+            'phones'    => array_values(array_filter($phones)),
+            'emails'    => array_values(array_filter($emails)),
+            'map_embed' => $raw['map_embed'] ?? '',
+        ];
+
+        $sections = $page->sections->map(function ($s) {
+            $arr = $s->toArray();
+            if ($s->image) $arr['image_url'] = asset('storage/' . $s->image);
+            $arr['images'] = $s->images->map(fn ($img) => array_merge($img->toArray(), [
+                'image_url' => asset('storage/' . $img->image),
+            ]))->values()->toArray();
+            return $arr;
+        });
+
+        $messages = \App\Models\ContactMessage::latest()->take(5)->get()->map(fn ($m) => [
+            'id'         => $m->id,
+            'name'       => $m->name,
+            'email'      => $m->email,
+            'company'    => $m->company ?? '',
+            'is_read'    => $m->is_read,
+            'created_at' => $m->created_at->format('d/m/Y H:i'),
+        ]);
 
         return Inertia::render('Admin/CMS/Contacto', [
-            'page'        => $page,
-            'contactInfo' => $contactInfo,
+            'page'           => $page,
+            'sections'       => $sections,
+            'contactInfo'    => $contactInfo,
+            'messages'       => $messages,
+            'totalMessages'  => \App\Models\ContactMessage::count(),
+            'unreadMessages' => \App\Models\ContactMessage::where('is_read', false)->count(),
         ]);
     }
 
@@ -378,17 +444,24 @@ class CmsController extends Controller
 
     public function updateContactInfo(Request $request)
     {
-        $data = $request->validate([
+        $request->validate([
             'address'   => 'nullable|string|max:500',
-            'phone'     => 'nullable|string|max:100',
-            'email'     => 'nullable|email|max:200',
+            'phones'    => 'nullable|array',
+            'phones.*'  => 'nullable|string|max:100',
+            'emails'    => 'nullable|array',
+            'emails.*'  => 'nullable|string|max:200',
             'map_embed' => 'nullable|string',
         ]);
 
         $page = Page::where('slug', 'contacto')->firstOrFail();
         $section = $page->sections()->firstOrCreate(['type' => 'contact_info'], ['order' => 1, 'is_active' => true]);
 
-        $section->update(['content' => $data]);
+        $section->update(['content' => [
+            'address'   => $request->input('address', ''),
+            'phones'    => array_values(array_filter($request->input('phones', []))),
+            'emails'    => array_values(array_filter($request->input('emails', []))),
+            'map_embed' => $request->input('map_embed', ''),
+        ]]);
 
         return back()->with('success', 'Datos de contacto actualizados.');
     }
