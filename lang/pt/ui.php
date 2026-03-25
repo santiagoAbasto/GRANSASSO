@@ -133,6 +133,7 @@ return [
         'price_lists'      => 'Lista de preços',
         'payment_info'     => 'Info de pagamentos',
         'novedades'        => 'Novidades',
+        'read_more'        => 'Leia mais',
         'discount'         => 'Seu desconto é:',
         'download'         => 'Baixar',
         'view_online'      => 'Ver online',

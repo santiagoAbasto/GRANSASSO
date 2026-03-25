@@ -131,6 +131,7 @@ return [
         'pending_msg'      => 'Your request has been submitted. The administrator will grant you access shortly. You will be redirected in a few seconds...',
         'back_to_login'    => 'Back to login',
         'price_lists'      => 'Price lists',
+        'read_more'        => 'Read more',
         'payment_info'     => 'Payment info',
         'novedades'        => 'News',
         'discount'         => 'Your discount is:',
