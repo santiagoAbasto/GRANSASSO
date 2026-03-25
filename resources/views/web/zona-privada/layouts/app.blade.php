@@ -70,7 +70,7 @@
         {{-- Usuario --}}
         <div style="position:relative;margin-left:24px;flex-shrink:0" id="zpUserMenu">
             <button id="zpUserBtn"
-                    style="display:flex;width:150px;padding:12px 25px;justify-content:center;align-items:center;gap:10px;box-sizing:border-box;border-radius:22px;background:#1F589C;border:none;color:#FFF;font-family:'Open Sans',sans-serif;font-size:16px;font-weight:400;line-height:normal;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+                    style="display:flex;padding:12px 35px;justify-content:center;align-items:center;gap:10px;box-sizing:border-box;border-radius:22px;background:#1F589C;border:none;color:#FFF;font-family:'Open Sans',sans-serif;font-size:16px;font-weight:400;line-height:normal;cursor:pointer;white-space:nowrap">
                 {{ collect(explode(' ', $zpClient?->name ?? ''))->map(fn($w) => ucfirst(strtolower($w)))->implode(' ') }} {{ strtoupper($zpClient?->lastname[0] ?? '') }}.
             </button>
             <div id="zpUserDropdown"
