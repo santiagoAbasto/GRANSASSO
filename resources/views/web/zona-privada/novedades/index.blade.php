@@ -29,7 +29,7 @@
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px">
 
         @foreach($novedades as $novedad)
-        <article style="border-radius:8px;overflow:hidden;border:1px solid #E3E0E0;background:#fff;display:flex;flex-direction:column">
+        <a href="{{ route('zona-privada.novedades.show', $novedad) }}" style="text-decoration:none;color:inherit;border-radius:8px;overflow:hidden;border:1px solid #E3E0E0;background:#fff;display:flex;flex-direction:column;cursor:pointer">
 
             {{-- Imagen --}}
             @if($novedad->image)
@@ -74,7 +74,7 @@
                 </a>
 
             </div>
-        </article>
+        </a>
         @endforeach
 
     </div>

@@ -1,6 +1,6 @@
 @extends('web.zona-privada.layouts.app')
 
-@section('title', $novedad->title)
+@section('title', $novedad->getLocalizedTitle())
 
 @section('content')
 
