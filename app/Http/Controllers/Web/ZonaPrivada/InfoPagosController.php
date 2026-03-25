@@ -16,7 +16,9 @@ class InfoPagosController extends Controller
     {
         $user         = Auth::guard('client')->user();
         $bankInfo     = BankInfo::first();
-        $notification = PrivateNotification::where('is_active', true)->latest()->first();
+        $notification = PrivateNotification::where('is_active', true)
+            ->whereHas('users', fn($q) => $q->where('private_user_id', $user->id))
+            ->latest()->first();
 
         return view('web.zona-privada.info-pagos.index', compact('user', 'bankInfo', 'notification'));
     }
@@ -27,7 +29,7 @@ class InfoPagosController extends Controller
             'payment_date'       => ['required', 'date'],
             'amount'             => ['required', 'numeric', 'min:0'],
             'bank'               => ['required', 'string', 'max:200'],
-            'branch'             => ['nullable', 'string', 'max:200'],
+            'branch'             => ['required', 'string', 'max:200'],
             'invoices_cancelled' => ['nullable', 'string', 'max:500'],
             'observations'       => ['nullable', 'string'],
             'file'               => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'],

@@ -13,7 +13,9 @@ class NovedadesController extends Controller
     {
         $user         = Auth::guard('client')->user();
         $novedades    = Novedad::where('is_active', true)->latest()->paginate(9);
-        $notification = PrivateNotification::where('is_active', true)->latest()->first();
+        $notification = PrivateNotification::where('is_active', true)
+            ->whereHas('users', fn($q) => $q->where('private_user_id', $user->id))
+            ->latest()->first();
 
         return view('web.zona-privada.novedades.index', compact('user', 'novedades', 'notification'));
     }
@@ -25,7 +27,9 @@ class NovedadesController extends Controller
         }
 
         $user         = Auth::guard('client')->user();
-        $notification = PrivateNotification::where('is_active', true)->latest()->first();
+        $notification = PrivateNotification::where('is_active', true)
+            ->whereHas('users', fn($q) => $q->where('private_user_id', $user->id))
+            ->latest()->first();
 
         return view('web.zona-privada.novedades.show', compact('user', 'novedad', 'notification'));
     }

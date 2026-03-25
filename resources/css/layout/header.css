@@ -44,23 +44,24 @@
 }
 
 .navbar--light .nav-links > a {
-    color: #6B7280;
+    color: #1D1E20;
 }
 
 .navbar--light .nav-links > a.active {
-    color: #0D2038;
+    color: #1D1E20;
+    font-weight: 700;
 }
 
 .navbar--light .nav-lang-sep {
-    color: #6B7280;
+    color: #1D1E20;
 }
 
 .navbar--light .nav-lang__current {
-    color: #6B7280;
+    color: #1D1E20;
 }
 
 .navbar--light .nav-lang__current svg path {
-    stroke: #6B7280;
+    stroke: #1D1E20;
 }
 
 .navbar--light .hamburger__line {

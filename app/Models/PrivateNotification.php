@@ -17,4 +17,9 @@ class PrivateNotification extends Model
     protected $casts = [
         'is_active' => 'boolean',
     ];
+
+    public function users()
+    {
+        return $this->belongsToMany(PrivateUser::class, 'private_notification_user');
+    }
 }

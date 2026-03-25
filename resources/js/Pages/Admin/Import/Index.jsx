@@ -382,9 +382,9 @@ export default function ImportIndex() {
                         </label>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                             {[
-                                { value: 'auto',    emoji: '✨', label: 'Auto-detectar (Recomendado)', desc: 'El sistema identifica el formato por la estructura del archivo.' },
-                                { value: 'catalog', emoji: '📋', label: 'Catálogo (Variantes)',        desc: '3 filas de encabezado. Variantes G60, G85… en columnas.' },
-                                { value: 'flat',    emoji: '📄', label: 'Tabla Plana',                 desc: 'Una fila de encabezados. Una fila por cada item/OEM.' },
+                                { value: 'auto',    emoji: '', label: 'Auto-detectar (Recomendado)', desc: 'El sistema identifica el formato por la estructura del archivo.' },
+                                { value: 'catalog', emoji: '', label: 'Catálogo (Variantes)',        desc: '3 filas de encabezado. Variantes G60, G85… en columnas.' },
+                                { value: 'flat',    emoji: '', label: 'Tabla Plana',                 desc: 'Una fila de encabezados. Una fila por cada item/OEM.' },
                             ].map(opt => {
                                 const sel = data.format === opt.value;
                                 return (

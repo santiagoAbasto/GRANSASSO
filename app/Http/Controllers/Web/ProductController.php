@@ -34,6 +34,7 @@ class ProductController extends Controller
         $brands    = Brand::active()->ordered()->get();
         $gearboxes = Gearbox::where('brand_id', $brand->id)
             ->where('is_active', true)
+            ->orderBy('order')
             ->orderBy('name')
             ->get();
 

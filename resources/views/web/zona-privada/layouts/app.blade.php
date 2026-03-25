@@ -75,7 +75,7 @@
             </button>
             <div id="zpUserDropdown"
                  style="display:none;position:absolute;top:calc(100% + 8px);right:0;background:#fff;border:1px solid #E3E0E0;border-radius:10px;box-shadow:0 4px 16px rgba(0,0,0,.1);min-width:150px;z-index:500;overflow:hidden">
-                <form method="POST" action="{{ route('zona-privada.logout') }}">
+                <form method="POST" action="{{ route('zona-privada.logout') }}" onsubmit="Object.keys(sessionStorage).forEach(function(k){if(k.indexOf('zp_notif_dismissed')===0)sessionStorage.removeItem(k)})">
                     @csrf
                     <button type="submit"
                             style="width:100%;padding:12px 20px;background:none;border:none;color:#1D1E20;font-family:'Open Sans',sans-serif;font-size:14px;font-weight:400;text-align:left;cursor:pointer;white-space:nowrap">
@@ -100,7 +100,7 @@
 </header>
 
 {{-- ── MAIN ── --}}
-<main class="zp-main" style="min-height:calc(100vh - 121px);background:#fff">
+<main class="zp-main" style="background:#fff">
     @yield('content')
 </main>
 
@@ -108,20 +108,29 @@
 
 {{-- ── NOTIFICATION POPUP ── --}}
 @if(isset($notification) && $notification)
-<div id="zp-popup-overlay" class="zp-popup-overlay" style="display:none">
-    <div class="zp-popup">
-        <button class="zp-popup__close" id="zpPopupClose" aria-label="Cerrar">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+<div id="zp-popup-overlay" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;z-index:9999;background:rgba(0,0,0,0.45);justify-content:center;align-items:center">
+    <div style="position:relative;width:602px;height:324px;border-radius:10px;background:#FFF;padding:78px 44px 75px 43px;box-sizing:border-box;text-align:center">
+        {{-- Close --}}
+        <button id="zpPopupClose" style="position:absolute;top:23px;right:23px;background:none;border:none;cursor:pointer;padding:0;line-height:0">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                <path d="M15 9L9 15M9 9L15 15M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
         </button>
-        <h3 class="zp-popup__title">{{ $notification->title }}</h3>
-        <div class="zp-popup__body">{!! nl2br(e($notification->body)) !!}</div>
+        {{-- Title --}}
+        <h3 style="color:#1D1E20;font-family:'Open Sans',sans-serif;font-size:24px;font-weight:700;line-height:normal;margin:0 0 31px">{{ $notification->title }}</h3>
+        {{-- Body --}}
+        <div style="color:#1D1E20;font-family:'Open Sans',sans-serif;font-size:16px;font-weight:400;line-height:normal;margin:0 0 39px">{!! nl2br(e($notification->body)) !!}</div>
+        {{-- Button --}}
+        <a href="{{ route('zona-privada.info-pagos') }}" onclick="sessionStorage.setItem('zp_notif_dismissed_{{ auth('client')->id() }}','1')" style="display:inline-flex;width:138px;padding:12px 25px;justify-content:center;align-items:center;gap:10px;border-radius:22px;background:#1F589C;color:#FFF;text-align:center;font-family:'Open Sans',sans-serif;font-size:16px;font-weight:400;line-height:normal;text-decoration:none;box-sizing:border-box">
+            {{ __('ui.zona_privada.popup_more_info') }}
+        </a>
     </div>
 </div>
 <script>
 (function(){
-    var notifId = {{ $notification->id }};
-    var key = 'zp_notif_dismissed_' + notifId;
-    if (! sessionStorage.getItem(key)) {
+    var userId = '{{ auth("client")->id() }}';
+    var key = 'zp_notif_dismissed_' + userId;
+    if (!sessionStorage.getItem(key)) {
         document.getElementById('zp-popup-overlay').style.display = 'flex';
     }
     document.getElementById('zpPopupClose').addEventListener('click', function(){

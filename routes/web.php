@@ -61,6 +61,7 @@ Route::get('/api/gearboxes', function (\Illuminate\Http\Request $request) {
     if (! $brand) return response()->json([]);
     $gearboxes = \App\Models\Gearbox::where('brand_id', $brand->id)
         ->where('is_active', true)
+        ->orderBy('order')
         ->orderBy('name')
         ->get(['id', 'name', 'slug']);
     return response()->json($gearboxes);
@@ -102,6 +103,8 @@ Route::prefix('zona-privada')->name('zona-privada.')->group(function () {
     // Secciones protegidas por guard 'client'
     Route::middleware('auth.client')->group(function () {
         Route::get('/lista-precios',          [ListaPreciosController::class, 'index'])->name('lista-precios');
+        Route::get('/lista-precios/{priceList}/view', [ListaPreciosController::class, 'view'])->name('lista-precios.view');
+        Route::get('/lista-precios/{priceList}/download', [ListaPreciosController::class, 'download'])->name('lista-precios.download');
         Route::get('/info-pagos',             [InfoPagosController::class, 'index'])->name('info-pagos');
         Route::post('/info-pagos',            [InfoPagosController::class, 'store'])->name('info-pagos.store');
         Route::get('/novedades',              [NovedadesController::class, 'index'])->name('novedades');
@@ -250,6 +253,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         Route::get('/private-notifications',       [PrivateNotificationController::class, 'index'])->name('private-notifications.index');
         Route::post('/private-notifications',      [PrivateNotificationController::class, 'upsert'])->name('private-notifications.upsert');
+        Route::delete('/private-notifications/{privateNotification}', [PrivateNotificationController::class, 'destroy'])->name('private-notifications.destroy');
 
     });
 

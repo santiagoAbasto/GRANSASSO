@@ -169,7 +169,6 @@
    MAIN
    ══════════════ */
 .zp-main {
-    min-height: calc(100vh - var(--zp-header-h));
 }
 
 /* ══════════════
@@ -943,5 +942,102 @@
     }
     .zp-register-card {
         padding: 28px 20px;
+    }
+}
+
+/* ══════════════════════════════════════
+   RESPONSIVE — ZONA PRIVADA SECCIONES
+   ══════════════════════════════════════ */
+
+/* ── Tablet (max 1024px) ── */
+@media (max-width: 1024px) {
+    .zp-table-header {
+        display: none !important;
+    }
+    .zp-table-row {
+        grid-template-columns: 60px 1fr !important;
+        gap: 12px !important;
+        padding: 12px 8px !important;
+    }
+    .zp-table-row .zp-hide-mobile {
+        display: none !important;
+    }
+    .zp-actions {
+        grid-column: 1 / -1;
+        justify-content: flex-start !important;
+        gap: 12px !important;
+    }
+
+    .zp-pagos-grid {
+        grid-template-columns: 1fr !important;
+        gap: 32px !important;
+    }
+    .zp-pagos-card {
+        width: 100% !important;
+    }
+    .zp-form-row-3 {
+        flex-wrap: wrap !important;
+    }
+    .zp-form-row-3 > div {
+        flex: 1 1 calc(50% - 10px) !important;
+    }
+    .zp-form-footer {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 16px !important;
+    }
+    .zp-file-wrap {
+        width: 100% !important;
+    }
+    .zp-submit-wrap {
+        justify-content: space-between !important;
+    }
+
+    .zp-news-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+}
+
+/* ── Mobile (max 640px) ── */
+@media (max-width: 640px) {
+    .zp-table-row {
+        grid-template-columns: 1fr !important;
+    }
+    .zp-table-row > div:first-child {
+        display: none !important;
+    }
+    .zp-actions {
+        flex-direction: column !important;
+    }
+    .zp-actions a {
+        width: 100% !important;
+    }
+
+    .zp-form-row-2 {
+        flex-direction: column !important;
+    }
+    .zp-form-row-3 {
+        flex-direction: column !important;
+    }
+    .zp-form-row-3 > div {
+        flex: 1 1 100% !important;
+    }
+    .zp-submit-wrap {
+        flex-direction: column !important;
+        gap: 12px !important;
+        height: auto !important;
+    }
+    .zp-submit-wrap button {
+        width: 100% !important;
+    }
+
+    .zp-news-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    #zp-popup-overlay > div {
+        width: calc(100vw - 32px) !important;
+        height: auto !important;
+        padding: 40px 24px 36px !important;
     }
 }
