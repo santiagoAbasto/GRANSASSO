@@ -68,12 +68,33 @@
         </nav>
 
         {{-- Usuario --}}
-        <form method="POST" action="{{ route('zona-privada.logout') }}" style="margin-left:24px;flex-shrink:0">
-            @csrf
-            <button type="submit" class="btn-zona-privada" style="background:#0D2038;border-color:#0D2038;color:#fff;cursor:pointer">
+        <div style="position:relative;margin-left:24px;flex-shrink:0" id="zpUserMenu">
+            <button id="zpUserBtn"
+                    style="display:flex;width:150px;padding:12px 25px;justify-content:center;align-items:center;gap:10px;box-sizing:border-box;border-radius:22px;background:#1F589C;border:none;color:#FFF;font-family:'Open Sans',sans-serif;font-size:16px;font-weight:400;line-height:normal;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
                 {{ $zpClient?->name }} {{ $zpClient?->lastname[0] ?? '' }}.
             </button>
-        </form>
+            <div id="zpUserDropdown"
+                 style="display:none;position:absolute;top:calc(100% + 8px);right:0;background:#fff;border:1px solid #E3E0E0;border-radius:10px;box-shadow:0 4px 16px rgba(0,0,0,.1);min-width:150px;z-index:500;overflow:hidden">
+                <form method="POST" action="{{ route('zona-privada.logout') }}">
+                    @csrf
+                    <button type="submit"
+                            style="width:100%;padding:12px 20px;background:none;border:none;color:#1D1E20;font-family:'Open Sans',sans-serif;font-size:14px;font-weight:400;text-align:left;cursor:pointer;white-space:nowrap">
+                        {{ __('ui.zona_privada.logout') }}
+                    </button>
+                </form>
+            </div>
+        </div>
+        <script>
+        (function(){
+            var btn = document.getElementById('zpUserBtn');
+            var dd  = document.getElementById('zpUserDropdown');
+            btn.addEventListener('click', function(e){
+                e.stopPropagation();
+                dd.style.display = dd.style.display === 'none' ? 'block' : 'none';
+            });
+            document.addEventListener('click', function(){ dd.style.display = 'none'; });
+        }());
+        </script>
 
     </div>
 </header>
