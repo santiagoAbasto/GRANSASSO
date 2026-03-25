@@ -16,60 +16,70 @@
 <body class="zp-body">
 
 {{-- ── HEADER ── --}}
-<header class="zp-header">
-    <div class="zp-header__inner">
+@php $zpClient = auth('client')->user(); @endphp
+<header class="navbar navbar--light" id="zpMainNav">
+    <div class="nav-container">
 
         {{-- Logo --}}
-        <a href="{{ route('zona-privada.lista-precios') }}" class="zp-header__logo">
-            <svg width="140" height="36" viewBox="0 0 140 36" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <text x="0" y="26" font-family="Open Sans, sans-serif" font-size="22" font-weight="700" fill="#136CBA">Gran Sasso</text>
-            </svg>
-        </a>
+        <div class="logo">
+            <a href="{{ route('zona-privada.lista-precios') }}">
+                <img src="{{ asset('storage/images/logos/logo-color.svg') }}"
+                     alt="Gran Sasso"
+                     onerror="this.onerror=null;this.src='{{ asset('storage/images/logos/logo.png') }}'">
+            </a>
+        </div>
 
-        {{-- Nav --}}
-        <nav class="zp-nav">
+        {{-- NAV --}}
+        <nav class="nav-links" id="zpNavLinks">
+
             <a href="{{ route('zona-privada.lista-precios') }}"
-               class="zp-nav__link {{ request()->routeIs('zona-privada.lista-precios') ? 'zp-nav__link--active' : '' }}">
+               class="{{ request()->routeIs('zona-privada.lista-precios') ? 'active' : '' }}">
                 {{ __('ui.zona_privada.price_lists') }}
             </a>
+
             <a href="{{ route('zona-privada.info-pagos') }}"
-               class="zp-nav__link {{ request()->routeIs('zona-privada.info-pagos') ? 'zp-nav__link--active' : '' }}">
+               class="{{ request()->routeIs('zona-privada.info-pagos') ? 'active' : '' }}">
                 {{ __('ui.zona_privada.payment_info') }}
             </a>
+
             <a href="{{ route('zona-privada.novedades') }}"
-               class="zp-nav__link {{ request()->routeIs('zona-privada.novedades*') ? 'zp-nav__link--active' : '' }}">
+               class="{{ request()->routeIs('zona-privada.novedades*') ? 'active' : '' }}">
                 {{ __('ui.zona_privada.novedades') }}
             </a>
 
-            {{-- Language selector --}}
-            <div class="zp-nav__lang">
-                <span class="zp-nav__lang-current" tabindex="0" role="button">
-                    {{ strtoupper(app()->getLocale()) }}
-                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 4.5L6 7.5L9 4.5" stroke="#136CBA" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                </span>
-                <ul class="zp-nav__lang-dropdown">
-                    <li><a href="{{ route('lang.switch', 'es') }}">ES</a></li>
-                    <li><a href="{{ route('lang.switch', 'en') }}">EN</a></li>
-                    <li><a href="{{ route('lang.switch', 'pt') }}">PT</a></li>
-                </ul>
+            {{-- Separador | + Selector de idioma --}}
+            <div class="nav-lang-group">
+                <span class="nav-lang-sep">|</span>
+                <div class="nav-lang">
+                    <span class="nav-lang__current" tabindex="0" role="button" aria-haspopup="listbox">
+                        {{ strtoupper(app()->getLocale()) }}
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                            <path d="M4 6L8 10L12 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </span>
+                    <ul class="nav-lang__dropdown" role="listbox">
+                        <li><a href="{{ route('lang.switch', 'es') }}" hreflang="es">ES</a></li>
+                        <li><a href="{{ route('lang.switch', 'en') }}" hreflang="en">EN</a></li>
+                        <li><a href="{{ route('lang.switch', 'pt') }}" hreflang="pt">PT</a></li>
+                    </ul>
+                </div>
             </div>
+
         </nav>
 
-        {{-- User menu --}}
-        <div class="zp-header__user">
-            @php $client = auth('client')->user(); @endphp
-            <span class="zp-header__username">{{ $client?->name }} {{ $client?->lastname }}</span>
-            <form method="POST" action="{{ route('zona-privada.logout') }}" style="display:inline">
-                @csrf
-                <button type="submit" class="zp-header__logout">Cerrar sesión</button>
-            </form>
-        </div>
+        {{-- Usuario --}}
+        <form method="POST" action="{{ route('zona-privada.logout') }}" style="margin-left:24px;flex-shrink:0">
+            @csrf
+            <button type="submit" class="btn-zona-privada" style="background:#0D2038;border-color:#0D2038;color:#fff;cursor:pointer">
+                {{ $zpClient?->name }} {{ $zpClient?->lastname[0] ?? '' }}.
+            </button>
+        </form>
 
     </div>
 </header>
 
 {{-- ── MAIN ── --}}
-<main class="zp-main">
+<main class="zp-main" style="min-height:calc(100vh - 121px)">
     @yield('content')
 </main>
 
@@ -113,19 +123,6 @@
 </script>
 @endif
 
-{{-- Language dropdown JS --}}
-<script>
-(function(){
-    var btn = document.querySelector('.zp-nav__lang-current');
-    var dd  = document.querySelector('.zp-nav__lang-dropdown');
-    if (!btn || !dd) return;
-    btn.addEventListener('click', function(e){
-        e.stopPropagation();
-        dd.classList.toggle('open');
-    });
-    document.addEventListener('click', function(){ dd.classList.remove('open'); });
-}());
-</script>
 
 @stack('scripts')
 </body>
