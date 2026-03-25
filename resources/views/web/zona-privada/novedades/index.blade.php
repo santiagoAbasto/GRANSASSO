@@ -65,12 +65,12 @@
                 </p>
                 @endif
 
-                <div style="display:flex;align-items:center;gap:0;margin-top:auto;padding-top:24px;opacity:0.5">
+                <div style="display:flex;align-items:center;justify-content:space-between;align-self:stretch;margin-top:auto;padding-top:24px;opacity:0.5">
                     <span style="color:#1D1E20;font-family:'Open Sans',sans-serif;font-size:16px;font-weight:400;line-height:150%">
                         {{ __('ui.zona_privada.read_more') }}
                     </span>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-                        <path d="M12 4L10.59 5.41L16.17 11H4V13H16.17L10.59 18.59L12 20L20 12L12 4Z" fill="#414047"/>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                        <path d="M8 0L6.59 1.41L12.17 7H0V9H12.17L6.59 14.59L8 16L16 8L8 0Z" fill="#414047"/>
                     </svg>
                 </div>
 
