@@ -20,7 +20,7 @@
             <path d="M4.5 9L7.5 6L4.5 3" stroke="#1D1E20" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
         <span style="color:#1D1E20;font-family:'Open Sans',sans-serif;font-size:12px;font-weight:300;line-height:normal">
-            {{ Str::limit($novedad->title, 40) }}
+            {{ Str::limit($novedad->getLocalizedTitle(), 40) }}
         </span>
     </nav>
 
