@@ -35,7 +35,7 @@
             @if($novedad->image)
             <div style="width:100%;aspect-ratio:16/9;overflow:hidden;flex-shrink:0">
                 <img src="{{ Storage::url($novedad->image) }}"
-                     alt="{{ $novedad->title }}"
+                     alt="{{ $novedad->getLocalizedTitle() }}"
                      style="width:100%;height:100%;object-fit:cover">
             </div>
             @else
