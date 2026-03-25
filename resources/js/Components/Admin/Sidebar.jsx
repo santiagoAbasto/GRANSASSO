@@ -72,6 +72,17 @@ export default function Sidebar() {
             ],
         },
         {
+            title: "Zona Privada",
+            icon: "solar:lock-keyhole-outline",
+            children: [
+                { title: "Usuarios",         icon: "solar:users-group-two-rounded-outline", url: "/admin/private-users" },
+                { title: "Listas de Precios",icon: "solar:file-text-outline",              url: "/admin/price-lists" },
+                { title: "Info de Pagos",    icon: "solar:card-outline",                   url: "/admin/payment-info" },
+                { title: "Novedades",        icon: "solar:star-outline",                   url: "/admin/private-novedades" },
+                { title: "Notificaciones",   icon: "solar:bell-outline",                   url: "/admin/private-notifications" },
+            ],
+        },
+        {
             title: "Extras",
             icon: "solar:widget-add-outline",
             children: [

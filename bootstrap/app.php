@@ -17,7 +17,9 @@ return Application::configure(basePath: dirname(__DIR__))
             \App\Http\Middleware\SetLocale::class,
         ]);
 
-        //
+        $middleware->alias([
+            'auth.client' => \App\Http\Middleware\AuthClient::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

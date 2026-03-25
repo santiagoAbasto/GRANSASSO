@@ -78,14 +78,14 @@
             </div>
 
             {{-- Zona Privada (solo visible en mobile dentro del menú) --}}
-            <a href="{{ route('login') }}" class="btn-zona-privada btn-zona-privada--mobile">
+            <a href="#zona-privada-modal" class="btn-zona-privada btn-zona-privada--mobile">
                 {{ __('ui.nav.private_zone') }}
             </a>
 
         </nav>
 
         {{-- ZONA PRIVADA desktop — 24px gap (margin-left en CSS) --}}
-        <a href="{{ route('login') }}" class="btn-zona-privada btn-zona-privada--desktop">
+        <a href="#zona-privada-modal" class="btn-zona-privada btn-zona-privada--desktop">
             {{ __('ui.nav.private_zone') }}
         </a>
 

@@ -117,6 +117,8 @@ $_metaDesc  = $_pageDesc
 </script>
 @endif
 
+@include('web.layouts.login-modal')
+
 @stack('scripts')
 
 </body>

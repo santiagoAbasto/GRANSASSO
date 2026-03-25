@@ -49,6 +49,10 @@
 
 @import "./web/products/products.css";
 
+/* ZONA PRIVADA */
+
+@import "./web/zona-privada/zona-privada.css";
+
 /* TOAST */
 
 @import "./layout/toast.css";

@@ -25,6 +25,15 @@ use App\Http\Controllers\Web\ContactoWebController;
 use App\Http\Controllers\Web\DesarrollosController;
 use App\Http\Controllers\Admin\CalidadDownloadController;
 use App\Http\Controllers\Admin\DesarrollosMessageController;
+use App\Http\Controllers\Web\ZonaPrivada\AuthController as ZPAuthController;
+use App\Http\Controllers\Web\ZonaPrivada\ListaPreciosController;
+use App\Http\Controllers\Web\ZonaPrivada\InfoPagosController;
+use App\Http\Controllers\Web\ZonaPrivada\NovedadesController;
+use App\Http\Controllers\Admin\PrivateUsersController;
+use App\Http\Controllers\Admin\PriceListAdminController;
+use App\Http\Controllers\Admin\PaymentInfoController as AdminPaymentInfoController;
+use App\Http\Controllers\Admin\NovedadAdminController;
+use App\Http\Controllers\Admin\PrivateNotificationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -75,6 +84,30 @@ Route::get('/lang/{locale}', function (string $locale) {
 
 // Newsletter
 Route::post('/newsletter', [NewsletterController::class, 'store'])->name('newsletter.store');
+
+/*
+|--------------------------------------------------------------------------
+| ZONA PRIVADA (BLADE)
+|--------------------------------------------------------------------------
+*/
+
+Route::prefix('zona-privada')->name('zona-privada.')->group(function () {
+
+    // Auth (pública)
+    Route::post('/login',       [ZPAuthController::class, 'login'])->name('login');
+    Route::post('/logout',      [ZPAuthController::class, 'logout'])->name('logout');
+    Route::get('/registrarse',  [ZPAuthController::class, 'showRegister'])->name('register');
+    Route::post('/registrarse', [ZPAuthController::class, 'register'])->name('register.store');
+
+    // Secciones protegidas por guard 'client'
+    Route::middleware('auth.client')->group(function () {
+        Route::get('/lista-precios',          [ListaPreciosController::class, 'index'])->name('lista-precios');
+        Route::get('/info-pagos',             [InfoPagosController::class, 'index'])->name('info-pagos');
+        Route::post('/info-pagos',            [InfoPagosController::class, 'store'])->name('info-pagos.store');
+        Route::get('/novedades',              [NovedadesController::class, 'index'])->name('novedades');
+        Route::get('/novedades/{novedad}',    [NovedadesController::class, 'show'])->name('novedades.show');
+    });
+});
 
 /*
 |--------------------------------------------------------------------------
@@ -195,6 +228,28 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('/users',                  [UserController::class, 'store'])->name('users.store');
         Route::put('/users/{user}',            [UserController::class, 'update'])->name('users.update');
         Route::delete('/users/{user}',         [UserController::class, 'destroy'])->name('users.destroy');
+
+        // ── Zona Privada Admin ────────────────────────────────────────────────
+        Route::get('/private-users',                             [PrivateUsersController::class, 'index'])->name('private-users.index');
+        Route::post('/private-users/{privateUser}/approve',     [PrivateUsersController::class, 'approve'])->name('private-users.approve');
+        Route::post('/private-users/{privateUser}/reject',      [PrivateUsersController::class, 'reject'])->name('private-users.reject');
+        Route::patch('/private-users/{privateUser}/discount',   [PrivateUsersController::class, 'updateDiscount'])->name('private-users.discount');
+        Route::delete('/private-users/{privateUser}',           [PrivateUsersController::class, 'destroy'])->name('private-users.destroy');
+
+        Route::get('/price-lists',                 [PriceListAdminController::class, 'index'])->name('price-lists.index');
+        Route::post('/price-lists',                [PriceListAdminController::class, 'store'])->name('price-lists.store');
+        Route::delete('/price-lists/{priceList}',  [PriceListAdminController::class, 'destroy'])->name('price-lists.destroy');
+
+        Route::get('/payment-info',                [AdminPaymentInfoController::class, 'index'])->name('payment-info.index');
+        Route::post('/payment-info',               [AdminPaymentInfoController::class, 'update'])->name('payment-info.update');
+
+        Route::get('/private-novedades',                          [NovedadAdminController::class, 'index'])->name('private-novedades.index');
+        Route::post('/private-novedades',                         [NovedadAdminController::class, 'store'])->name('private-novedades.store');
+        Route::put('/private-novedades/{novedad}',                [NovedadAdminController::class, 'update'])->name('private-novedades.update');
+        Route::delete('/private-novedades/{novedad}',             [NovedadAdminController::class, 'destroy'])->name('private-novedades.destroy');
+
+        Route::get('/private-notifications',       [PrivateNotificationController::class, 'index'])->name('private-notifications.index');
+        Route::post('/private-notifications',      [PrivateNotificationController::class, 'upsert'])->name('private-notifications.upsert');
 
     });
 
