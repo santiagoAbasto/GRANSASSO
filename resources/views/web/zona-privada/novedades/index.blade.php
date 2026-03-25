@@ -58,12 +58,13 @@
                 @endif
 
                 <h3 style="font-family:'Open Sans',sans-serif;font-size:16px;font-weight:700;color:#1D1E20;line-height:140%;margin:0">
-                    {{ $novedad->title }}
+                    {{ $novedad->getLocalizedTitle() }}
                 </h3>
 
-                @if($novedad->excerpt)
+                @php $excerpt = $novedad->getLocalizedExcerpt(); @endphp
+                @if($excerpt)
                 <p style="font-family:'Open Sans',sans-serif;font-size:14px;font-weight:400;color:#6B7280;line-height:150%;margin:0;flex:1">
-                    {{ Str::limit($novedad->excerpt, 120) }}
+                    {{ Str::limit(strip_tags($excerpt), 120) }}
                 </p>
                 @endif
 

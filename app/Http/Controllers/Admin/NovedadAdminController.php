@@ -22,19 +22,52 @@ class NovedadAdminController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'title'     => ['required', 'string', 'max:255'],
             'category'  => ['nullable', 'string', 'max:100'],
-            'excerpt'   => ['nullable', 'string'],
-            'body'      => ['nullable', 'string'],
             'image'     => ['nullable', 'image', 'max:3072'],
             'is_active' => ['boolean'],
+
+            // título (3 idiomas)
+            'title_es'  => ['required', 'string', 'max:255'],
+            'title_en'  => ['nullable', 'string', 'max:255'],
+            'title_pt'  => ['nullable', 'string', 'max:255'],
+
+            // extracto (3 idiomas)
+            'excerpt_es' => ['nullable', 'string'],
+            'excerpt_en' => ['nullable', 'string'],
+            'excerpt_pt' => ['nullable', 'string'],
+
+            // cuerpo HTML (3 idiomas)
+            'body_es'   => ['nullable', 'string'],
+            'body_en'   => ['nullable', 'string'],
+            'body_pt'   => ['nullable', 'string'],
         ]);
 
+        $payload = [
+            'category'  => $data['category'] ?? null,
+            'is_active' => $data['is_active'] ?? true,
+
+            'title'   => [
+                'es' => $data['title_es'],
+                'en' => $data['title_en'] ?? $data['title_es'],
+                'pt' => $data['title_pt'] ?? $data['title_es'],
+            ],
+            'excerpt' => [
+                'es' => $data['excerpt_es'] ?? '',
+                'en' => $data['excerpt_en'] ?? '',
+                'pt' => $data['excerpt_pt'] ?? '',
+            ],
+            'body'    => [
+                'es' => $data['body_es'] ?? '',
+                'en' => $data['body_en'] ?? '',
+                'pt' => $data['body_pt'] ?? '',
+            ],
+        ];
+
         if ($request->hasFile('image')) {
-            $data['image'] = $request->file('image')->store('novedades', 'public');
+            $payload['image'] = $request->file('image')->store('novedades', 'public');
         }
 
-        Novedad::create($data);
+        Novedad::create($payload);
 
         return back()->with('success', 'Novedad creada.');
     }
@@ -42,22 +75,52 @@ class NovedadAdminController extends Controller
     public function update(Request $request, Novedad $novedad)
     {
         $data = $request->validate([
-            'title'     => ['required', 'string', 'max:255'],
             'category'  => ['nullable', 'string', 'max:100'],
-            'excerpt'   => ['nullable', 'string'],
-            'body'      => ['nullable', 'string'],
             'image'     => ['nullable', 'image', 'max:3072'],
             'is_active' => ['boolean'],
+
+            'title_es'  => ['required', 'string', 'max:255'],
+            'title_en'  => ['nullable', 'string', 'max:255'],
+            'title_pt'  => ['nullable', 'string', 'max:255'],
+
+            'excerpt_es' => ['nullable', 'string'],
+            'excerpt_en' => ['nullable', 'string'],
+            'excerpt_pt' => ['nullable', 'string'],
+
+            'body_es'   => ['nullable', 'string'],
+            'body_en'   => ['nullable', 'string'],
+            'body_pt'   => ['nullable', 'string'],
         ]);
+
+        $payload = [
+            'category'  => $data['category'] ?? null,
+            'is_active' => $data['is_active'] ?? true,
+
+            'title'   => [
+                'es' => $data['title_es'],
+                'en' => $data['title_en'] ?? $data['title_es'],
+                'pt' => $data['title_pt'] ?? $data['title_es'],
+            ],
+            'excerpt' => [
+                'es' => $data['excerpt_es'] ?? '',
+                'en' => $data['excerpt_en'] ?? '',
+                'pt' => $data['excerpt_pt'] ?? '',
+            ],
+            'body'    => [
+                'es' => $data['body_es'] ?? '',
+                'en' => $data['body_en'] ?? '',
+                'pt' => $data['body_pt'] ?? '',
+            ],
+        ];
 
         if ($request->hasFile('image')) {
             if ($novedad->image) {
                 Storage::disk('public')->delete($novedad->image);
             }
-            $data['image'] = $request->file('image')->store('novedades', 'public');
+            $payload['image'] = $request->file('image')->store('novedades', 'public');
         }
 
-        $novedad->update($data);
+        $novedad->update($payload);
 
         return back()->with('success', 'Novedad actualizada.');
     }

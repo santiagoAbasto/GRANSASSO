@@ -35,26 +35,28 @@
         @endif
 
         <h1 style="font-family:'Open Sans',sans-serif;font-size:28px;font-weight:700;color:#1D1E20;line-height:130%;margin:12px 0 20px">
-            {{ $novedad->title }}
+            {{ $novedad->getLocalizedTitle() }}
         </h1>
 
         @if($novedad->image)
         <div style="width:100%;border-radius:8px;overflow:hidden;margin-bottom:24px">
             <img src="{{ Storage::url($novedad->image) }}"
-                 alt="{{ $novedad->title }}"
+                 alt="{{ $novedad->getLocalizedTitle() }}"
                  style="width:100%;height:auto;display:block">
         </div>
         @endif
 
-        @if($novedad->excerpt)
+        @php $excerpt = $novedad->getLocalizedExcerpt(); @endphp
+        @if($excerpt)
         <p style="font-family:'Open Sans',sans-serif;font-size:16px;font-weight:600;color:#1D1E20;line-height:150%;margin:0 0 20px">
-            {{ $novedad->excerpt }}
+            {!! nl2br(e($excerpt)) !!}
         </p>
         @endif
 
-        @if($novedad->body)
+        @php $body = $novedad->getLocalizedBody(); @endphp
+        @if($body)
         <div style="font-family:'Open Sans',sans-serif;font-size:16px;font-weight:400;color:#1D1E20;line-height:175%">
-            {!! $novedad->body !!}
+            {!! $body !!}
         </div>
         @endif
 

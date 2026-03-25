@@ -52,7 +52,7 @@
         @if($i > 0)
         <div style="height:0;border-top:1px solid #E3E0E0;margin:0 24px"></div>
         @endif
-        <div style="display:grid;grid-template-columns:80px 1fr 120px 120px 300px;align-items:center;padding:16px 24px;gap:16px">
+        <div style="display:grid;grid-template-columns:80px 1fr 120px 120px 300px;align-items:center;padding:0 24px;gap:16px;min-height:52px">
 
             {{-- Icono archivo --}}
             <div style="width:80px;height:80px;border-radius:6px;border:1px solid #E3E0E0;display:flex;align-items:center;justify-content:center;flex-shrink:0">
