@@ -21,11 +21,11 @@
 
     {{-- Discount badge --}}
     @if($user->discount_pct > 0 || $user->discount_extra_pct > 0)
-    <p style="font-family:'Open Sans',sans-serif;font-size:15px;color:#1D1E20;margin:0 0 16px">
+    <p style="font-family:'Open Sans',sans-serif;font-size:20px;font-weight:400;color:#1D1E20;margin:0 0 16px;line-height:normal">
         {{ __('ui.zona_privada.discount') }}
-        <strong style="color:#1F589C;font-weight:700">
+        <strong style="color:#1D1E20;font-weight:700">
             {{ $user->discount_pct }}%
-            @if($user->discount_extra_pct > 0)+ {{ $user->discount_extra_pct }}%@endif
+            @if($user->discount_extra_pct > 0) + {{ $user->discount_extra_pct }}%@endif
         </strong>
     </p>
     @endif

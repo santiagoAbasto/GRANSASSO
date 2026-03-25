@@ -79,7 +79,7 @@
 </header>
 
 {{-- ── MAIN ── --}}
-<main class="zp-main" style="min-height:calc(100vh - 121px);background:#F4F6FA">
+<main class="zp-main" style="min-height:calc(100vh - 121px);background:#fff">
     @yield('content')
 </main>
 
