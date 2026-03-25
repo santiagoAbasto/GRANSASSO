@@ -7,7 +7,7 @@
 <div style="max-width:1224px;margin:0 auto;padding:0 71px;box-sizing:content-box">
 
     {{-- Breadcrumb --}}
-    <nav style="display:flex;align-items:center;gap:2px;padding-top:11px;padding-bottom:32px">
+    <nav style="display:flex;align-items:center;gap:2px;padding-top:11px;padding-bottom:73px">
         <a href="{{ route('home') }}" style="color:#1D1E20;font-family:'Open Sans',sans-serif;font-size:12px;font-weight:600;line-height:normal;text-decoration:none">
             {{ __('ui.breadcrumb.home') }}
         </a>
@@ -46,7 +46,7 @@
             @endif
 
             {{-- Contenido --}}
-            <div style="padding:24px 24px 50px 24px;display:flex;flex-direction:column;align-items:flex-start;flex:1;width:100%;box-sizing:border-box">
+            <div style="padding:24px 24px 25px 24px;display:flex;flex-direction:column;align-items:flex-start;flex:1;width:100%;box-sizing:border-box">
 
                 @if($novedad->category)
                 <span style="align-self:stretch;color:#1F589C;font-family:'Open Sans',sans-serif;font-size:14px;font-weight:700;line-height:150%">
@@ -65,7 +65,7 @@
                 </p>
                 @endif
 
-                <div style="display:flex;align-items:center;justify-content:space-between;align-self:stretch;margin-top:auto;padding-top:24px;opacity:0.5">
+                <div style="display:flex;align-items:center;justify-content:space-between;align-self:stretch;margin-top:auto;padding-top:26px;opacity:0.5">
                     <span style="color:#1D1E20;font-family:'Open Sans',sans-serif;font-size:16px;font-weight:400;line-height:150%">
                         {{ __('ui.zona_privada.read_more') }}
                     </span>
