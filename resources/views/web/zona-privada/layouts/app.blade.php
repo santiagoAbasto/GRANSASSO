@@ -11,7 +11,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
 
-    @vite(['resources/css/web.css'])
+    @vite(['resources/css/web.css', 'resources/js/web.js'])
 </head>
 <body class="zp-body">
 
@@ -79,9 +79,11 @@
 </header>
 
 {{-- ── MAIN ── --}}
-<main class="zp-main" style="min-height:calc(100vh - 121px)">
+<main class="zp-main" style="min-height:calc(100vh - 121px);background:#F4F6FA">
     @yield('content')
 </main>
+
+@include('web.layouts.footer')
 
 {{-- ── NOTIFICATION POPUP ── --}}
 @if(isset($notification) && $notification)
