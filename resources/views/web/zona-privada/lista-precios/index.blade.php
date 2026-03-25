@@ -7,7 +7,7 @@
 <div style="max-width:1224px;margin:0 auto;padding:0 71px;box-sizing:content-box">
 
     {{-- Breadcrumb — 11px desde el header --}}
-    <nav style="display:flex;align-items:center;gap:6px;padding-top:11px;padding-bottom:24px">
+    <nav style="display:flex;align-items:center;gap:2px;padding-top:11px;padding-bottom:73px">
         <a href="{{ route('home') }}" style="color:#1D1E20;font-family:'Open Sans',sans-serif;font-size:12px;font-weight:600;line-height:normal;text-decoration:none">
             {{ __('ui.breadcrumb.home') }}
         </a>
@@ -21,7 +21,7 @@
 
     {{-- Discount badge --}}
     @if($user->discount_pct > 0 || $user->discount_extra_pct > 0)
-    <p style="font-family:'Open Sans',sans-serif;font-size:20px;font-weight:400;color:#1D1E20;margin:0 0 16px;line-height:normal">
+    <p style="font-family:'Open Sans',sans-serif;font-size:20px;font-weight:400;color:#1D1E20;margin:0 0 13px;line-height:normal">
         {{ __('ui.zona_privada.discount') }}
         <strong style="color:#1D1E20;font-weight:700">
             {{ $user->discount_pct }}%
@@ -62,16 +62,16 @@
             </div>
 
             {{-- Nombre --}}
-            <span style="font-family:'Open Sans',sans-serif;font-size:15px;font-weight:600;color:#1D1E20">{{ $pl->name }}</span>
+            <span style="font-family:'Open Sans',sans-serif;font-size:16px;font-weight:400;color:#1D1E20">{{ $pl->name }}</span>
 
             {{-- Formato --}}
-            <span style="font-family:'Open Sans',sans-serif;font-size:14px;color:#6B7280">PDF</span>
+            <span style="font-family:'Open Sans',sans-serif;font-size:16px;font-weight: 400;color:#1D1E20">PDF</span>
 
             {{-- Peso --}}
-            <span style="font-family:'Open Sans',sans-serif;font-size:14px;color:#6B7280">{{ $pl->file_size_human }}</span>
+            <span style="font-family:'Open Sans',sans-serif;font-size:16px;font-weight: 400;color:#1D1E20">{{ $pl->file_size_human }}</span>
 
             {{-- Acciones --}}
-            <div style="display:flex;align-items:center;gap:12px;justify-content:flex-end">
+            <div style="display:flex;align-items:center;gap:24px;justify-content:flex-end">
                 <a href="{{ Storage::url($pl->file_path) }}"
                    download
                    style="display:flex;width:138px;padding:12px 25px;justify-content:center;align-items:center;gap:10px;box-sizing:border-box;border:1px solid #1F589C;border-radius:22px;background:#fff;color:#1F589C;font-family:'Open Sans',sans-serif;font-size:16px;font-weight:400;line-height:normal;text-decoration:none;white-space:nowrap;transition:background .2s">
