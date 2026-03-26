@@ -144,7 +144,7 @@
 
                 {{-- Descripción --}}
                 @if($productDesc)
-                <p class="product-detail__desc">{{ $productDesc }}</p>
+                <p class="product-detail__desc" style="color:#1D1E20;font-family:'Open Sans',sans-serif;font-style:normal;font-size:18px;font-weight:400;line-height:25px;margin-bottom:40px;">{{ $productDesc }}</p>
                 @endif
 
                 {{-- ── Tabla de datos ─────────────────────────────────── --}}

@@ -1180,11 +1180,11 @@
 .product-detail__desc {
     color: #1D1E20;
     font-family: "Open Sans", sans-serif;
-    font-size: 14px;
+    font-style: normal;
+    font-size: 18px;
     font-weight: 400;
-    line-height: 1.6;
-    margin-top: 0;
-    margin-bottom: 24px;
+    line-height: 25px;
+    margin-bottom: 40px;
 }
 
 /* tabla de referencias */
