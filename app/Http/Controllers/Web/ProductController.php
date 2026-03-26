@@ -51,7 +51,7 @@ class ProductController extends Controller
         $brands   = Brand::active()->ordered()->get();
         $products = Product::where('gearbox_id', $gearbox->id)
             ->where('is_active', true)
-            ->with('primaryImage')
+            ->with(['primaryImage', 'items'])
             ->orderBy('figure')
             ->get();
 
@@ -71,7 +71,7 @@ class ProductController extends Controller
         $related = Product::where('gearbox_id', $gearbox->id)
             ->where('id', '!=', $product->id)
             ->where('is_active', true)
-            ->with('primaryImage')
+            ->with(['primaryImage', 'items'])
             ->limit(4)
             ->get();
 
@@ -173,7 +173,7 @@ class ProductController extends Controller
             $g = $p->gearbox;
             $b = $g?->brand;
             if ($g && $b) {
-                return redirect()->route('products.show', [$b->slug, $g->slug, $p->id]);
+                return redirect()->route('products.show', [$b->slug, $g->slug, $p->slug]);
             }
         }
 

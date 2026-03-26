@@ -59,11 +59,11 @@
                     @php
                         $primaryItem = $product->items->first();
                         $oemCode     = $primaryItem?->oem_code ?? $product->code_gs ?? '—';
-                        $rawName     = $product->getName();
+                        $rawName     = $product->getName() ?? $product->getDescription();
                         $productName = $rawName ? ucwords(mb_strtolower($rawName)) : null;
                     @endphp
 
-                    <a href="{{ route('products.show', [$brand->slug, $gearbox->slug, $product->id]) }}"
+                    <a href="{{ route('products.show', [$brand->slug, $gearbox->slug, $product->slug]) }}"
                        class="prd-card">
 
                         {{-- IMAGEN --}}
