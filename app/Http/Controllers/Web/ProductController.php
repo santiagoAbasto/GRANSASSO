@@ -44,11 +44,16 @@ class ProductController extends Controller
     /**
      * /productos/{brand}/{gearbox} — productos de esa caja
      */
-    public function gearbox(Brand $brand, Gearbox $gearbox)
+    public function gearbox($brandSlug, $gearboxSlug)
     {
-        abort_if($gearbox->brand_id !== $brand->id, 404);
+        $brand = Brand::where('slug', $brandSlug)->firstOrFail();
 
-        $brands   = Brand::active()->ordered()->get();
+        $gearbox = Gearbox::where('slug', $gearboxSlug)
+            ->where('brand_id', $brand->id)
+            ->firstOrFail();
+
+        $brands = Brand::active()->ordered()->get();
+
         $products = Product::where('gearbox_id', $gearbox->id)
             ->where('is_active', true)
             ->with(['primaryImage', 'items'])
@@ -61,12 +66,22 @@ class ProductController extends Controller
     /**
      * /productos/{brand}/{gearbox}/{product} — detalle del producto
      */
-    public function show(Brand $brand, Gearbox $gearbox, Product $product)
+    public function show($brandSlug, $gearboxSlug, $productCode)
     {
-        abort_if($gearbox->brand_id !== $brand->id, 404);
-        abort_if($product->gearbox_id !== $gearbox->id, 404);
+        $brand = Brand::where('slug', $brandSlug)->firstOrFail();
 
-        $product->load(['images', 'items']);
+        $gearbox = Gearbox::where('slug', $gearboxSlug)
+            ->where('brand_id', $brand->id)
+            ->firstOrFail();
+
+        $product = Product::where(function ($q) use ($productCode) {
+                $q->where('code_gs', $productCode)
+                  ->orWhere('slug', $productCode);
+            })
+            ->where('gearbox_id', $gearbox->id)
+            ->firstOrFail();
+
+        $product->load(['images', 'items', 'primaryImage']);
 
         $related = Product::where('gearbox_id', $gearbox->id)
             ->where('id', '!=', $product->id)
@@ -81,12 +96,22 @@ class ProductController extends Controller
     /**
      * /productos/{brand}/{gearbox}/{product}/pdf — ficha técnica en PDF
      */
-    public function pdf(Brand $brand, Gearbox $gearbox, Product $product)
+    public function pdf($brandSlug, $gearboxSlug, $productCode)
     {
-        abort_if($gearbox->brand_id !== $brand->id, 404);
-        abort_if($product->gearbox_id !== $gearbox->id, 404);
+        $brand = Brand::where('slug', $brandSlug)->firstOrFail();
 
-        $product->load(['images', 'items']);
+        $gearbox = Gearbox::where('slug', $gearboxSlug)
+            ->where('brand_id', $brand->id)
+            ->firstOrFail();
+
+        $product = Product::where(function ($q) use ($productCode) {
+                $q->where('code_gs', $productCode)
+                  ->orWhere('slug', $productCode);
+            })
+            ->where('gearbox_id', $gearbox->id)
+            ->firstOrFail();
+
+        $product->load(['images', 'items', 'primaryImage']);
 
         $primaryItem     = $product->items->first();
         $oemCode         = $primaryItem?->oem_code ?? $product->code_gs ?? '—';
@@ -145,7 +170,7 @@ class ProductController extends Controller
             ->with(['gearbox.brand', 'primaryImage', 'items']);
 
         // Filtrar por marca si se seleccionó
-        $brand   = $brandSlug   ? Brand::where('slug', $brandSlug)->first()   : null;
+        $brand   = $brandSlug ? Brand::where('slug', $brandSlug)->first() : null;
         $gearbox = null;
         if ($brand) {
             $gearbox = $gearboxSlug
@@ -173,7 +198,11 @@ class ProductController extends Controller
             $g = $p->gearbox;
             $b = $g?->brand;
             if ($g && $b) {
-                return redirect()->route('products.show', [$b->slug, $g->slug, $p->slug]);
+                return redirect()->route('products.show', [
+                    $b->slug,
+                    $g->slug,
+                    $p->code_gs ?? $p->slug,
+                ]);
             }
         }
 

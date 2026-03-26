@@ -49,10 +49,10 @@ Route::get('/empresa', [EmpresaController::class, 'index'])->name('empresa');
 Route::prefix('productos')->name('products.')->group(function () {
     Route::get('/',                           [ProductController::class, 'index'])->name('index');
     Route::get('/buscar',                     [ProductController::class, 'search'])->name('search');
-    Route::get('/{brand:slug}',               [ProductController::class, 'brand'])->name('brand');
-    Route::get('/{brand:slug}/{gearbox:slug}', [ProductController::class, 'gearbox'])->name('gearbox');
-    Route::get('/{brand:slug}/{gearbox:slug}/{product:slug}', [ProductController::class, 'show'])->name('show');
-    Route::get('/{brand:slug}/{gearbox:slug}/{product:slug}/pdf', [ProductController::class, 'pdf'])->name('pdf');
+    Route::get('/{brand:slug}',           [ProductController::class, 'brand'])->name('brand');
+    Route::get('/{brand}/{gearbox}',       [ProductController::class, 'gearbox'])->name('gearbox');
+    Route::get('/{brand}/{gearbox}/{product}',      [ProductController::class, 'show'])->name('show');
+    Route::get('/{brand}/{gearbox}/{product}/pdf',  [ProductController::class, 'pdf'])->name('pdf');
 });
 
 // API interna: gearboxes por marca (usada por los buscadores via AJAX)
