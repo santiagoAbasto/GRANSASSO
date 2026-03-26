@@ -13,14 +13,12 @@ use App\Models\SeoMeta;
 // ── Detectar página y cargar meta desde DB ──────────────────────────────
 $_route   = Route::currentRouteName() ?? '';
 $_pageKey = match(true) {
-    $_route === 'home'                     => 'home',
-    $_route === 'products.index'           => 'products',
-    $_route === 'products.category'        => 'categories',
-    $_route === 'products.subcategory'     => 'subcategories',
-    str_starts_with($_route, 'industries') => 'industries',
-    str_starts_with($_route, 'posts')      => 'novedades',
-    str_starts_with($_route, 'contact')    => 'contacto',
-    default                                => null,
+    $_route === 'home'                          => 'home',
+    str_starts_with($_route, 'products')        => 'productos',
+    $_route === 'empresa'                       => 'empresa',
+    $_route === 'calidad'                       => 'calidad',
+    str_starts_with($_route, 'contacto')        => 'contacto',
+    default                                     => null,
 };
 $_seo        = $_pageKey ? SeoMeta::where('page', $_pageKey)->first() : null;
 $_seoKeywords = $_seo?->keywords    ?: '';
