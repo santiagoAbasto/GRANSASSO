@@ -51,8 +51,8 @@ Route::prefix('productos')->name('products.')->group(function () {
     Route::get('/buscar',                     [ProductController::class, 'search'])->name('search');
     Route::get('/{brand:slug}',               [ProductController::class, 'brand'])->name('brand');
     Route::get('/{brand:slug}/{gearbox:slug}', [ProductController::class, 'gearbox'])->name('gearbox');
-    Route::get('/{brand:slug}/{gearbox:slug}/{product}', [ProductController::class, 'show'])->name('show');
-    Route::get('/{brand:slug}/{gearbox:slug}/{product}/pdf', [ProductController::class, 'pdf'])->name('pdf');
+    Route::get('/{brand:slug}/{gearbox:slug}/{product:slug}', [ProductController::class, 'show'])->name('show');
+    Route::get('/{brand:slug}/{gearbox:slug}/{product:slug}/pdf', [ProductController::class, 'pdf'])->name('pdf');
 });
 
 // API interna: gearboxes por marca (usada por los buscadores via AJAX)
@@ -147,10 +147,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/products',                           [AdminProductController::class, 'index'])->name('products.index');
         Route::get('/products/create',                    [AdminProductController::class, 'create'])->name('products.create');
         Route::post('/products',                          [AdminProductController::class, 'store'])->name('products.store');
+        Route::post('/products/bulk-image',               [AdminProductController::class, 'bulkImage'])->name('products.bulk-image');
         Route::get('/products/{product}/edit',            [AdminProductController::class, 'edit'])->name('products.edit');
         Route::put('/products/{product}',                 [AdminProductController::class, 'update'])->name('products.update');
         Route::delete('/products/{product}',              [AdminProductController::class, 'destroy'])->name('products.destroy');
-        Route::post('/products/bulk-image',               [AdminProductController::class, 'bulkImage'])->name('products.bulk-image');
         Route::patch('/products/images/{image}/primary',  [AdminProductController::class, 'setPrimaryImage'])->name('products.images.primary');
         Route::delete('/products/images/{image}',          [AdminProductController::class, 'destroyImage'])->name('products.images.destroy');
 

@@ -256,7 +256,7 @@
                 {{-- ── Acciones ──────────────────────────────────────── --}}
                 <div class="product-detail__actions">
 
-                    <a href="{{ route('products.pdf', [$brand->slug, $gearbox->slug, $product->id]) }}"
+                    <a href="{{ route('products.pdf', [$brand->slug, $gearbox->slug, $product->slug]) }}"
                        target="_blank"
                        rel="noopener"
                        class="btn btn--outline">
@@ -283,7 +283,7 @@
                     $relItem = $rel->items->first();
                     $relOem  = $relItem?->oem_code ?? $rel->code_gs ?? '—';
                 @endphp
-                <a href="{{ route('products.show', [$brand->slug, $gearbox->slug, $rel->id]) }}"
+                <a href="{{ route('products.show', [$brand->slug, $gearbox->slug, $rel->slug]) }}"
                    class="rel-card">
 
                     <div class="rel-card__img">
