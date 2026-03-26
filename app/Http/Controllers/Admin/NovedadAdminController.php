@@ -22,9 +22,13 @@ class NovedadAdminController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'category'  => ['nullable', 'string', 'max:100'],
             'image'     => ['nullable', 'image', 'max:3072'],
             'is_active' => ['boolean'],
+
+            // categoría (3 idiomas)
+            'category_es' => ['nullable', 'string', 'max:100'],
+            'category_en' => ['nullable', 'string', 'max:100'],
+            'category_pt' => ['nullable', 'string', 'max:100'],
 
             // título (3 idiomas)
             'title_es'  => ['required', 'string', 'max:255'],
@@ -43,7 +47,11 @@ class NovedadAdminController extends Controller
         ]);
 
         $payload = [
-            'category'  => $data['category'] ?? null,
+            'category' => [
+                'es' => $data['category_es'] ?? '',
+                'en' => $data['category_en'] ?? '',
+                'pt' => $data['category_pt'] ?? '',
+            ],
             'is_active' => $data['is_active'] ?? true,
 
             'title'   => [
@@ -75,9 +83,13 @@ class NovedadAdminController extends Controller
     public function update(Request $request, Novedad $novedad)
     {
         $data = $request->validate([
-            'category'  => ['nullable', 'string', 'max:100'],
             'image'     => ['nullable', 'image', 'max:3072'],
             'is_active' => ['boolean'],
+
+            // categoría (3 idiomas)
+            'category_es' => ['nullable', 'string', 'max:100'],
+            'category_en' => ['nullable', 'string', 'max:100'],
+            'category_pt' => ['nullable', 'string', 'max:100'],
 
             'title_es'  => ['required', 'string', 'max:255'],
             'title_en'  => ['nullable', 'string', 'max:255'],
@@ -93,7 +105,11 @@ class NovedadAdminController extends Controller
         ]);
 
         $payload = [
-            'category'  => $data['category'] ?? null,
+            'category' => [
+                'es' => $data['category_es'] ?? '',
+                'en' => $data['category_en'] ?? '',
+                'pt' => $data['category_pt'] ?? '',
+            ],
             'is_active' => $data['is_active'] ?? true,
 
             'title'   => [

@@ -4,9 +4,9 @@
 
 @section('content')
 
-<div style="max-width:1224px;margin:0 auto;box-sizing:border-box;padding:0 16px">
+<div class="zp-section-wrap">
 
-    <nav style="display:flex;align-items:center;gap:2px;padding-top:11px;padding-bottom:73px">
+    <nav class="zp-breadcrumb" style="display:flex;align-items:center;gap:2px;padding-top:11px;padding-bottom:73px">
         <a href="{{ route('home') }}" style="color:#1D1E20;font-family:'Open Sans',sans-serif;font-size:12px;font-weight:600;line-height:normal;text-decoration:none">
             {{ __('ui.breadcrumb.home') }}
         </a>
@@ -78,6 +78,6 @@
     @endif
 
 </div>
-<div style="height:{{ $priceLists->count() <= 1 ? '437' : '105' }}px"></div>
+<div class="zp-bottom-spacer" style="height:{{ $priceLists->count() <= 1 ? '437' : '105' }}px"></div>
 
 @endsection

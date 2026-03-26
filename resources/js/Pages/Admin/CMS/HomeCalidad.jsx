@@ -14,9 +14,10 @@ const LOCALES = [
 export default function HomeCalidad({ page, section }) {
     const [activeLocale, setActiveLocale] = useState("es");
 
-    const { data, setData, post, processing, errors } = useForm({
-        _method: section ? "PUT" : undefined,
+    // Icono de certificación existente (primer imagen — igual que el blade: sortBy('order')->first())
+    const existingCertIcon = section?.images?.[0] ?? null;
 
+    const { data, setData, post, processing, errors } = useForm({
         // Textos multiidioma
         title_es:       section?.title?.es       ?? "",
         title_en:       section?.title?.en       ?? "",
@@ -34,9 +35,7 @@ export default function HomeCalidad({ page, section }) {
 
         // Imágenes
         image:   null,  // fondo
-        image_1: null,  // logo / certificación 1
-        image_2: null,  // logo / certificación 2
-        image_3: null,  // logo / certificación 3
+        image_1: null,  // icono de certificación (ISO badge)
     });
 
     const submit = (e) => {
@@ -44,14 +43,11 @@ export default function HomeCalidad({ page, section }) {
         post("/admin/home-calidad", { forceFormData: true });
     };
 
-    const deleteImage = (imageId) => {
-        if (!confirm("¿Eliminar esta imagen?")) return;
-        router.delete(`/admin/home-calidad/images/${imageId}`);
+    const deleteCertIcon = () => {
+        if (!existingCertIcon) return;
+        if (!confirm("¿Eliminar el icono de certificación?")) return;
+        router.delete(`/admin/home-calidad/images/${existingCertIcon.id}`);
     };
-
-    // Imagen adicional existente por slot (order 1, 2, 3)
-    const getExistingImage = (order) =>
-        section?.images?.find((img) => img.order === order) ?? null;
 
     return (
         <AdminLayout>
@@ -82,50 +78,47 @@ export default function HomeCalidad({ page, section }) {
                         />
                     </div>
 
-                    {/* ── IMÁGENES ADICIONALES (logos / certificaciones) ──── */}
-                    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-5">
+                    {/* ── ICONO DE CERTIFICACIÓN ──────────────────────────── */}
+                    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-4">
                         <h2 className="font-semibold text-gray-700 flex items-center gap-2">
                             <Icon icon="solar:medal-ribbons-star-outline" width={18} className="text-[#25A7CA]" />
-                            Imágenes adicionales
-                            <span className="text-xs text-gray-400 font-normal">(logos, certificaciones, etc.)</span>
+                            Icono de certificación
+                            <span className="text-xs text-gray-400 font-normal">(ej: badge ISO 9001)</span>
                         </h2>
 
-                        {[1, 2, 3].map((slot) => {
-                            const existing = getExistingImage(slot);
-                            return (
-                                <div key={slot} className="border border-gray-100 rounded-xl p-4 space-y-3">
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
-                                            Imagen {slot}
-                                        </span>
-                                        {existing && (
-                                            <button
-                                                type="button"
-                                                onClick={() => deleteImage(existing.id)}
-                                                className="flex items-center gap-1 text-xs text-red-500 hover:text-red-700 transition"
-                                            >
-                                                <Icon icon="solar:trash-bin-trash-outline" width={13} />
-                                                Eliminar actual
-                                            </button>
-                                        )}
-                                    </div>
+                        <p className="text-xs text-gray-500">
+                            Este icono aparece a la derecha del texto en la sección calidad del inicio.
+                            Recomendado: PNG con fondo transparente, aprox. 220 × 220 px.
+                        </p>
 
-                                    {existing && (
-                                        <img
-                                            src={existing.image_url}
-                                            className="h-20 rounded-lg object-contain border border-gray-100"
-                                            alt={`Imagen ${slot} actual`}
-                                        />
-                                    )}
-
-                                    <ImageUploadField
-                                        onChange={(f) => setData(`image_${slot}`, f)}
-                                        specs={{ maxMB: 3, formats: ["PNG", "JPG", "SVG"] }}
-                                        error={errors[`image_${slot}`]}
-                                    />
+                        {/* Icono actual */}
+                        {existingCertIcon && (
+                            <div className="flex items-center gap-4 p-3 bg-gray-50 rounded-xl border border-gray-100">
+                                <img
+                                    src={existingCertIcon.image_url}
+                                    className="h-24 w-auto rounded-lg object-contain"
+                                    alt="Icono de certificación actual"
+                                />
+                                <div className="flex flex-col gap-2">
+                                    <span className="text-xs text-gray-500">Icono actual</span>
+                                    <button
+                                        type="button"
+                                        onClick={deleteCertIcon}
+                                        className="flex items-center gap-1 text-xs text-red-500 hover:text-red-700 transition"
+                                    >
+                                        <Icon icon="solar:trash-bin-trash-outline" width={13} />
+                                        Eliminar icono
+                                    </button>
                                 </div>
-                            );
-                        })}
+                            </div>
+                        )}
+
+                        <ImageUploadField
+                            label={existingCertIcon ? "Reemplazar icono" : "Subir icono de certificación"}
+                            onChange={(f) => setData("image_1", f)}
+                            specs={{ maxMB: 3, formats: ["PNG", "JPG", "SVG"] }}
+                            error={errors.image_1}
+                        />
                     </div>
 
                     {/* ── TABS MULTIIDIOMA ────────────────────────────────── */}

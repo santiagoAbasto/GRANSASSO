@@ -237,6 +237,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('/private-users/{privateUser}/approve',     [PrivateUsersController::class, 'approve'])->name('private-users.approve');
         Route::post('/private-users/{privateUser}/reject',      [PrivateUsersController::class, 'reject'])->name('private-users.reject');
         Route::patch('/private-users/{privateUser}/discount',   [PrivateUsersController::class, 'updateDiscount'])->name('private-users.discount');
+        Route::post('/private-users/{privateUser}/password',    [PrivateUsersController::class, 'resetPassword'])->name('private-users.password');
         Route::delete('/private-users/{privateUser}',           [PrivateUsersController::class, 'destroy'])->name('private-users.destroy');
 
         Route::get('/price-lists',                 [PriceListAdminController::class, 'index'])->name('price-lists.index');

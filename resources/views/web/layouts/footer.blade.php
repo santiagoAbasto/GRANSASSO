@@ -18,7 +18,7 @@ $_phone = $settings?->phone_1 ?? '';
 $_linksLeft = [
     ['title' => __('ui.nav.empresa'),     'url' => route('empresa')],
     ['title' => __('ui.nav.products'),    'url' => route('products.index')],
-    ['title' => __('ui.nav.special_dev'), 'url' => '#'],
+    ['title' => __('ui.nav.special_dev'), 'url' => route('desarrollos')],
 ];
 $_linksRight = [
     ['title' => __('ui.nav.quality'),  'url' => route('calidad')],

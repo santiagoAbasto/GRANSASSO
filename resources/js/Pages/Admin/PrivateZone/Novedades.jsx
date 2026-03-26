@@ -13,12 +13,13 @@ const LANGS = [
 const emptyLang = () => ({ es: "", en: "", pt: "" });
 
 const emptyForm = {
-    category:   "",
-    is_active:  true,
-    image:      null,
-    title:      emptyLang(),
-    excerpt:    emptyLang(),
-    body:       emptyLang(),
+    category:        emptyLang(),
+    is_active:       true,
+    image:           null,
+    currentImageUrl: null,
+    title:           emptyLang(),
+    excerpt:         emptyLang(),
+    body:            emptyLang(),
 };
 
 /* ─── editor de texto enriquecido ────────────────────────────────────── */
@@ -151,10 +152,10 @@ function LangTabs({ active, onChange, errors }) {
                         onClick={() => onChange(l.code)}
                         style={{
                             padding: "7px 16px",
-                            border: `1.5px solid ${active === l.code ? "#136CBA" : "#e2e8f0"}`,
+                            border: `1.5px solid ${active === l.code ? "#25A7CA" : "#e2e8f0"}`,
                             borderRadius: 8,
-                            background: active === l.code ? "#f0f9ff" : "#fff",
-                            color: active === l.code ? "#136CBA" : "#64748b",
+                            background: active === l.code ? "#f0fdff" : "#fff",
+                            color: active === l.code ? "#25A7CA" : "#64748b",
                             fontWeight: active === l.code ? 700 : 400,
                             fontSize: 13,
                             cursor: "pointer",
@@ -199,9 +200,10 @@ export default function Novedades({ novedades }) {
     function openEdit(n) {
         setEditing(n.id);
         setForm({
-            category:  n.category  || "",
-            is_active: !!n.is_active,
-            image:     null,
+            category:        { es: n.category?.es || "", en: n.category?.en || "", pt: n.category?.pt || "" },
+            is_active:       !!n.is_active,
+            image:           null,
+            currentImageUrl: n.image_url || null,
             title:   { es: n.title?.es   || "", en: n.title?.en   || "", pt: n.title?.pt   || "" },
             excerpt: { es: n.excerpt?.es || "", en: n.excerpt?.en || "", pt: n.excerpt?.pt || "" },
             body:    { es: n.body?.es    || "", en: n.body?.en    || "", pt: n.body?.pt    || "" },
@@ -223,14 +225,14 @@ export default function Novedades({ novedades }) {
 
         setSaving(true);
         const fd = new FormData();
-        fd.append("category",   form.category);
         fd.append("is_active",  form.is_active ? "1" : "0");
         if (form.image) fd.append("image", form.image);
 
         LANGS.forEach(l => {
-            fd.append(`title_${l.code}`,   form.title[l.code]   ?? "");
-            fd.append(`excerpt_${l.code}`, form.excerpt[l.code] ?? "");
-            fd.append(`body_${l.code}`,    form.body[l.code]    ?? "");
+            fd.append(`category_${l.code}`, form.category[l.code] ?? "");
+            fd.append(`title_${l.code}`,    form.title[l.code]    ?? "");
+            fd.append(`excerpt_${l.code}`,  form.excerpt[l.code]  ?? "");
+            fd.append(`body_${l.code}`,     form.body[l.code]     ?? "");
         });
 
         const url = editing ? `/admin/private-novedades/${editing}` : "/admin/private-novedades";
@@ -254,16 +256,16 @@ export default function Novedades({ novedades }) {
 
     return (
         <AdminLayout title="Novedades — Zona Privada">
-            <div className="p-6">
+            <div className="max-w-6xl">
                 {/* encabezado */}
                 <div className="flex items-center justify-between mb-6">
                     <div>
                         <h1 className="text-2xl font-bold text-gray-800">Novedades</h1>
-                        <p className="text-sm text-gray-400 mt-0.5">Contenido en 3 idiomas con texto enriquecido.</p>
+                        <p className="text-sm text-gray-500 mt-1">Contenido en 3 idiomas con texto enriquecido.</p>
                     </div>
                     <button
                         onClick={openNew}
-                        className="flex items-center gap-2 px-4 py-2 bg-[#136CBA] text-white rounded-lg text-sm font-semibold hover:bg-[#0f5ea8] transition"
+                        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#25A7CA] text-white text-sm font-medium hover:bg-[#1d96b8] transition"
                     >
                         <Icon icon="solar:add-circle-outline" width={18} />
                         Nueva novedad
@@ -291,36 +293,38 @@ export default function Novedades({ novedades }) {
                             <form onSubmit={handleSubmit}>
                                 <div className="p-6 space-y-5">
 
-                                    {/* fila: categoría + activa + imagen */}
-                                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                                        <div className="sm:col-span-1">
-                                            <label className="block text-xs font-semibold text-gray-600 mb-1">Categoría</label>
-                                            <input
-                                                type="text"
-                                                value={form.category}
-                                                onChange={e => setForm(f => ({ ...f, category: e.target.value }))}
-                                                placeholder="Ej: Productos, Empresa…"
-                                                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-[#136CBA]"
-                                            />
-                                        </div>
-                                        <div className="flex items-end gap-3 pb-1">
+                                    {/* fila: activa + imagen */}
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        <div className="flex items-center gap-3">
                                             <label className="flex items-center gap-2 cursor-pointer">
                                                 <input
                                                     type="checkbox"
                                                     checked={form.is_active}
                                                     onChange={e => setForm(f => ({ ...f, is_active: e.target.checked }))}
-                                                    className="w-4 h-4 accent-[#136CBA]"
+                                                    className="w-4 h-4 accent-[#25A7CA]"
                                                 />
                                                 <span className="text-sm text-gray-700 font-medium">Activa</span>
                                             </label>
                                         </div>
                                         <div>
-                                            <label className="block text-xs font-semibold text-gray-600 mb-1">Imagen</label>
+                                            <label className="block text-xs font-semibold text-gray-600 mb-1">
+                                                {form.currentImageUrl ? "Reemplazar imagen" : "Imagen"}
+                                            </label>
+                                            {form.currentImageUrl && !form.image && (
+                                                <div className="mb-2 rounded-lg overflow-hidden border border-gray-100 w-full aspect-video bg-gray-50">
+                                                    <img src={form.currentImageUrl} alt="Imagen actual" className="w-full h-full object-cover" />
+                                                </div>
+                                            )}
+                                            {form.image && (
+                                                <div className="mb-2 rounded-lg overflow-hidden border border-gray-100 w-full aspect-video bg-gray-50">
+                                                    <img src={URL.createObjectURL(form.image)} alt="Nueva imagen" className="w-full h-full object-cover" />
+                                                </div>
+                                            )}
                                             <input
                                                 type="file"
                                                 accept="image/*"
                                                 onChange={e => setForm(f => ({ ...f, image: e.target.files[0] || null }))}
-                                                className="text-xs text-gray-600 file:mr-2 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                                                className="text-xs text-gray-600 file:mr-2 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-[#25A7CA]/10 file:text-[#25A7CA] hover:file:bg-[#25A7CA]/20"
                                             />
                                         </div>
                                     </div>
@@ -335,6 +339,20 @@ export default function Novedades({ novedades }) {
                                         </div>
                                         <LangTabs active={lang} onChange={setLang} errors={formErrors} />
 
+                                        {/* categoría por idioma */}
+                                        <div className="mb-4">
+                                            <label className="block text-xs font-semibold text-gray-600 mb-1">
+                                                Categoría
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={form.category[lang]}
+                                                onChange={e => setLangField("category", lang, e.target.value)}
+                                                placeholder={`Ej: Productos, Empresa… (${LANGS.find(l => l.code === lang)?.label})`}
+                                                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:outline-none focus:ring-2 focus:ring-[#25A7CA]/30"
+                                            />
+                                        </div>
+
                                         {/* título */}
                                         <div className="mb-4">
                                             <label className="block text-xs font-semibold text-gray-600 mb-1">
@@ -345,7 +363,7 @@ export default function Novedades({ novedades }) {
                                                 value={form.title[lang]}
                                                 onChange={e => setLangField("title", lang, e.target.value)}
                                                 placeholder={`Título en ${LANGS.find(l => l.code === lang)?.label}…`}
-                                                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-[#136CBA]"
+                                                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:outline-none focus:ring-2 focus:ring-[#25A7CA]/30"
                                             />
                                             {formErrors[`title_${lang}`] && (
                                                 <p className="text-xs text-red-500 mt-1">{formErrors[`title_${lang}`]}</p>
@@ -363,7 +381,7 @@ export default function Novedades({ novedades }) {
                                                 value={form.excerpt[lang]}
                                                 onChange={e => setLangField("excerpt", lang, e.target.value)}
                                                 placeholder={`Breve descripción en ${LANGS.find(l => l.code === lang)?.label}…`}
-                                                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-[#136CBA] resize-none"
+                                                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:outline-none focus:ring-2 focus:ring-[#25A7CA]/30 resize-none"
                                             />
                                         </div>
 
@@ -396,7 +414,7 @@ export default function Novedades({ novedades }) {
                                     <button
                                         type="submit"
                                         disabled={saving}
-                                        className="px-6 py-2 bg-[#136CBA] text-white rounded-lg text-sm font-semibold hover:bg-[#0f5ea8] transition disabled:opacity-50 flex items-center gap-2"
+                                        className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[#25A7CA] text-white text-sm font-medium hover:bg-[#1d96b8] disabled:opacity-60 transition"
                                     >
                                         {saving && <Icon icon="solar:refresh-outline" width={15} className="animate-spin" />}
                                         {saving ? "Guardando…" : "Guardar novedad"}
@@ -408,10 +426,11 @@ export default function Novedades({ novedades }) {
                 )}
 
                 {/* ── tabla ────────────────────────────────────────────── */}
-                <div className="bg-white rounded-xl shadow overflow-hidden">
+                <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
                     <table className="w-full text-sm">
                         <thead>
                             <tr className="bg-[#0D2038] text-white text-left">
+                                <th className="px-4 py-3 w-16">Img</th>
                                 <th className="px-4 py-3">Título (ES)</th>
                                 <th className="px-4 py-3">Categoría</th>
                                 <th className="px-4 py-3">Idiomas</th>
@@ -423,7 +442,7 @@ export default function Novedades({ novedades }) {
                         <tbody>
                             {novedades.length === 0 && (
                                 <tr>
-                                    <td colSpan={6} className="text-center py-12 text-gray-400">
+                                    <td colSpan={7} className="text-center py-12 text-gray-400">
                                         No hay novedades. Creá la primera.
                                     </td>
                                 </tr>
@@ -433,10 +452,19 @@ export default function Novedades({ novedades }) {
                                 const hasPt = !!n.title?.pt;
                                 return (
                                     <tr key={n.id} className="border-b border-gray-100 hover:bg-gray-50">
+                                        <td className="px-4 py-2">
+                                            {n.image_url ? (
+                                                <img src={n.image_url} alt="" className="w-12 h-12 rounded-lg object-cover border border-gray-100" />
+                                            ) : (
+                                                <div className="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center">
+                                                    <Icon icon="solar:gallery-outline" width={18} className="text-gray-300" />
+                                                </div>
+                                            )}
+                                        </td>
                                         <td className="px-4 py-3 font-semibold text-gray-800 max-w-xs truncate">
                                             {n.title?.es || "—"}
                                         </td>
-                                        <td className="px-4 py-3 text-gray-500">{n.category || "—"}</td>
+                                        <td className="px-4 py-3 text-gray-500">{n.category?.es || "—"}</td>
                                         <td className="px-4 py-3">
                                             <div className="flex gap-1">
                                                 <span className="text-xs px-1.5 py-0.5 rounded bg-blue-100 text-blue-700 font-semibold">ES</span>

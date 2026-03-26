@@ -29,8 +29,11 @@
             </a>
         </div>
 
-        {{-- NAV --}}
-        <nav class="nav-links" id="zpNavLinks">
+        {{-- NAV (desktop: inline · mobile: drawer lateral) --}}
+        <nav class="nav-links" id="navLinks">
+
+            {{-- Botón cerrar — solo mobile --}}
+            <button class="nav-close" id="navClose" aria-label="Cerrar menú">✕</button>
 
             <a href="{{ route('zona-privada.lista-precios') }}"
                class="{{ request()->routeIs('zona-privada.lista-precios') ? 'active' : '' }}">
@@ -65,17 +68,35 @@
                 </div>
             </div>
 
+            {{-- Usuario dentro del drawer (solo mobile) --}}
+            <div class="zp-nav-user-mobile">
+                <span class="zp-nav-user-mobile__avatar">
+                    {{ strtoupper(mb_substr($zpClient?->name ?? '', 0, 1)) }}{{ strtoupper(mb_substr($zpClient?->lastname ?? '', 0, 1)) }}
+                </span>
+                <span class="zp-nav-user-mobile__name">
+                    {{ collect(explode(' ', $zpClient?->name ?? ''))->map(fn($w) => ucfirst(strtolower($w)))->implode(' ') }} {{ strtoupper($zpClient?->lastname[0] ?? '') }}.
+                </span>
+                <form method="POST" action="{{ route('zona-privada.logout') }}"
+                      onsubmit="Object.keys(sessionStorage).forEach(function(k){if(k.indexOf('zp_notif_dismissed')===0)sessionStorage.removeItem(k)})">
+                    @csrf
+                    <button type="submit" class="zp-nav-user-mobile__logout">
+                        {{ __('ui.zona_privada.logout') }}
+                    </button>
+                </form>
+            </div>
+
         </nav>
 
-        {{-- Usuario --}}
-        <div style="position:relative;margin-left:24px;flex-shrink:0" id="zpUserMenu">
+        {{-- Usuario (desktop) --}}
+        <div class="zp-user-desktop" id="zpUserMenu">
             <button id="zpUserBtn"
                     style="display:flex;width:150px;padding:12px 25px;justify-content:center;align-items:center;gap:10px;box-sizing:border-box;border-radius:22px;background:#1F589C;border:none;color:#FFF;font-family:'Open Sans',sans-serif;font-size:16px;font-weight:400;line-height:normal;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
                 {{ collect(explode(' ', $zpClient?->name ?? ''))->map(fn($w) => ucfirst(strtolower($w)))->implode(' ') }} {{ strtoupper($zpClient?->lastname[0] ?? '') }}.
             </button>
             <div id="zpUserDropdown"
                  style="display:none;position:absolute;top:calc(100% + 8px);right:0;background:#fff;border:1px solid #E3E0E0;border-radius:10px;box-shadow:0 4px 16px rgba(0,0,0,.1);min-width:150px;z-index:500;overflow:hidden">
-                <form method="POST" action="{{ route('zona-privada.logout') }}" onsubmit="Object.keys(sessionStorage).forEach(function(k){if(k.indexOf('zp_notif_dismissed')===0)sessionStorage.removeItem(k)})">
+                <form method="POST" action="{{ route('zona-privada.logout') }}"
+                      onsubmit="Object.keys(sessionStorage).forEach(function(k){if(k.indexOf('zp_notif_dismissed')===0)sessionStorage.removeItem(k)})">
                     @csrf
                     <button type="submit"
                             style="width:100%;padding:12px 20px;background:none;border:none;color:#1D1E20;font-family:'Open Sans',sans-serif;font-size:14px;font-weight:400;text-align:left;cursor:pointer;white-space:nowrap">
@@ -84,17 +105,16 @@
                 </form>
             </div>
         </div>
-        <script>
-        (function(){
-            var btn = document.getElementById('zpUserBtn');
-            var dd  = document.getElementById('zpUserDropdown');
-            btn.addEventListener('click', function(e){
-                e.stopPropagation();
-                dd.style.display = dd.style.display === 'none' ? 'block' : 'none';
-            });
-            document.addEventListener('click', function(){ dd.style.display = 'none'; });
-        }());
-        </script>
+
+        {{-- Overlay mobile --}}
+        <div class="nav-overlay" id="navOverlay"></div>
+
+        {{-- Hamburger (mobile) --}}
+        <button class="hamburger" id="hamburgerBtn" aria-label="Abrir menú" aria-expanded="false">
+            <span class="hamburger__line"></span>
+            <span class="hamburger__line"></span>
+            <span class="hamburger__line"></span>
+        </button>
 
     </div>
 </header>
@@ -155,6 +175,20 @@
 </script>
 @endif
 
+{{-- User dropdown (desktop) --}}
+<script>
+(function(){
+    var btn = document.getElementById('zpUserBtn');
+    var dd  = document.getElementById('zpUserDropdown');
+    if (btn && dd) {
+        btn.addEventListener('click', function(e){
+            e.stopPropagation();
+            dd.style.display = dd.style.display === 'none' ? 'block' : 'none';
+        });
+        document.addEventListener('click', function(){ dd.style.display = 'none'; });
+    }
+}());
+</script>
 
 @stack('scripts')
 </body>

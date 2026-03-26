@@ -31,16 +31,14 @@ $quality = $page?->sections
 
         </div>
 
-        @php $certImages = $quality->images->sortBy('order'); @endphp
+        @php $certIcon = $quality->images->sortBy('order')->first(); @endphp
 
-        @if($certImages->isNotEmpty())
+        @if($certIcon)
         <div class="quality-section__iso">
-            @foreach($certImages as $certImg)
             <img
-                src="{{ asset('storage/' . $certImg->image) }}"
+                src="{{ asset('storage/' . $certIcon->image) }}"
                 alt="Certificación"
                 class="quality-section__iso-img">
-            @endforeach
         </div>
         @endif
 

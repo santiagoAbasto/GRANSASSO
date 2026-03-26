@@ -234,7 +234,7 @@ function calidad_text($value, string $locale = 'es'): string
 
         /* envuelve TODO el contenido original en un <span> para que fluya junto */
         const wrapper = document.createElement('span');
-        wrapper.style.cssText = 'width:577px;';
+        wrapper.style.cssText = 'flex:1;min-width:0;';
         while (el.firstChild) {
             wrapper.appendChild(el.firstChild);
         }

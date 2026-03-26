@@ -945,6 +945,152 @@
     }
 }
 
+/* ══════════════════════════════════════════════════════
+   RESPONSIVE PROFESIONAL v2 — ZONA PRIVADA
+   ══════════════════════════════════════════════════════ */
+
+/* ── Container (alineado con nav: max 1366px, padding 71px) ── */
+.zp-section-wrap {
+    max-width: 1366px;
+    margin: 0 auto;
+    padding: 0 71px;
+    box-sizing: border-box;
+}
+@media (max-width: 1280px) { .zp-section-wrap { padding: 0 32px; } }
+@media (max-width: 1024px) { .zp-section-wrap { padding: 0 24px; } }
+@media (max-width: 768px)  { .zp-section-wrap { padding: 81px 20px 0; } }
+@media (max-width: 480px)  { .zp-section-wrap { padding: 81px 16px 0; } }
+
+/* ── Breadcrumb responsive ── */
+@media (max-width: 768px) {
+    .zp-breadcrumb {
+        padding-top: 0 !important;
+        padding-bottom: 20px !important;
+    }
+}
+
+/* ── Novedades index: cards flexbox ── */
+.zp-novedades-flex {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+}
+.zp-novedad-item {
+    width: 392px;
+    flex-shrink: 0;
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    border-radius: 8px;
+    border: 1px solid #DDDDE0;
+    overflow: hidden;
+    transition: box-shadow .18s;
+}
+.zp-novedad-item:hover {
+    box-shadow: 0 6px 24px rgba(13, 32, 56, .12);
+}
+@media (max-width: 1024px) {
+    .zp-novedad-item { width: calc(50% - 12px); }
+}
+@media (max-width: 600px) {
+    .zp-novedades-flex { gap: 16px; }
+    .zp-novedad-item   { width: 100%; }
+}
+
+/* ── Novedades show: título responsive ── */
+@media (max-width: 768px) {
+    .zp-post-title { font-size: 22px !important; }
+}
+
+/* ── Navbar --light: drawer blanco en mobile ── */
+@media (max-width: 768px) {
+    .navbar--light .nav-links {
+        background: #ffffff !important;
+        box-shadow: -4px 0 24px rgba(0, 0, 0, 0.12) !important;
+    }
+    .navbar--light .nav-close {
+        color: #1D1E20 !important;
+    }
+}
+
+/* ── User pill: desktop / mobile ── */
+.zp-user-desktop {
+    position: relative;
+    margin-left: 24px;
+    flex-shrink: 0;
+}
+.zp-nav-user-mobile {
+    display: none;
+    width: 100%;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding-top: 20px;
+    margin-top: 16px;
+    border-top: none;
+}
+.zp-nav-user-mobile__avatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: #1F589C;
+    color: #FFF;
+    font-family: 'Open Sans', sans-serif;
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 1;
+    flex-shrink: 0;
+}
+.zp-nav-user-mobile__name {
+    font-family: 'Open Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    color: #1D1E20;
+    padding: 0;
+    line-height: normal;
+    text-align: center;
+}
+.zp-nav-user-mobile__logout {
+    background: none;
+    border: none;
+    font-family: 'Open Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 400;
+    color: #DC2626;
+    cursor: pointer;
+    padding: 8px 0;
+    text-align: left;
+    line-height: normal;
+}
+@media (max-width: 1024px) {
+    .zp-user-desktop    { display: none !important; }
+    .zp-nav-user-mobile { display: flex; }
+    .zp-body .nav-links .nav-lang-group {
+        border-bottom: none !important;
+    }
+}
+
+/* ── Info pagos card: always fill grid column (prevents overflow at 1025-1365px) ── */
+.zp-pagos-card {
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+@media (max-width: 640px) {
+    .zp-pagos-card { padding: 20px 16px 0 !important; }
+}
+
+/* ── Hamburger: raise header above overlay so nav-links drawer is clickable ── */
+@media (max-width: 1024px) {
+    #zpMainNav {
+        z-index: 210 !important;
+    }
+}
+
 /* ══════════════════════════════════════
    RESPONSIVE — ZONA PRIVADA SECCIONES
    ══════════════════════════════════════ */
@@ -955,15 +1101,22 @@
         display: none !important;
     }
     .zp-table-row {
-        grid-template-columns: 60px 1fr !important;
+        grid-template-columns: 80px 1fr !important;
         gap: 12px !important;
         padding: 12px 8px !important;
+    }
+    /* Ícono: respetar el tamaño inline del div */
+    .zp-table-row > div:first-child {
+        width: 80px !important;
+        height: 80px !important;
+        min-width: 80px !important;
+        flex-shrink: 0 !important;
     }
     .zp-table-row .zp-hide-mobile {
         display: none !important;
     }
     .zp-actions {
-        grid-column: 1 / -1;
+        grid-column: 1 / -1 !important;
         justify-content: flex-start !important;
         gap: 12px !important;
     }
@@ -1001,16 +1154,36 @@
 /* ── Mobile (max 640px) ── */
 @media (max-width: 640px) {
     .zp-table-row {
-        grid-template-columns: 1fr !important;
+        grid-template-columns: 56px 1fr !important;
+        gap: 10px 12px !important;
+        padding: 14px 12px !important;
     }
+    /* Ícono más pequeño en mobile */
     .zp-table-row > div:first-child {
-        display: none !important;
+        display: flex !important;
+        width: 56px !important;
+        height: 56px !important;
+        min-width: 56px !important;
     }
+    .zp-table-row > div:first-child svg {
+        width: 30px !important;
+        height: 30px !important;
+    }
+    /* Nombre en columna 2 */
+    .zp-table-row > span:not(.zp-hide-mobile) {
+        font-size: 14px !important;
+        line-height: 1.4 !important;
+    }
+    /* Botones: fila completa, apilados verticalmente */
     .zp-actions {
+        grid-column: 1 / -1 !important;
         flex-direction: column !important;
+        gap: 10px !important;
     }
     .zp-actions a {
         width: 100% !important;
+        box-sizing: border-box !important;
+        justify-content: center !important;
     }
 
     .zp-form-row-2 {
@@ -1039,5 +1212,10 @@
         width: calc(100vw - 32px) !important;
         height: auto !important;
         padding: 40px 24px 36px !important;
+    }
+
+    /* Spacer inferior reducido en mobile */
+    .zp-bottom-spacer {
+        height: 60px !important;
     }
 }

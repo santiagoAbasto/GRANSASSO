@@ -6,63 +6,95 @@
 <div id="zpLoginModal" class="zp-modal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="zpModalTitle">
     <div class="zp-modal__overlay" id="zpModalOverlay"></div>
 
-    <div class="zp-modal__dialog">
-        <button class="zp-modal__close" id="zpModalClose" aria-label="Cerrar">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    {{-- Card principal --}}
+    <div class="zp-modal__dialog"
+         style="width:367px;min-height:439px;height:auto;border-radius:10px;background:#FFF;padding:26px 24px 23px 24px;box-sizing:border-box;box-shadow:0 8px 40px rgba(0,0,0,.18);position:relative;max-width:calc(100vw - 32px)">
+
+        {{-- Botón cerrar --}}
+        <button class="zp-modal__close" id="zpModalClose" aria-label="Cerrar"
+                style="position:absolute;top:14px;right:14px;background:none;border:none;cursor:pointer;color:#9CA3AF;padding:4px;display:flex;align-items:center;line-height:0">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
         </button>
 
-        <div class="zp-modal__logo">
-            <svg width="130" height="34" viewBox="0 0 130 34" fill="none">
-                <text x="0" y="24" font-family="Open Sans,sans-serif" font-size="20" font-weight="700" fill="#136CBA">Gran Sasso</text>
-            </svg>
-        </div>
+        {{-- Título --}}
+        <h2 id="zpModalTitle"
+            style="color:#1D1E20;text-align:center;font-family:'Open Sans',sans-serif;font-size:24px;font-style:normal;font-weight:700;line-height:normal;margin:0">
+            {{ __('ui.zona_privada.login_title') }}
+        </h2>
 
-        <h2 class="zp-modal__title" id="zpModalTitle">{{ __('ui.zona_privada.login_title') }}</h2>
-
-        {{-- Session errors --}}
+        {{-- Errores de sesión --}}
         @if(session('zona_privada_error'))
-        <div class="zp-modal__error">{{ session('zona_privada_error') }}</div>
+        <div style="margin-top:14px;background:#FFF5F5;border:1px solid #FEB2B2;border-radius:8px;padding:10px 14px;font-family:'Open Sans',sans-serif;font-size:13px;color:#C53030">
+            {{ session('zona_privada_error') }}
+        </div>
         @endif
 
-        {{-- Validation errors --}}
         @if($errors->has('email') || $errors->has('password'))
-        <div class="zp-modal__error">
+        <div style="margin-top:14px;background:#FFF5F5;border:1px solid #FEB2B2;border-radius:8px;padding:10px 14px;font-family:'Open Sans',sans-serif;font-size:13px;color:#C53030">
             {{ $errors->first('email') ?: $errors->first('password') }}
         </div>
         @endif
 
-        {{-- Forgot password panel --}}
-        <div id="zpForgotMsg" class="zp-modal__forgot-msg" style="display:none">
+        {{-- Panel olvidé contraseña --}}
+        <div id="zpForgotMsg" style="display:none;margin-top:14px;background:#EBF8FF;border:1px solid #BEE3F8;border-radius:8px;padding:14px 16px;font-family:'Open Sans',sans-serif;font-size:14px;color:#1D1E20;flex-direction:column;gap:10px">
             {{ __('ui.zona_privada.forgot_msg') }}
-            <button id="zpBackToLogin" class="zp-modal__back-link">← Volver al inicio de sesión</button>
+            <button id="zpBackToLogin"
+                    style="font-size:13px;color:#1F589C;background:none;border:none;cursor:pointer;text-decoration:underline;padding:0;font-family:'Open Sans',sans-serif;text-align:left">
+                ← Volver al inicio de sesión
+            </button>
         </div>
 
-        {{-- Login form --}}
-        <form id="zpLoginForm" method="POST" action="{{ route('zona-privada.login') }}" class="zp-modal__form">
+        {{-- Formulario login --}}
+        <form id="zpLoginForm" method="POST" action="{{ route('zona-privada.login') }}" style="display:flex;flex-direction:column">
             @csrf
-            <div class="zp-form-group">
-                <label for="zpEmail">{{ __('ui.zona_privada.email') }}</label>
-                <input type="email" id="zpEmail" name="email" value="{{ old('email') }}"
-                       required autocomplete="email" autofocus>
-            </div>
-            <div class="zp-form-group">
-                <label for="zpPassword">{{ __('ui.zona_privada.password') }}</label>
-                <input type="password" id="zpPassword" name="password" required autocomplete="current-password">
-            </div>
 
-            <button type="button" id="zpForgotBtn" class="zp-modal__link-btn">
+            {{-- Usuario --}}
+            <label for="zpEmail"
+                   style="margin-top:24px;color:#1D1E20;font-family:'Open Sans',sans-serif;font-size:16px;font-style:normal;font-weight:400;line-height:normal">
+                {{ __('ui.zona_privada.email') }}
+            </label>
+            <input type="email" id="zpEmail" name="email" value="{{ old('email') }}"
+                   required autocomplete="email" autofocus
+                   style="margin-top:9px;width:319px;height:45px;border-radius:24px;border:1px solid #E3E0E0;background:rgba(255,255,255,0.93);box-sizing:border-box;padding:0 16px;font-family:'Open Sans',sans-serif;font-size:14px;color:#1D1E20;outline:none;max-width:100%">
+
+            {{-- Contraseña --}}
+            <label for="zpPassword"
+                   style="margin-top:24px;color:#1D1E20;font-family:'Open Sans',sans-serif;font-size:16px;font-style:normal;font-weight:400;line-height:normal">
+                {{ __('ui.zona_privada.password') }}
+            </label>
+            <input type="password" id="zpPassword" name="password"
+                   required autocomplete="current-password"
+                   style="margin-top:9px;width:319px;height:45px;border-radius:24px;border:1px solid #E3E0E0;background:rgba(255,255,255,0.93);box-sizing:border-box;padding:0 16px;font-family:'Open Sans',sans-serif;font-size:14px;color:#1D1E20;outline:none;max-width:100%">
+
+            {{-- ¿Olvidaste tu contraseña? --}}
+            <button type="button" id="zpForgotBtn"
+                    style="margin-top:6px;align-self:flex-end;color:#1D1E20;font-family:'Open Sans',sans-serif;font-size:12px;font-style:normal;font-weight:400;line-height:normal;text-decoration:underline;background:none;border:none;cursor:pointer;padding:0">
                 {{ __('ui.zona_privada.forgot') }}
             </button>
 
-            <button type="submit" class="zp-btn zp-btn--primary zp-btn--full">
+            {{-- Botón Ingresar --}}
+            <button type="submit"
+                    style="margin-top:28px;display:flex;width:315px;padding:12px 25px;justify-content:center;align-items:center;gap:10px;border-radius:22px;background:#1F589C;border:none;color:#FFF;text-align:center;font-family:'Open Sans',sans-serif;font-size:16px;font-style:normal;font-weight:400;line-height:normal;cursor:pointer;box-sizing:border-box;max-width:100%">
                 {{ __('ui.zona_privada.login_btn') }}
             </button>
         </form>
 
-        <p class="zp-modal__register">
+        {{-- Separador --}}
+        <div style="width:310px;height:1px;background:#EEE;margin:12px auto 0;max-width:100%"></div>
+
+        {{-- ¿No tenés usuario? --}}
+        <p style="margin:12px 0 0;color:#1D1E20;text-align:center;font-family:'Open Sans',sans-serif;font-size:12px;font-style:normal;font-weight:400;line-height:normal">
             {{ __('ui.zona_privada.no_account') }}
-            <a href="{{ route('zona-privada.register') }}">{{ __('ui.zona_privada.register_link') }}</a>
         </p>
+
+        {{-- Registrate --}}
+        <a href="{{ route('zona-privada.register') }}"
+           style="display:block;margin-top:6px;color:#1D1E20;text-align:center;font-family:'Open Sans',sans-serif;font-size:15px;font-style:normal;font-weight:700;line-height:normal;text-decoration:underline;text-decoration-style:solid;text-decoration-skip-ink:none">
+            {{ __('ui.zona_privada.register_link') }}
+        </a>
+
     </div>
 </div>
 
@@ -114,7 +146,7 @@
     if (forgotBtn) {
         forgotBtn.addEventListener('click', function() {
             loginForm.style.display = 'none';
-            forgotMsg.style.display = 'block';
+            forgotMsg.style.display = 'flex';
         });
     }
     var backBtn = document.getElementById('zpBackToLogin');

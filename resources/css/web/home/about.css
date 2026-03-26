@@ -23,8 +23,9 @@
     position: absolute;
     left: 0;
     top: 0;
-    /* En viewports > 1224px crece para ocupar el espacio izquierdo del
-       container centrado; en viewports ≤ 1224px se queda en 671px fija */
+    /* crece para cubrir el espacio entre el borde del viewport y el inicio
+       del container centrado (1224px), quedando el borde derecho justo a
+       671px desde el borde izquierdo del container */
     width: max(671px, calc((100vw - 1224px) / 2 + 671px));
     height: 600px;
     overflow: hidden;
@@ -50,10 +51,13 @@
     /* Salta imagen (671px) + gap (48px) = 719px desde el borde izquierdo del container */
     padding-left: calc(671px + 48px);
     box-sizing: border-box;
+    height: 600px;  /* igual a la imagen para anclar el padding-bottom del content */
 }
 
 .about-section__content {
+    height: 100%;
     padding-top: 89px;
+    box-sizing: border-box;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
@@ -105,7 +109,7 @@
 /* ── Botón ── */
 
 .about-section__btn {
-    margin-top: 54px;
+    margin-top: 54px;   /* empuja el botón al fondo del flex; padding-bottom da los 90px exactos */
     display: inline-flex;
     padding: 12px 25px;
     justify-content: center;
@@ -133,7 +137,7 @@
 
 @media (max-width: 1024px) {
     .about-section {
-        min-height: 560px;
+        min-height: 580px;
     }
     .about-section__img-wrap {
         width: 400px;
@@ -141,6 +145,7 @@
     }
     .about-section__inner {
         padding-left: calc(400px + 48px);
+        height: 500px;
     }
 }
 

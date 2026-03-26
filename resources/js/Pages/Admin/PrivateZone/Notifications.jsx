@@ -58,35 +58,41 @@ export default function Notifications({ notification, all, users }) {
 
     return (
         <AdminLayout title="Notificaciones — Zona Privada">
-            <div className="p-6 max-w-4xl">
-                <h1 className="text-2xl font-bold text-gray-800 mb-6">Notificación de popup</h1>
+            <div className="max-w-4xl">
 
-                <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6 text-sm text-blue-800">
-                    <Icon icon="solar:info-circle-outline" width={16} className="inline mr-1" />
+                {/* Header */}
+                <div className="mb-6">
+                    <h1 className="text-2xl font-bold text-gray-800">Notificación de popup</h1>
+                    <p className="text-sm text-gray-500 mt-1">Gestioná las notificaciones que aparecen en la zona privada de los clientes.</p>
+                </div>
+
+                <div className="bg-blue-50 border border-blue-200 rounded-2xl p-4 mb-6 text-sm text-blue-800 flex items-start gap-2">
+                    <Icon icon="solar:info-circle-outline" width={16} className="mt-0.5 flex-shrink-0" />
                     Solo puede haber <strong>una notificación activa</strong> a la vez. Seleccioná a qué usuarios les aparecerá.
                 </div>
 
-                <div className="bg-white rounded-xl shadow p-6 mb-6">
-                    <h2 className="text-base font-semibold text-gray-700 mb-4">
+                <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 mb-6 space-y-4">
+                    <h2 className="font-semibold text-gray-700 flex items-center gap-2">
+                        <Icon icon="solar:bell-outline" width={18} className="text-[#25A7CA]" />
                         {form.id ? "Editando notificación" : "Nueva notificación"}
                     </h2>
                     <form onSubmit={handleSubmit} className="space-y-4">
                         <div>
-                            <label className="block text-xs font-semibold text-gray-600 mb-1">Título *</label>
+                            <label className="block text-xs font-medium text-gray-500 mb-1">Título *</label>
                             <input type="text" required value={form.title}
                                 onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
-                                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-[#136CBA] focus:ring-2 focus:ring-[#136CBA]/10" />
+                                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[#25A7CA]/30" />
                         </div>
                         <div>
-                            <label className="block text-xs font-semibold text-gray-600 mb-1">Cuerpo *</label>
+                            <label className="block text-xs font-medium text-gray-500 mb-1">Cuerpo *</label>
                             <textarea required rows={5} value={form.body}
                                 onChange={e => setForm(f => ({ ...f, body: e.target.value }))}
-                                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-[#136CBA] resize-none" />
+                                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[#25A7CA]/30 resize-none" />
                         </div>
 
                         {/* User selector */}
                         <div>
-                            <label className="block text-xs font-semibold text-gray-600 mb-2">
+                            <label className="block text-xs font-medium text-gray-500 mb-2">
                                 Usuarios destinatarios
                                 <span className="ml-2 font-normal text-gray-400">
                                     ({form.user_ids.length} de {users.length} seleccionados)
@@ -99,7 +105,7 @@ export default function Notifications({ notification, all, users }) {
                                         value={search} onChange={e => setSearch(e.target.value)}
                                         className="flex-1 bg-transparent text-sm outline-none" />
                                     <button type="button" onClick={toggleAll}
-                                        className="text-xs font-semibold text-[#136CBA] hover:underline whitespace-nowrap">
+                                        className="text-xs font-semibold text-[#25A7CA] hover:underline whitespace-nowrap">
                                         {allSelected ? "Deseleccionar todos" : "Seleccionar todos"}
                                     </button>
                                 </div>
@@ -110,7 +116,7 @@ export default function Notifications({ notification, all, users }) {
                                             <input type="checkbox"
                                                 checked={form.user_ids.includes(u.id)}
                                                 onChange={() => toggleUser(u.id)}
-                                                className="w-4 h-4 accent-[#136CBA] flex-shrink-0" />
+                                                className="w-4 h-4 accent-[#25A7CA] flex-shrink-0" />
                                             <div className="min-w-0">
                                                 <span className="text-sm font-medium text-gray-800 block truncate">
                                                     {u.name} {u.lastname}
@@ -129,12 +135,13 @@ export default function Notifications({ notification, all, users }) {
                         <div className="flex items-center gap-2">
                             <input type="checkbox" id="notifActive" checked={form.is_active}
                                 onChange={e => setForm(f => ({ ...f, is_active: e.target.checked }))}
-                                className="w-4 h-4 accent-[#136CBA]" />
+                                className="w-4 h-4 accent-[#25A7CA]" />
                             <label htmlFor="notifActive" className="text-sm text-gray-700">Activa (mostrar en zona privada)</label>
                         </div>
                         <div className="flex justify-end">
                             <button type="submit" disabled={saving}
-                                className="px-6 py-2 bg-[#136CBA] text-white rounded-lg text-sm font-semibold hover:bg-[#0f5ea8] transition disabled:opacity-50">
+                                className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[#25A7CA] text-white text-sm font-medium hover:bg-[#1d96b8] disabled:opacity-60 transition">
+                                <Icon icon={saving ? "solar:refresh-outline" : "solar:diskette-outline"} width={15} className={saving ? "animate-spin" : ""} />
                                 {saving ? "Guardando..." : "Guardar"}
                             </button>
                         </div>
@@ -143,9 +150,10 @@ export default function Notifications({ notification, all, users }) {
 
                 {/* History */}
                 {all.length > 0 && (
-                    <div className="bg-white rounded-xl shadow overflow-hidden">
-                        <div className="px-5 py-3 border-b">
-                            <h3 className="text-sm font-semibold text-gray-700">Historial</h3>
+                    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+                        <div className="px-5 py-4 border-b border-gray-100 flex items-center gap-2">
+                            <Icon icon="solar:history-outline" width={18} className="text-[#25A7CA]" />
+                            <h3 className="font-semibold text-gray-700">Historial</h3>
                         </div>
                         <table className="w-full text-sm">
                             <thead>
@@ -177,7 +185,7 @@ export default function Notifications({ notification, all, users }) {
                                             {new Date(n.created_at).toLocaleDateString("es-AR")}
                                         </td>
                                         <td className="px-4 py-3 text-right">
-                                            <button onClick={() => loadNotification(n)} className="text-[#136CBA] hover:underline text-xs font-semibold mr-3">
+                                            <button onClick={() => loadNotification(n)} className="text-[#25A7CA] hover:underline text-xs font-semibold mr-3">
                                                 Editar
                                             </button>
                                             <button onClick={() => { if (confirm("¿Eliminar esta notificación?")) router.delete(`/admin/private-notifications/${n.id}`, { preserveScroll: true }); }} className="text-red-500 hover:underline text-xs font-semibold">

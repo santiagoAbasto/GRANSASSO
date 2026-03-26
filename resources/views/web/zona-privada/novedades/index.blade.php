@@ -4,10 +4,10 @@
 
 @section('content')
 
-<div style="max-width:1224px;margin:0 auto;padding:0 71px;box-sizing:content-box">
+<div class="zp-section-wrap">
 
     {{-- Breadcrumb --}}
-    <nav style="display:flex;align-items:center;gap:2px;padding-top:11px;padding-bottom:73px">
+    <nav class="zp-breadcrumb" style="display:flex;align-items:center;gap:2px;padding-top:11px;padding-bottom:73px">
         <a href="{{ route('home') }}" style="color:#1D1E20;font-family:'Open Sans',sans-serif;font-size:12px;font-weight:600;line-height:normal;text-decoration:none">
             {{ __('ui.breadcrumb.home') }}
         </a>
@@ -26,11 +26,10 @@
     @else
 
     {{-- Grid de novedades --}}
-    <div style="display:flex;flex-wrap:wrap;gap:24px">
+    <div class="zp-novedades-flex">
 
         @foreach($novedades as $novedad)
-        <a href="{{ route('zona-privada.novedades.show', $novedad) }}"
-           style="text-decoration:none;color:inherit;display:flex;width:392px;flex-direction:column;align-items:flex-start;border-radius:8px;border:1px solid #DDDDE0;overflow:hidden;flex-shrink:0">
+        <a href="{{ route('zona-privada.novedades.show', $novedad) }}" class="zp-novedad-item">
 
             {{-- Imagen --}}
             @if($novedad->image)
@@ -48,9 +47,10 @@
             {{-- Contenido --}}
             <div style="padding:24px 24px 25px 24px;display:flex;flex-direction:column;align-items:flex-start;flex:1;width:100%;box-sizing:border-box">
 
-                @if($novedad->category)
+                @php $cat = $novedad->getLocalizedCategory(); @endphp
+                @if($cat)
                 <span style="align-self:stretch;color:#1F589C;font-family:'Open Sans',sans-serif;font-size:14px;font-weight:700;line-height:150%">
-                    {{ $novedad->category }}
+                    {{ $cat }}
                 </span>
                 @endif
 
@@ -65,8 +65,8 @@
                 </p>
                 @endif
 
-                <div style="display:flex;align-items:center;justify-content:space-between;align-self:stretch;margin-top:auto;padding-top:26px;opacity:0.5">
-                    <span style="color:#1D1E20;font-family:'Open Sans',sans-serif;font-size:16px;font-weight:400;line-height:150%">
+                <div style="display:flex;align-items:center;justify-content:space-between;align-self:stretch;margin-top:auto;padding-top:26px">
+                    <span style="color:#1D1E20;font-family:'Open Sans',sans-serif;font-size:16px;font-weight:400;line-height:150%;opacity:0.5">
                         {{ __('ui.zona_privada.read_more') }}
                     </span>
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">

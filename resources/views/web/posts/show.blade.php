@@ -22,8 +22,9 @@
 
             {{-- CATEGORY + DATE --}}
             <div class="post-detail__meta">
-                @if($post->category)
-                <span class="post-detail__category">{{ strtoupper($post->category) }}</span>
+                @php $cat = $post->getLocalizedCategory(); @endphp
+                @if($cat)
+                <span class="post-detail__category">{{ strtoupper($cat) }}</span>
                 @endif
                 @if($post->published_at)
                 <span class="post-detail__date">{{ $post->published_at->format('d/m/Y') }}</span>
@@ -82,8 +83,9 @@
 
                     <div class="news-card__body">
 
-                        @if($item->category)
-                        <span class="news-card__category">{{ strtoupper($item->category) }}</span>
+                        @php $itemCat = $item->getLocalizedCategory(); @endphp
+                        @if($itemCat)
+                        <span class="news-card__category">{{ strtoupper($itemCat) }}</span>
                         @endif
 
                         <h3 class="news-card__title">{{ $item->title }}</h3>

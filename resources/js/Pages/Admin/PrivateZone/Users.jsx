@@ -15,6 +15,8 @@ export default function Users({ users, status }) {
 
     const [editingDiscount, setEditingDiscount] = useState(null);
     const [discountForm, setDiscountForm] = useState({ discount_pct: 0, discount_extra_pct: 0 });
+    const [editingPassword, setEditingPassword] = useState(null);
+    const [newPassword, setNewPassword] = useState("");
 
     function handleApprove(id) {
         router.post(`/admin/private-users/${id}/approve`, {}, { preserveScroll: true });
@@ -44,10 +46,28 @@ export default function Users({ users, status }) {
         });
     }
 
+    function openPassword(user) {
+        setEditingPassword(user.id);
+        setNewPassword("");
+    }
+
+    function savePassword(id) {
+        if (!newPassword || newPassword.length < 6) return;
+        router.post(`/admin/private-users/${id}/password`, { password: newPassword }, {
+            preserveScroll: true,
+            onSuccess: () => { setEditingPassword(null); setNewPassword(""); },
+        });
+    }
+
     return (
         <AdminLayout title="Clientes — Zona Privada">
-            <div className="p-6">
-                <h1 className="text-2xl font-bold text-gray-800 mb-6">Clientes — Zona Privada</h1>
+            <div className="max-w-6xl">
+
+                {/* Header */}
+                <div className="mb-6">
+                    <h1 className="text-2xl font-bold text-gray-800">Clientes — Zona Privada</h1>
+                    <p className="text-sm text-gray-500 mt-1">Administrá los usuarios registrados, aprobá solicitudes y configurá descuentos.</p>
+                </div>
 
                 {/* Tabs */}
                 <div className="flex gap-2 mb-6">
@@ -55,9 +75,9 @@ export default function Users({ users, status }) {
                         <button
                             key={t}
                             onClick={() => router.get("/admin/private-users", { status: t })}
-                            className={`px-4 py-2 rounded-lg text-sm font-semibold border transition
+                            className={`px-4 py-2 rounded-xl text-sm font-semibold border transition
                                 ${status === t
-                                    ? "bg-[#136CBA] text-white border-[#136CBA]"
+                                    ? "bg-[#25A7CA] text-white border-[#25A7CA]"
                                     : "bg-white text-gray-600 border-gray-200 hover:bg-gray-50"}`}
                         >
                             {tabLabels[t]}
@@ -66,7 +86,7 @@ export default function Users({ users, status }) {
                 </div>
 
                 {/* Table */}
-                <div className="bg-white rounded-xl shadow overflow-hidden">
+                <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
                     <table className="w-full text-sm">
                         <thead>
                             <tr className="bg-[#0D2038] text-white text-left">
@@ -75,6 +95,7 @@ export default function Users({ users, status }) {
                                 <th className="px-4 py-3">Email</th>
                                 <th className="px-4 py-3">Estado</th>
                                 <th className="px-4 py-3">Descuento</th>
+                                <th className="px-4 py-3">Contraseña</th>
                                 <th className="px-4 py-3">Fecha</th>
                                 <th className="px-4 py-3 text-right">Acciones</th>
                             </tr>
@@ -82,7 +103,7 @@ export default function Users({ users, status }) {
                         <tbody>
                             {users.data.length === 0 && (
                                 <tr>
-                                    <td colSpan={7} className="text-center py-10 text-gray-400">
+                                    <td colSpan={8} className="text-center py-10 text-gray-400">
                                         No hay usuarios.
                                     </td>
                                 </tr>
@@ -127,8 +148,36 @@ export default function Users({ users, status }) {
                                                 </button>
                                             </div>
                                         ) : (
-                                            <button onClick={() => openDiscount(u)} className="text-sm text-[#136CBA] font-semibold hover:underline">
+                                            <button onClick={() => openDiscount(u)} className="text-sm text-[#25A7CA] font-semibold hover:underline">
                                                 {u.discount_pct}% + {u.discount_extra_pct}%
+                                            </button>
+                                        )}
+                                    </td>
+                                    <td className="px-4 py-3">
+                                        {editingPassword === u.id ? (
+                                            <div className="flex items-center gap-1">
+                                                <input
+                                                    type="text"
+                                                    value={newPassword}
+                                                    onChange={e => setNewPassword(e.target.value)}
+                                                    placeholder="Mín. 6 chars"
+                                                    className="w-28 border rounded-lg px-2 py-1 text-sm outline-none focus:ring-2 focus:ring-[#25A7CA]/30"
+                                                    autoFocus
+                                                />
+                                                <button onClick={() => savePassword(u.id)} disabled={newPassword.length < 6}
+                                                    className="text-green-600 hover:text-green-800 disabled:opacity-30">
+                                                    <Icon icon="solar:check-circle-outline" width={18} />
+                                                </button>
+                                                <button onClick={() => setEditingPassword(null)} className="text-gray-400 hover:text-gray-600">
+                                                    <Icon icon="solar:close-circle-outline" width={18} />
+                                                </button>
+                                            </div>
+                                        ) : (
+                                            <button onClick={() => openPassword(u)}
+                                                className="flex items-center gap-1 text-xs text-gray-400 hover:text-[#25A7CA] transition"
+                                                title="Asignar nueva contraseña">
+                                                <Icon icon="solar:key-outline" width={14} />
+                                                Cambiar
                                             </button>
                                         )}
                                     </td>
@@ -179,7 +228,7 @@ export default function Users({ users, status }) {
                                 onClick={() => router.get("/admin/private-users", { status, page })}
                                 className={`px-3 py-1 rounded text-sm border transition
                                     ${users.current_page === page
-                                        ? "bg-[#136CBA] text-white border-[#136CBA]"
+                                        ? "bg-[#25A7CA] text-white border-[#25A7CA]"
                                         : "bg-white text-gray-600 border-gray-200 hover:bg-gray-50"}`}
                             >
                                 {page}

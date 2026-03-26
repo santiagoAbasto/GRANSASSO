@@ -64,6 +64,19 @@
     stroke: #1D1E20;
 }
 
+.navbar--light .nav-lang__dropdown {
+    background: #FFFFFF;
+    border-color: #E3E0E0;
+}
+
+.navbar--light .nav-lang__dropdown li a {
+    color: #1D1E20;
+}
+
+.navbar--light .nav-lang__dropdown li a:hover {
+    background: #F4F6FA;
+}
+
 .navbar--light .hamburger__line {
     background: #6B7280;
 }
@@ -377,32 +390,6 @@
     /* Zona privada desktop se oculta */
     .btn-zona-privada--desktop {
         display: none;
-    }
-
-    /* Menú mobile: drawer lateral */
-    .nav-links {
-        display: none;
-        position: fixed;
-        top: 0;
-        right: 0;
-        height: 100%;
-        width: 280px;
-        background: #0D2038;
-        flex-direction: column;
-        align-items: flex-start;
-        padding: 24px;
-        gap: 20px;
-        z-index: 99;
-        overflow-y: auto;
-        box-shadow: -4px 0 24px rgba(0, 0, 0, 0.4);
-    }
-
-    .nav-links.open {
-        display: flex;
-    }
-
-    .nav-close {
-        display: block;
     }
 
     /* Separator oculto en mobile */

@@ -1388,7 +1388,6 @@
         grid-template-columns: repeat(3, 1fr);
     }
 
-    /* brand-card flexible dentro del nuevo grid */
     .products-index__grid .brand-card {
         width: 100%;
         height: auto;
@@ -1399,8 +1398,29 @@
         grid-template-columns: repeat(3, 1fr);
     }
 
+    .gearbox-card {
+        width: 100%;
+        height: auto;
+    }
+
+    .gearbox-card__img {
+        width: 100%;
+        height: auto;
+        aspect-ratio: 288/209;
+    }
+
     .products-grid {
         grid-template-columns: repeat(3, 1fr);
+    }
+
+    .prd-card {
+        width: 100%;
+    }
+
+    .prd-card__img {
+        width: 100%;
+        height: auto;
+        aspect-ratio: 288/209;
     }
 
     .product-related .products-grid {
@@ -1411,27 +1431,25 @@
 /* ── ≤ 1024px ── */
 @media (max-width: 1024px) {
 
-    .products-banner__topbar {
-        padding-left: 48px;
-        padding-right: 48px;
-    }
-
+    .products-banner__topbar,
     .products-banner__bottom {
-        padding-left: 48px;
-        padding-right: 48px;
+        padding-left: 24px;
+        padding-right: 24px;
     }
 
     .products-layout {
-        grid-template-columns: 220px 1fr;
+        grid-template-columns: 200px 1fr;
         gap: 24px;
     }
 
-    .gearboxes-grid {
-        grid-template-columns: repeat(2, 1fr);
+    .products-sidebar {
+        width: 100%;
     }
 
+    .gearboxes-grid,
     .products-grid {
         grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
     }
 
     .product-related .products-grid {
@@ -1439,17 +1457,23 @@
     }
 
     .product-detail__layout {
-        gap: 32px;
+        gap: 24px;
     }
 
     .product-detail__main-img {
-        width: 340px;
-        height: 340px;
+        width: 320px;
+        height: 320px;
     }
 
     .product-detail__main-img img {
-        width: 300px;
-        height: 314px;
+        width: 100%;
+        height: 100%;
+    }
+
+    .product-detail__refs td:first-child {
+        white-space: normal;
+        width: auto;
+        padding-right: 16px;
     }
 }
 
@@ -1458,36 +1482,40 @@
 
     /* Banner */
     .products-banner {
-        height: 320px;
-        margin-top: -72px;
+        height: 280px;
+        margin-top: -70px;
     }
 
     .products-banner__topbar {
-        padding-top: 84px;
-        padding-left: 24px;
-        padding-right: 24px;
+        padding-top: 82px;
+        padding-left: 16px;
+        padding-right: 16px;
     }
 
     .products-banner__bottom {
-        padding-left: 24px;
-        padding-right: 24px;
-        padding-bottom: 28px;
+        padding-left: 16px;
+        padding-right: 16px;
+        padding-bottom: 24px;
     }
 
     .products-banner__title {
-        font-size: 28px;
+        font-size: 24px;
         white-space: normal;
     }
 
     /* Index */
     .products-index {
-        padding-top: 48px;
-        padding-bottom: 56px;
+        padding-top: 40px;
+        padding-bottom: 48px;
     }
 
     .products-index__grid {
         grid-template-columns: repeat(2, 1fr);
-        gap: 16px;
+        gap: 12px;
+    }
+
+    .products-index__grid .brand-card {
+        min-height: 180px;
     }
 
     /* Layout 2-col → 1 col */
@@ -1496,44 +1524,110 @@
         gap: 16px;
     }
 
-    /* Sidebar horizontal en mobile */
+    /* Sidebar: horizontal scroll en mobile */
     .products-sidebar {
         display: flex;
-        flex-wrap: wrap;
-        gap: 4px 16px;
-        width: auto;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        gap: 0;
+        width: 100%;
         border-top: none;
-        padding-top: 0;
-        padding-bottom: 8px;
         border-bottom: 1px solid #E3E0E0;
+        padding-bottom: 12px;
+        -webkit-overflow-scrolling: touch;
     }
 
-    .products-sidebar__item {
-        padding: 4px 0;
-        padding-left: 0;
-        font-size: 12px;
+    .products-sidebar a.products-sidebar__item {
+        flex-shrink: 0;
+        padding: 6px 14px;
+        font-size: 13px;
         border-bottom: none;
+        border-radius: 20px;
+        text-transform: none;
+        white-space: nowrap;
     }
 
+    .products-sidebar a.products-sidebar__item.active {
+        background: #EFF6FF;
+        color: #1F589C;
+    }
+
+    /* Cards grid */
     .gearboxes-grid {
         grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+
+    .gearbox-card {
+        height: auto;
+    }
+
+    .gearbox-card__body {
+        padding: 8px 12px 16px;
+    }
+
+    .gearbox-card__brand {
+        font-size: 12px;
+        line-height: 1.4;
+    }
+
+    .gearbox-card__name {
+        font-size: 18px;
     }
 
     .products-grid {
         grid-template-columns: repeat(2, 1fr);
-        gap: 16px;
+        gap: 12px;
+    }
+
+    .prd-card__body {
+        padding: 8px 12px 12px;
+    }
+
+    .prd-card__brand {
+        font-size: 12px;
+        line-height: 1.4;
+    }
+
+    .prd-card__name {
+        font-size: 18px;
+    }
+
+    .prd-card__subtitle {
+        font-size: 16px;
     }
 
     .product-related .products-grid {
         grid-template-columns: repeat(2, 1fr);
-        gap: 16px;
+        gap: 12px;
+    }
+
+    .rel-card__body {
+        padding: 8px 12px 12px;
+    }
+
+    .rel-card__brand {
+        font-size: 12px;
+        line-height: 1.4;
+    }
+
+    .rel-card__name {
+        font-size: 18px;
+    }
+
+    .rel-card__subtitle {
+        font-size: 16px;
     }
 
     /* Product detail: apila vertical */
+    .product-detail {
+        padding-bottom: 60px;
+    }
+
     .product-detail__layout {
         flex-direction: column;
         gap: 24px;
-        margin-bottom: 48px;
+        margin-bottom: 40px;
     }
 
     .product-detail__gallery {
@@ -1544,7 +1638,10 @@
 
     .product-detail__main-img {
         flex: 1;
-        height: 280px;
+        width: 100%;
+        height: auto;
+        aspect-ratio: 1;
+        padding: 12px;
     }
 
     .product-detail__main-img img {
@@ -1552,32 +1649,103 @@
         height: 100%;
     }
 
+    .product-detail__thumbs {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .product-detail__thumb {
+        width: 56px;
+        height: 56px;
+    }
+
     .product-detail__info {
         padding-top: 0;
         flex: none;
         width: 100%;
+        min-height: auto;
+    }
+
+    .product-detail__brand {
+        font-size: 14px;
+    }
+
+    .product-detail__code {
+        font-size: 18px;
+    }
+
+    .product-detail__name {
+        font-size: 16px;
+        margin-bottom: 24px;
+    }
+
+    .product-detail__refs td {
+        font-size: 14px;
+        line-height: 28px;
+    }
+
+    .product-detail__refs td:first-child {
+        white-space: normal;
+        width: auto;
+        min-width: 100px;
+        padding-right: 12px;
+    }
+
+    .product-detail__actions {
+        gap: 12px;
+        flex-wrap: wrap;
     }
 
     .btn--outline,
     .btn--primary {
-        width: 100%;
-        box-sizing: border-box;
+        flex: 1 1 calc(50% - 6px);
+        min-width: 140px;
+        font-size: 14px;
+        padding: 10px 16px;
     }
 
-    .product-detail__thumbs {
-        flex-direction: column;
+    .product-related__title {
+        font-size: 22px;
+    }
+
+    /* Breadcrumb */
+    .products-bc {
+        padding-top: 8px;
+        padding-bottom: 24px;
+        gap: 4px;
+    }
+
+    .products-bc__link,
+    .products-bc__current {
+        font-size: 11px;
+    }
+
+    .product-detail .breadcrumb {
+        padding-top: 8px;
+        padding-bottom: 24px;
     }
 }
 
 /* ── ≤ 480px ── */
 @media (max-width: 480px) {
 
+    .products-index__grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+
+    .products-index__grid .brand-card {
+        min-height: 150px;
+    }
+
     .gearboxes-grid {
         grid-template-columns: 1fr 1fr;
+        gap: 10px;
     }
 
     .products-grid {
         grid-template-columns: 1fr 1fr;
+        gap: 10px;
     }
 
     .product-detail__gallery {
@@ -1587,10 +1755,46 @@
     .product-detail__thumbs {
         flex-direction: row;
         flex-wrap: wrap;
+        gap: 6px;
     }
 
     .product-detail__thumb {
-        width: 56px;
-        height: 56px;
+        width: 48px;
+        height: 48px;
+    }
+
+    .product-detail__main-img {
+        aspect-ratio: 4/3;
+    }
+
+    .btn--outline,
+    .btn--primary {
+        flex: 1 1 100%;
+    }
+
+    /* Tabla refs: apilada */
+    .product-detail__refs,
+    .product-detail__refs tbody,
+    .product-detail__refs tr,
+    .product-detail__refs td {
+        display: block;
+        width: 100%;
+    }
+
+    .product-detail__refs tr {
+        padding: 8px 0;
+    }
+
+    .product-detail__refs td:first-child {
+        font-weight: 600;
+        padding-right: 0;
+        text-align: left;
+        line-height: 1.4;
+        padding-bottom: 2px;
+    }
+
+    .product-detail__refs td:last-child {
+        text-align: left;
+        line-height: 1.4;
     }
 }

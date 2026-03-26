@@ -36,8 +36,9 @@
 
         <div class="news-card__body">
 
-            @if($post->category)
-            <span class="news-card__category">{{ strtoupper($post->category) }}</span>
+            @php $cat = $post->getLocalizedCategory(); @endphp
+            @if($cat)
+            <span class="news-card__category">{{ strtoupper($cat) }}</span>
             @endif
 
             <h3 class="news-card__title">{{ $post->title }}</h3>

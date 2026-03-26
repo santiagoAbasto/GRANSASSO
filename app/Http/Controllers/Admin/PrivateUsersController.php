@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\PrivateUser;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Inertia\Inertia;
 
 class PrivateUsersController extends Controller
@@ -51,6 +52,17 @@ class PrivateUsersController extends Controller
         $privateUser->update($data);
 
         return back()->with('success', 'Descuento actualizado.');
+    }
+
+    public function resetPassword(Request $request, PrivateUser $privateUser)
+    {
+        $data = $request->validate([
+            'password' => ['required', 'string', 'min:6'],
+        ]);
+
+        $privateUser->update(['password' => Hash::make($data['password'])]);
+
+        return back()->with('success', 'Contraseña actualizada.');
     }
 
     public function destroy(PrivateUser $privateUser)

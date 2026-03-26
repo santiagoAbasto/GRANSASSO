@@ -54,13 +54,21 @@ export default function PaymentInfo({ bankInfo, submissions }) {
 
     return (
         <AdminLayout title="Info de Pagos">
-            <div className="p-6">
-                <h1 className="text-2xl font-bold text-gray-800 mb-6">Info de Pagos</h1>
+            <div>
+
+                {/* Header */}
+                <div className="mb-6">
+                    <h1 className="text-2xl font-bold text-gray-800">Info de Pagos</h1>
+                    <p className="text-sm text-gray-500 mt-1">Gestioná los datos bancarios y visualizá los pagos recibidos.</p>
+                </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
                     {/* Bank info editor */}
-                    <div className="bg-white rounded-xl shadow p-6">
-                        <h2 className="text-base font-semibold text-gray-700 mb-4">Datos bancarios</h2>
+                    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+                        <h2 className="font-semibold text-gray-700 flex items-center gap-2 mb-4">
+                            <Icon icon="solar:bank-outline" width={18} className="text-[#25A7CA]" />
+                            Datos bancarios
+                        </h2>
                         <form onSubmit={handleSubmit} className="space-y-1">
                             {rows.map((row, i) => (
                                 <div
@@ -88,26 +96,26 @@ export default function PaymentInfo({ bankInfo, submissions }) {
                                         placeholder="Campo (ej: CBU)"
                                         value={row.key}
                                         onChange={e => updateRow(i, "key", e.target.value)}
-                                        className="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-[#136CBA]"
+                                        className="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[#25A7CA]/30 outline-none"
                                     />
                                     <input
                                         type="text"
                                         placeholder="Valor"
                                         value={row.value}
                                         onChange={e => updateRow(i, "value", e.target.value)}
-                                        className="flex-[2] border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-[#136CBA]"
+                                        className="flex-[2] border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[#25A7CA]/30 outline-none"
                                     />
                                     <button type="button" onClick={() => removeRow(i)} className="text-red-400 hover:text-red-600 p-1">
                                         <Icon icon="solar:close-circle-outline" width={18} />
                                     </button>
                                 </div>
                             ))}
-                            <button type="button" onClick={addRow} className="flex items-center gap-1 text-sm text-[#136CBA] hover:underline font-semibold mt-2">
+                            <button type="button" onClick={addRow} className="flex items-center gap-1 text-sm text-[#25A7CA] hover:underline font-semibold mt-2">
                                 <Icon icon="solar:add-circle-outline" width={16} /> Agregar campo
                             </button>
                             <div className="flex justify-end pt-2">
                                 <button type="submit" disabled={saving}
-                                    className="px-6 py-2 bg-[#136CBA] text-white rounded-lg text-sm font-semibold hover:bg-[#0f5ea8] transition disabled:opacity-50">
+                                    className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[#25A7CA] text-white text-sm font-medium hover:bg-[#1d96b8] disabled:opacity-60 transition">
                                     {saving ? "Guardando..." : "Guardar"}
                                 </button>
                             </div>
@@ -115,8 +123,11 @@ export default function PaymentInfo({ bankInfo, submissions }) {
                     </div>
 
                     {/* Preview */}
-                    <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">
-                        <h2 className="text-base font-semibold text-gray-500 mb-4">Vista previa</h2>
+                    <div className="bg-gray-50 rounded-2xl border border-gray-200 p-6">
+                        <h2 className="font-semibold text-gray-500 flex items-center gap-2 mb-4">
+                            <Icon icon="solar:eye-outline" width={18} className="text-gray-400" />
+                            Vista previa
+                        </h2>
                         {rows.filter(r => r.key.trim()).length === 0 ? (
                             <p className="text-sm text-gray-400">Sin datos.</p>
                         ) : (
@@ -133,9 +144,10 @@ export default function PaymentInfo({ bankInfo, submissions }) {
                 </div>
 
                 {/* Submissions table */}
-                <div className="bg-white rounded-xl shadow overflow-hidden">
-                    <div className="px-5 py-3 border-b">
-                        <h2 className="text-base font-semibold text-gray-700">Pagos recibidos</h2>
+                <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+                    <div className="px-5 py-4 border-b border-gray-100 flex items-center gap-2">
+                        <Icon icon="solar:card-recive-outline" width={18} className="text-[#25A7CA]" />
+                        <h2 className="font-semibold text-gray-700">Pagos recibidos</h2>
                     </div>
                     <table className="w-full text-sm">
                         <thead>
@@ -173,7 +185,7 @@ export default function PaymentInfo({ bankInfo, submissions }) {
                                     <td className="px-4 py-3 text-gray-500">{s.invoices_cancelled || "—"}</td>
                                     <td className="px-4 py-3">
                                         {s.file_path ? (
-                                            <a href={`/storage/${s.file_path}`} target="_blank" className="text-[#136CBA] hover:underline text-xs font-semibold">
+                                            <a href={`/storage/${s.file_path}`} target="_blank" className="text-[#25A7CA] hover:underline text-xs font-semibold">
                                                 Ver
                                             </a>
                                         ) : "—"}
@@ -187,3 +199,4 @@ export default function PaymentInfo({ bankInfo, submissions }) {
         </AdminLayout>
     );
 }
+

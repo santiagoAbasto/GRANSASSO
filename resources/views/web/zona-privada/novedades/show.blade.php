@@ -4,7 +4,7 @@
 
 @section('content')
 
-<div style="max-width:1224px;margin:0 auto;padding:0 16px;box-sizing:border-box">
+<div class="zp-section-wrap">
 
     <nav style="display:flex;align-items:center;gap:2px;padding-top:11px;padding-bottom:32px;flex-wrap:wrap">
         <a href="{{ route('home') }}" style="color:#1D1E20;font-family:'Open Sans',sans-serif;font-size:12px;font-weight:600;line-height:normal;text-decoration:none">
@@ -26,13 +26,14 @@
 
     <div style="max-width:800px">
 
-        @if($novedad->category)
+        @php $cat = $novedad->getLocalizedCategory(); @endphp
+        @if($cat)
         <span style="font-family:'Open Sans',sans-serif;font-size:11px;font-weight:700;color:#1F589C;letter-spacing:0.08em;line-height:normal;text-transform:uppercase">
-            {{ $novedad->category }}
+            {{ $cat }}
         </span>
         @endif
 
-        <h1 style="font-family:'Open Sans',sans-serif;font-size:28px;font-weight:700;color:#1D1E20;line-height:130%;margin:12px 0 20px">
+        <h1 class="zp-post-title" style="font-family:'Open Sans',sans-serif;font-size:28px;font-weight:700;color:#1D1E20;line-height:130%;margin:12px 0 20px">
             {{ $novedad->getLocalizedTitle() }}
         </h1>
 
