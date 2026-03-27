@@ -4,12 +4,15 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Slider;
+use App\Traits\SanitizesHtml;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
 class HeroController extends Controller
 {
+    use SanitizesHtml;
+
     public function index()
     {
         $slides = Slider::ordered()->get()->map(function ($s) {
@@ -52,6 +55,7 @@ class HeroController extends Controller
             'order'       => 'nullable|string|max:20',
             'is_active'   => 'boolean',
         ]);
+        $buttonLink = $this->sanitizeUrl($data['button_link'] ?? null, allowRelative: true);
 
         $imagePath = null;
         if ($request->hasFile('image')) {
@@ -62,7 +66,7 @@ class HeroController extends Controller
             'title'       => ['es' => $data['title_es'] ?? null, 'en' => $data['title_en'] ?? null, 'pt' => $data['title_pt'] ?? null],
             'subtitle'    => ['es' => $data['subtitle_es'] ?? null, 'en' => $data['subtitle_en'] ?? null, 'pt' => $data['subtitle_pt'] ?? null],
             'button_text' => ['es' => $data['button_text_es'] ?? null, 'en' => $data['button_text_en'] ?? null, 'pt' => $data['button_text_pt'] ?? null],
-            'button_link' => $data['button_link'] ?? null,
+            'button_link' => $buttonLink,
             'image'       => $imagePath,
             'order'       => strtoupper(trim($data['order'] ?? 'A')),
             'is_active'   => $data['is_active'] ?? true,
@@ -112,6 +116,9 @@ class HeroController extends Controller
             'order'       => 'nullable|string|max:20',
             'is_active'   => 'boolean',
         ]);
+        $buttonLink = array_key_exists('button_link', $data)
+            ? $this->sanitizeUrl($data['button_link'], allowRelative: true)
+            : $hero->button_link;
 
         $imagePath = $hero->image;
         if ($request->hasFile('image')) {
@@ -123,7 +130,7 @@ class HeroController extends Controller
             'title'       => ['es' => $data['title_es'] ?? null, 'en' => $data['title_en'] ?? null, 'pt' => $data['title_pt'] ?? null],
             'subtitle'    => ['es' => $data['subtitle_es'] ?? null, 'en' => $data['subtitle_en'] ?? null, 'pt' => $data['subtitle_pt'] ?? null],
             'button_text' => ['es' => $data['button_text_es'] ?? null, 'en' => $data['button_text_en'] ?? null, 'pt' => $data['button_text_pt'] ?? null],
-            'button_link' => $data['button_link'] ?? null,
+            'button_link' => $buttonLink,
             'image'       => $imagePath,
             'order'       => strtoupper(trim($data['order'] ?? $hero->order)),
             'is_active'   => $data['is_active'] ?? $hero->is_active,

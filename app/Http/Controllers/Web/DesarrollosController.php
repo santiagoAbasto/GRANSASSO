@@ -34,7 +34,7 @@ class DesarrollosController extends Controller
 
         $filePath = null;
         if ($request->hasFile('file')) {
-            $filePath = $request->file('file')->store('desarrollos', 'public');
+            $filePath = $request->file('file')->store('desarrollos', 'local');
         }
 
         DesarrollosMessage::create([

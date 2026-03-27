@@ -1,0 +1,361 @@
+import AdminLayout from "@/Layouts/AdminLayout";
+import { useForm, router } from "@inertiajs/react";
+import { Icon } from "@iconify/react";
+import { useState } from "react";
+
+export default function ProductEdit({ product, brands, gearboxes }) {
+    const [selectedBrand, setSelectedBrand] = useState(product.gearbox?.brand_id ?? "");
+    const [variantInput,  setVariantInput]  = useState("");
+
+    const { data, setData, post, processing, errors } = useForm({
+        _method:                 "PUT",
+        // Producto base
+        gearbox_id:              product.gearbox_id ?? "",
+        figure:                  product.figure ?? "",
+        code_gs:                 product.code_gs ?? "",
+        name_es:                 product.name_es ?? "",
+        description_es:          product.description_es ?? "",
+        is_active:               product.is_active ?? true,
+        // Item principal
+        code_oem:                product.code_oem ?? "",
+        referencia_original:     product.referencia_original ?? "",
+        referencias_adicionales: product.referencias_adicionales ?? "",
+        notes:                   product.notes ?? "",
+        application:             product.application ?? "",
+        application_type:        product.application_type ?? "generic",
+        variants:                product.variants ?? [],
+        // Imágenes
+        images:                  [],
+    });
+
+    const filteredGearboxes = gearboxes.filter(
+        (g) => !selectedBrand || String(g.brand_id) === String(selectedBrand)
+    );
+
+    const addVariant = () => {
+        const v = variantInput.trim().toUpperCase();
+        if (v && !data.variants.includes(v)) {
+            setData("variants", [...data.variants, v]);
+        }
+        setVariantInput("");
+    };
+
+    const removeVariant = (v) => setData("variants", data.variants.filter((x) => x !== v));
+
+    const submit = (e) => {
+        e.preventDefault();
+        post(`/admin/products/${product.id}`, { forceFormData: true });
+    };
+
+    const ic = "w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#25A7CA]/30";
+    const lc = "block text-sm text-gray-600 mb-1";
+
+    return (
+        <AdminLayout>
+            <div className="max-w-3xl">
+                {/* Header */}
+                <div className="flex items-center gap-3 mb-6">
+                    <button onClick={() => router.visit("/admin/products")} className="p-2 rounded-lg hover:bg-gray-100 text-gray-500">
+                        <Icon icon="solar:arrow-left-outline" width={18} />
+                    </button>
+                    <div>
+                        <h1 className="text-2xl font-bold text-gray-800">Editar Producto</h1>
+                        <p className="text-sm text-gray-500">
+                            {product.code_oem
+                                ? <>OEM: <span className="font-mono font-medium">{product.code_oem}</span></>
+                                : `ID #${product.id}`
+                            }
+                            {product.code_gs && <> · GS: <span className="font-mono">{product.code_gs}</span></>}
+                        </p>
+                    </div>
+                </div>
+
+                <form onSubmit={submit} className="space-y-6">
+
+                    {/* ── Producto base ───────────────────────────────────── */}
+                    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-4">
+                        <h2 className="font-semibold text-gray-700 flex items-center gap-2">
+                            <Icon icon="solar:box-outline" width={18} className="text-[#25A7CA]" />
+                            Producto base
+                        </h2>
+
+                        <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <label className={lc}>Marca</label>
+                                <select
+                                    value={selectedBrand}
+                                    onChange={(e) => { setSelectedBrand(e.target.value); setData("gearbox_id", ""); }}
+                                    className={ic}
+                                >
+                                    <option value="">Seleccionar marca…</option>
+                                    {brands.map((b) => (
+                                        <option key={b.id} value={b.id}>{b.name?.es ?? b.name}</option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div>
+                                <label className={lc}>Caja de cambios *</label>
+                                <select
+                                    value={data.gearbox_id}
+                                    onChange={(e) => setData("gearbox_id", e.target.value)}
+                                    className={ic}
+                                    required
+                                >
+                                    <option value="">Seleccionar caja…</option>
+                                    {filteredGearboxes.map((g) => (
+                                        <option key={g.id} value={g.id}>{g.name}</option>
+                                    ))}
+                                </select>
+                                {errors.gearbox_id && <p className="text-xs text-red-500 mt-1">{errors.gearbox_id}</p>}
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <label className={lc}>Figura</label>
+                                <input type="text" value={data.figure} onChange={(e) => setData("figure", e.target.value)} placeholder="7, 9, 236…" className={ic} />
+                            </div>
+                            <div>
+                                <label className={lc}>Cod. GS</label>
+                                <input type="text" value={data.code_gs} onChange={(e) => setData("code_gs", e.target.value)} placeholder="800, 812…" className={ic} />
+                            </div>
+                        </div>
+
+                        <div>
+                            <label className={lc}>Nombre del producto</label>
+                            <input type="text" value={data.name_es} onChange={(e) => setData("name_es", e.target.value)} className={ic} />
+                        </div>
+
+                        <div>
+                            <label className={lc}>Descripción</label>
+                            <textarea value={data.description_es} onChange={(e) => setData("description_es", e.target.value)} rows={3} className={ic} />
+                        </div>
+                    </div>
+
+                    {/* ── Item principal ───────────────────────────────────── */}
+                    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-4">
+                        <div className="flex items-center justify-between">
+                            <h2 className="font-semibold text-gray-700 flex items-center gap-2">
+                                <Icon icon="solar:tag-outline" width={18} className="text-[#25A7CA]" />
+                                Item principal
+                            </h2>
+                            {product.items?.length > 1 && (
+                                <span className="text-xs bg-amber-100 text-amber-700 px-2 py-1 rounded-full font-medium">
+                                    Este producto tiene {product.items.length} items — editás el primero
+                                </span>
+                            )}
+                        </div>
+
+                        <div>
+                            <label className={lc}>Código OEM</label>
+                            <input type="text" value={data.code_oem} onChange={(e) => setData("code_oem", e.target.value)} className={ic} placeholder="694-262-0002" />
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <label className={lc}>Referencia original</label>
+                                <input type="text" value={data.referencia_original} onChange={(e) => setData("referencia_original", e.target.value)} className={ic} />
+                            </div>
+                            <div>
+                                <label className={lc}>Referencias adicionales</label>
+                                <input type="text" value={data.referencias_adicionales} onChange={(e) => setData("referencias_adicionales", e.target.value)} placeholder="REF1; REF2; REF3" className={ic} />
+                                <p className="text-xs text-gray-400 mt-0.5">Separadas por punto y coma</p>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label className={lc}>Notas</label>
+                            <textarea value={data.notes} onChange={(e) => setData("notes", e.target.value)} rows={2} className={ic} />
+                        </div>
+
+                        {/* Variantes */}
+                        <div>
+                            <label className={lc}>Variantes compatibles (G60, G85, G3/36…)</label>
+                            <div className="flex gap-2">
+                                <input
+                                    type="text"
+                                    value={variantInput}
+                                    onChange={(e) => setVariantInput(e.target.value.toUpperCase())}
+                                    onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addVariant())}
+                                    placeholder="G60"
+                                    className="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#25A7CA]/30"
+                                />
+                                <button type="button" onClick={addVariant} className="px-3 py-2 bg-[#25A7CA] text-white rounded-lg text-sm">
+                                    Agregar
+                                </button>
+                            </div>
+                            {data.variants.length > 0 && (
+                                <div className="flex flex-wrap gap-2 mt-2">
+                                    {data.variants.map((v) => (
+                                        <span key={v} className="flex items-center gap-1 bg-[#25A7CA]/10 text-[#25A7CA] text-xs font-semibold px-2.5 py-1 rounded-full">
+                                            {v}
+                                            <button type="button" onClick={() => removeVariant(v)} className="ml-1 text-[#25A7CA]/60 hover:text-red-500">×</button>
+                                        </span>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Aplicación */}
+                        <div>
+                            <label className={lc}>Tipo de aplicación</label>
+                            <div className="flex gap-4 mt-1">
+                                <label className="flex items-center gap-2 cursor-pointer text-sm text-gray-600">
+                                    <input
+                                        type="radio"
+                                        value="generic"
+                                        checked={data.application_type === "generic"}
+                                        onChange={() => setData("application_type", "generic")}
+                                        className="accent-[#25A7CA]"
+                                    />
+                                    Genérico (aplica a toda la caja)
+                                </label>
+                                <label className="flex items-center gap-2 cursor-pointer text-sm text-gray-600">
+                                    <input
+                                        type="radio"
+                                        value="specific"
+                                        checked={data.application_type === "specific"}
+                                        onChange={() => setData("application_type", "specific")}
+                                        className="accent-[#25A7CA]"
+                                    />
+                                    Específico (modelos de vehículo)
+                                </label>
+                            </div>
+                            {data.application_type === "specific" && (
+                                <input
+                                    type="text"
+                                    value={data.application}
+                                    onChange={(e) => setData("application", e.target.value)}
+                                    placeholder="Mercedes L1218, L1518…"
+                                    className={`${ic} mt-2`}
+                                />
+                            )}
+                        </div>
+                    </div>
+
+                    {/* ── Todos los items (solo lectura si hay múltiples) ── */}
+                    {product.items?.length > 1 && (
+                        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+                            <h2 className="font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                                <Icon icon="solar:list-outline" width={18} className="text-gray-400" />
+                                Todos los items ({product.items.length})
+                                <span className="text-xs font-normal text-gray-400">— solo lectura</span>
+                            </h2>
+                            <div className="space-y-2">
+                                {product.items.map((item, i) => (
+                                    <div key={item.id} className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm ${i === 0 ? "bg-[#25A7CA]/5 border border-[#25A7CA]/20" : "bg-gray-50"}`}>
+                                        {i === 0 && <span className="text-[10px] bg-[#25A7CA] text-white px-1.5 py-0.5 rounded-full font-medium shrink-0">Principal</span>}
+                                        <span className="font-mono font-medium text-gray-800 shrink-0">{item.oem_code ?? "—"}</span>
+                                        {item.application && <span className="text-gray-500 truncate">{item.application}</span>}
+                                        <div className="flex gap-1 ml-auto shrink-0">
+                                            {item.variants?.map((v) => (
+                                                <span key={v} className="text-[10px] bg-[#25A7CA]/10 text-[#25A7CA] px-1.5 py-0.5 rounded-full font-medium">{v}</span>
+                                            ))}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* ── Imágenes existentes ──────────────────────────────── */}
+                    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+                        <h2 className="font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                            <Icon icon="solar:gallery-outline" width={18} className="text-[#25A7CA]" />
+                            Imágenes
+                            {product.images?.length > 0 && (
+                                <span className="text-xs font-normal text-gray-400 ml-1">— click en ★ para marcar como principal</span>
+                            )}
+                        </h2>
+
+                        {product.images?.length > 0 ? (
+                            <div className="flex flex-wrap gap-3 mb-4">
+                                {product.images.map((img) => (
+                                    <div key={img.id} className="relative group">
+                                        <img
+                                            src={img.url}
+                                            className={`h-24 w-24 object-cover rounded-xl border-2 transition ${img.is_primary ? "border-[#25A7CA]" : "border-gray-100"}`}
+                                            alt=""
+                                        />
+                                        {/* Badge principal */}
+                                        {img.is_primary && (
+                                            <span className="absolute top-1 left-1 bg-[#25A7CA] text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full leading-none">
+                                                PRINCIPAL
+                                            </span>
+                                        )}
+                                        {/* Botones: aparecer en hover */}
+                                        <div className="absolute inset-0 bg-black/40 rounded-xl opacity-0 group-hover:opacity-100 transition flex items-center justify-center gap-1.5">
+                                            {/* Set primary */}
+                                            {!img.is_primary && (
+                                                <button
+                                                    type="button"
+                                                    title="Marcar como principal"
+                                                    onClick={() => router.patch(`/admin/products/images/${img.id}/primary`)}
+                                                    className="p-1.5 bg-[#25A7CA] hover:bg-[#1d96b8] rounded-lg text-white transition"
+                                                >
+                                                    <Icon icon="solar:star-bold" width={14} />
+                                                </button>
+                                            )}
+                                            {/* Delete */}
+                                            <button
+                                                type="button"
+                                                title="Eliminar imagen"
+                                                onClick={() => {
+                                                    if (confirm("¿Eliminar esta imagen?")) {
+                                                        router.delete(`/admin/products/images/${img.id}`);
+                                                    }
+                                                }}
+                                                className="p-1.5 bg-red-500 hover:bg-red-600 rounded-lg text-white transition"
+                                            >
+                                                <Icon icon="solar:trash-bin-trash-outline" width={14} />
+                                            </button>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <p className="text-sm text-gray-400 mb-4">Sin imágenes cargadas.</p>
+                        )}
+
+                        {/* Subir nuevas */}
+                        <div className="border border-dashed border-gray-200 rounded-xl p-4">
+                            <p className="text-xs text-gray-400 mb-2">Agregar imágenes (se puede subir varias a la vez)</p>
+                            <input
+                                type="file"
+                                multiple
+                                accept="image/*"
+                                onChange={(e) => setData("images", Array.from(e.target.files))}
+                                className="block w-full text-sm text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-medium file:bg-[#25A7CA]/10 file:text-[#25A7CA]"
+                            />
+                            {data.images?.length > 0 && (
+                                <p className="text-xs text-[#25A7CA] mt-1.5">{data.images.length} imagen(es) seleccionada(s) — se guardarán al guardar el producto</p>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* ── Config ──────────────────────────────────────────── */}
+                    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+                        <label className="flex items-center gap-2 cursor-pointer">
+                            <input
+                                type="checkbox"
+                                checked={data.is_active}
+                                onChange={(e) => setData("is_active", e.target.checked)}
+                                className="w-4 h-4 rounded accent-[#25A7CA]"
+                            />
+                            <span className="text-sm font-medium text-gray-700">Producto activo</span>
+                        </label>
+                    </div>
+
+                    <div className="flex justify-end gap-3">
+                        <button type="button" onClick={() => router.visit("/admin/products")} className="px-5 py-2.5 rounded-xl border border-gray-200 text-sm text-gray-700 hover:bg-gray-50">
+                            Cancelar
+                        </button>
+                        <button type="submit" disabled={processing} className="px-5 py-2.5 rounded-xl bg-[#25A7CA] text-white text-sm font-medium hover:bg-[#1d96b8] disabled:opacity-60">
+                            {processing ? "Guardando…" : "Guardar Cambios"}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </AdminLayout>
+    );
+}

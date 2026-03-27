@@ -37,7 +37,7 @@ $about = $page?->sections
             <div class="about-section__text">{!! $content !!}</div>
 
             @if($about->getButtonText())
-            <a href="{{ $about->button_link ?? '#' }}" class="about-section__btn">
+            <a href="{{ $about->safe_button_link ?? '#' }}" class="about-section__btn">
                 {{ $about->getButtonText() }}
             </a>
             @endif

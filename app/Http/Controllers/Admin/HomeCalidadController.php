@@ -79,6 +79,7 @@ class HomeCalidadController extends Controller
         ]);
 
         $data = $this->sanitizeDataFields($data, ['title', 'content', 'button_text']);
+        $buttonLink = $this->sanitizeUrl($data['button_link'] ?? null, allowRelative: true);
 
         $page    = Page::where('slug', 'home')->firstOrFail();
         $section = $page->sections()->where('type', 'quality')->first();
@@ -107,7 +108,7 @@ class HomeCalidadController extends Controller
                 'en' => $data['button_text_en'] ?? '',
                 'pt' => $data['button_text_pt'] ?? '',
             ],
-            'button_link' => $data['button_link'] ?? '',
+            'button_link' => $buttonLink ?? '',
             'is_active'   => $data['is_active'] ?? true,
             'image'       => $imagePath,
             'order'       => 2,

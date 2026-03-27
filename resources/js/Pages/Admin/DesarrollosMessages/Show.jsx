@@ -64,16 +64,14 @@ export default function DesarrollosMessageShow({ message }) {
                 </div>
 
                 {/* Archivo adjunto */}
-                {message.file_url && (
+                {message.download_url && (
                     <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 mb-6">
                         <h2 className="font-semibold text-gray-700 mb-3 flex items-center gap-2">
                             <Icon icon="solar:paperclip-outline" width={16} className="text-[#25A7CA]" />
                             Archivo adjunto
                         </h2>
                         <a
-                            href={message.file_url}
-                            target="_blank"
-                            rel="noopener noreferrer"
+                            href={message.download_url}
                             className="inline-flex items-center gap-2 px-4 py-2.5 border border-gray-200 text-gray-700 rounded-xl text-sm hover:bg-gray-50 transition"
                         >
                             <Icon icon="solar:download-outline" width={16} />

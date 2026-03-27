@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\DesarrollosMessage;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 
 class DesarrollosMessageController extends Controller
@@ -28,11 +29,23 @@ class DesarrollosMessageController extends Controller
         return Inertia::render('Admin/DesarrollosMessages/Show', [
             'message' => array_merge($desarrollosMessage->toArray(), [
                 'created_at' => $desarrollosMessage->created_at->format('d/m/Y H:i'),
-                'file_url'   => $desarrollosMessage->file_path
-                    ? asset('storage/' . $desarrollosMessage->file_path)
+                'download_url' => $desarrollosMessage->file_path
+                    ? route('admin.desarrollos-messages.download', $desarrollosMessage)
                     : null,
             ]),
         ]);
+    }
+
+    public function download(DesarrollosMessage $desarrollosMessage)
+    {
+        abort_unless($desarrollosMessage->file_path, 404);
+
+        $disk = Storage::disk('local')->exists($desarrollosMessage->file_path) ? 'local' : 'public';
+        $name = Str::slug(pathinfo($desarrollosMessage->name, PATHINFO_FILENAME) ?: 'adjunto-desarrollo');
+        $extension = pathinfo($desarrollosMessage->file_path, PATHINFO_EXTENSION);
+        $filename = $name . ($extension ? '.' . $extension : '');
+
+        return Storage::disk($disk)->download($desarrollosMessage->file_path, $filename);
     }
 
     public function destroy(DesarrollosMessage $desarrollosMessage)

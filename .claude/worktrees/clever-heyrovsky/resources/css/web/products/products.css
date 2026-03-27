@@ -1,0 +1,1800 @@
+/* =============================================
+   PRODUCTS — Figma complete
+   A: Index (banner + search + brand grid)
+   B: Brand page (sidebar + gearbox cards)
+   C: Gearbox page (sidebar + product cards)
+   D: Product detail (gallery + info)
+   Container: 1224px centrado (max-width 1366px, padding 71px)
+============================================= */
+
+
+/* ══════════════════════════════════════════
+   A — BANNER (index page)
+   Figma: 1366×400px · overlay rgba(31,88,156,.60) multiply
+   Mismo comportamiento que empresa-banner
+══════════════════════════════════════════ */
+
+.products-banner {
+    position: relative;
+    width: 100%;
+    height: 400px;
+    margin-top: -121px;
+    /* sube detrás del header sticky */
+    overflow: hidden;
+}
+
+/* Slide / fondo */
+.products-banner__slide {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    opacity: 0;
+    transition: opacity 0.6s ease;
+}
+
+.products-banner__slide.active {
+    opacity: 1;
+}
+
+/* iframe de video — cubre el banner sin barras negras */
+.products-banner__video {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    transform: translateY(-50%);
+    width: 100%;
+    /* Altura 16:9 basada en el viewport: siempre mayor que el banner (400px) en pantallas > 711px */
+    height: 56.25vw;
+    border: none;
+    pointer-events: none;
+}
+
+/* Pantallas angostas: basar en la altura del container */
+@media (max-width: 711px) {
+    .products-banner__video {
+        width: 177.78vh;
+        height: 100%;
+        top: 0;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+}
+
+/* Dots — idénticos a .hero-dot */
+.products-banner__dots {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin-top: 16px;
+}
+
+.products-banner__dot {
+    display: block;
+    width: 37px;
+    height: 5px;
+    border-radius: 2.5px;
+    background: #ffffff;
+    opacity: 0.5;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    transition: opacity 0.3s ease;
+    flex-shrink: 0;
+}
+
+.products-banner__dot.active {
+    opacity: 1;
+}
+
+.products-banner__dot:hover {
+    opacity: 0.8;
+}
+
+/* Overlay negro 10% */
+.products-banner__overlay-dark {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.10);
+    z-index: 1;
+}
+
+/* Overlay azul multiply */
+.products-banner__overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(31, 88, 156, 0.60);
+    mix-blend-mode: multiply;
+    z-index: 2;
+}
+
+/* Inner: breadcrumb arriba · título abajo */
+.products-banner__inner {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.products-banner__topbar,
+.products-banner__bottom {
+    max-width: 1366px;
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    box-sizing: border-box;
+}
+
+/* breadcrumb: 11px debajo del header (121 + 11 = 132px del top) */
+.products-banner__topbar {
+    padding-top: 132px;
+    padding-left: 71px;
+    padding-right: 71px;
+    padding-bottom: 0;
+}
+
+/* título: pegado al borde inferior */
+.products-banner__bottom {
+    padding-top: 0;
+    padding-left: 71px;
+    padding-right: 71px;
+    padding-bottom: 96px;
+}
+
+.products-banner__title {
+    color: #FFF;
+    font-family: "Open Sans", sans-serif;
+    font-size: 40px;
+    font-weight: 600;
+    line-height: normal;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.products-banner__breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.products-banner__bc-home {
+    color: #FFF;
+    font-family: "Open Sans", sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.products-banner__bc-home:hover {
+    text-decoration: underline;
+}
+
+.products-banner__bc-sep {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+}
+
+.products-banner__bc-current {
+    color: #FFF;
+    font-family: "Open Sans", sans-serif;
+    font-size: 12px;
+    font-weight: 300;
+    white-space: nowrap;
+}
+
+
+/* ══════════════════════════════════════════
+   A — BUSCADOR (products index)
+   Figma: caja azul solapada sobre banner
+   Idéntica en diseño a .hero-search pero con
+   clases propias products-search__*
+══════════════════════════════════════════ */
+
+/* Wrapper externo: centra la caja y solapado con el banner */
+.products-search {
+    position: relative;
+    z-index: 10;
+    width: 100%;
+    margin-top: -73px;
+    margin-bottom: 0;
+    display: flex;
+    justify-content: center;
+    padding: 0 71px;
+    box-sizing: border-box;
+}
+
+/* Caja azul */
+.products-search__box {
+    width: 1224px;
+    max-width: 100%;
+    min-height: 147px;
+    border-radius: 16px;
+    background: #1F589C;
+    padding: 31px 44px;
+    box-sizing: border-box;
+    display: flex;
+    align-items: stretch;
+}
+
+/* Formulario: flex con gap 24px */
+.products-search__form {
+    display: flex;
+    align-items: flex-end;
+    gap: 24px;
+    width: 100%;
+}
+
+/* Cada campo (label + input/select) */
+.products-search__field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+/* Label */
+.products-search__label {
+    color: #FFF;
+    font-family: "Open Sans", sans-serif;
+    font-size: 20px;
+    font-weight: 600;
+    line-height: normal;
+    white-space: nowrap;
+}
+
+/* Wrapper del select (posición para el chevron) */
+.products-search__select-wrap {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+}
+
+/* Select: Marca y Modelo */
+.products-search__select {
+    width: 348px;
+    height: 45px;
+    border-radius: 24px;
+    border: 1px solid #E3E0E0;
+    background: #FFF;
+    padding: 0 44px 0 16px;
+    box-sizing: border-box;
+    color: #34373A;
+    font-family: "Open Sans", sans-serif;
+    font-size: 15px;
+    font-weight: 400;
+    line-height: normal;
+    appearance: none;
+    -webkit-appearance: none;
+    cursor: pointer;
+    outline: none;
+    transition: border-color 0.2s ease;
+}
+
+.products-search__select:focus {
+    border-color: #1F589C;
+}
+
+.products-search__select.is-placeholder {
+    color: rgba(52, 55, 58, 0.6);
+}
+
+/* Chevron SVG flotante dentro del select */
+.products-search__chevron {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    pointer-events: none;
+    flex-shrink: 0;
+}
+
+/* Campo Código */
+.products-search__field--codigo {
+    flex-shrink: 0;
+}
+
+.products-search__input {
+    width: 228px;
+    height: 45px;
+    border-radius: 24px;
+    border: 1px solid #E3E0E0;
+    background: #FFF;
+    padding: 0 16px;
+    box-sizing: border-box;
+    color: #34373A;
+    font-family: "Open Sans", sans-serif;
+    font-size: 15px;
+    font-weight: 400;
+    line-height: normal;
+    outline: none;
+    transition: border-color 0.2s ease;
+}
+
+.products-search__input::placeholder {
+    color: rgba(52, 55, 58, 0.6);
+}
+
+.products-search__input:focus {
+    border-color: #1F589C;
+    color: #1D1E20;
+}
+
+/* Wrapper del botón Buscar */
+.products-search__btn-wrap {
+    display: flex;
+    align-items: flex-end;
+    flex-shrink: 0;
+    margin-left: auto;
+}
+
+/* Botón Buscar */
+.products-search__btn {
+    display: flex;
+    width: 140px;
+    padding: 12px 25px;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    border-radius: 22px;
+    border: 1px solid #FFF;
+    background: transparent;
+    cursor: pointer;
+    color: #FFF;
+    text-align: center;
+    font-family: "Open Sans", sans-serif;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: normal;
+    white-space: nowrap;
+    transition: background 0.2s ease;
+}
+
+.products-search__btn:hover {
+    background: rgba(255, 255, 255, 0.12);
+}
+
+/* Responsive */
+@media (max-width: 1280px) {
+    .products-search {
+        padding: 0 32px;
+    }
+
+    .products-search__select {
+        width: 280px;
+    }
+}
+
+@media (max-width: 1024px) {
+    .products-search {
+        padding: 0 24px;
+        margin-top: -40px;
+    }
+
+    .products-search__form {
+        flex-wrap: wrap;
+        gap: 16px;
+    }
+
+    .products-search__select {
+        width: 100%;
+    }
+
+    .products-search__input {
+        width: 100%;
+    }
+
+    .products-search__field {
+        flex: 1 1 200px;
+    }
+
+    .products-search__btn-wrap {
+        margin-left: 0;
+        width: 100%;
+        justify-content: flex-end;
+    }
+}
+
+@media (max-width: 768px) {
+    .products-search {
+        padding: 0 16px;
+        margin-top: -20px;
+        margin-bottom: 32px;
+    }
+
+    .products-search__box {
+        padding: 24px 20px;
+    }
+
+    .products-search__label {
+        font-size: 16px;
+    }
+
+    .products-search__field {
+        flex: 1 1 100%;
+    }
+
+    .products-search__select,
+    .products-search__input {
+        width: 100%;
+    }
+}
+
+
+/* ══════════════════════════════════════════
+   A — INDEX: grid de marcas
+   Reutiliza .brand-card de productos-destacados.css
+   Solo se redefine el wrapper y el grid
+══════════════════════════════════════════ */
+
+.products-index {
+    padding-top: 50px;
+    padding-bottom: 103px;
+    background: #FFF;
+}
+
+.products-index__grid {
+    display: grid;
+    grid-template-columns: repeat(4, 288px);
+    gap: 24px;
+}
+
+/* Hover overlay para brand-card dentro de products-index__grid
+   (mismo efecto que en home/productos-destacados.css) */
+.products-index__grid .brand-card {
+    position: relative;
+    transition: box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.products-index__grid .brand-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(31, 88, 156, 0.50);
+    opacity: 0;
+    transition: opacity 0.25s ease;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.products-index__grid .brand-card::before {
+    content: '+';
+    position: absolute;
+    top: 42%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #fff;
+    font-size: 40px;
+    font-weight: 300;
+    line-height: 1;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+    pointer-events: none;
+    z-index: 2;
+}
+
+.products-index__grid .brand-card:hover {
+    box-shadow: 0 8px 28px rgba(31, 88, 156, 0.25);
+    border-color: #c7d8ef;
+}
+
+.products-index__grid .brand-card:hover::after {
+    opacity: 1;
+}
+
+.products-index__grid .brand-card:hover::before {
+    opacity: 1;
+}
+
+
+/* ══════════════════════════════════════════
+   B / C — BODY (brand + gearbox pages)
+   Layout de 2 columnas: sidebar + main
+══════════════════════════════════════════ */
+
+.products-body {
+    background: #FFF;
+    padding-bottom: 100px;
+}
+
+/* breadcrumb interno (páginas con sidebar) */
+.products-bc {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    padding-top: 11px;
+    padding-bottom: 73px;
+}
+
+.products-bc__link {
+    color: #1D1E20;
+    font-family: "Open Sans", sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.products-bc__link:hover {
+    text-decoration: underline;
+}
+
+.products-bc__sep {
+    color: #9CA3AF;
+    font-size: 12px;
+    flex-shrink: 0;
+}
+
+.products-bc__current {
+    color: #1D1E20;
+    font-family: "Open Sans", sans-serif;
+    font-size: 12px;
+    font-weight: 300;
+    white-space: nowrap;
+}
+
+/* 2 columnas: sidebar 288px · gap 40px · main 1fr */
+.products-layout {
+    display: grid;
+    grid-template-columns: 288px 1fr;
+    gap: 24px;
+    align-items: start;
+}
+
+
+/* ══════════════════════════════════════════
+   B / C — SIDEBAR: lista de marcas
+   Figma: 288px · separadores #E3E0E0 · 31px entre líneas
+══════════════════════════════════════════ */
+
+.products-sidebar {
+    width: 288px;
+    /* Primera línea superior */
+    border-top: 1px solid rgba(227, 224, 224, 0.652);
+}
+
+.products-sidebar a.products-sidebar__item {
+    display: block;
+    color: #1D1E20;
+    font-family: "Open Sans", sans-serif;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 31px;
+    text-decoration: none;
+    padding: 0 0 0 24px;
+    text-transform: uppercase;
+    white-space: nowrap;
+    border-bottom: 1px solid rgba(227, 224, 224, 0.652);
+    transition: color 0.2s ease;
+}
+
+.products-sidebar a.products-sidebar__item:hover {
+    color: #1F589C;
+}
+
+.products-sidebar a.products-sidebar__item.active {
+    font-weight: 700;
+    color: #1D1E20;
+}
+
+
+/* ══════════════════════════════════════════
+   B — GEARBOX CARDS (brand page)
+   Grid de cajas de cambios de la marca activa
+   Figma: 3 col, imagen cuadrada, label azul + nombre
+══════════════════════════════════════════ */
+
+.gearboxes-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 288px);
+    gap: 24px;
+    align-items: start;
+}
+
+.gearbox-card {
+    display: flex;
+    flex-direction: column;
+    width: 288px;
+    height: 311px;
+    border-radius: 10px;
+    background: #FFF;
+    border: 1px solid var(--Linea, #E3E0E0);
+    text-decoration: none;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+/* Imagen: 288×209px con overlay hover */
+.gearbox-card__img {
+    position: relative;
+    width: 288px;
+    height: 209px;
+    overflow: hidden;
+    border-radius: 9px 9px 0 0;
+    background: #F3F4F6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.gearbox-card__img img {
+    width: 100%;
+    height: 100%;
+    background: #fff;
+    object-fit: contain;
+    padding: 47px 35px 35px 35px;
+    box-sizing: border-box;
+    display: block;
+    transition: transform 0.3s ease;
+}
+
+.gearbox-card__img:hover img {
+    transform: scale(1.04);
+}
+
+.gearbox-card__overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(31, 88, 156, 0);
+    mix-blend-mode: multiply;
+    z-index: 2;
+    pointer-events: none;
+    transition: background 0.25s ease;
+}
+
+.gearbox-card__img:hover .gearbox-card__overlay {
+    background: rgba(31, 88, 156, 0.60);
+}
+
+.gearbox-card__plus {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #FFF;
+    font-size: 32px;
+    font-weight: 300;
+    line-height: 1;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+    user-select: none;
+    z-index: 3;
+    pointer-events: none;
+}
+
+.gearbox-card__img:hover .gearbox-card__plus {
+    opacity: 1;
+}
+
+/* Cuerpo: padding 10px 120px 28px 24px */
+.gearbox-card__body {
+    padding: 10px 24px 28px;
+    display: flex;
+    flex-direction: column;
+}
+
+.gearbox-card__brand {
+    color: #1F589C;
+    font-family: "Open Sans", sans-serif;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 31px;
+}
+
+.gearbox-card__name {
+    color: #333;
+    font-family: "Open Sans", sans-serif;
+    font-size: 24px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+}
+
+
+/* ══════════════════════════════════════════
+   C — PRODUCT CARDS (gearbox page)
+   Figma: imagen cuadrada, label azul, OEM code, nombre
+   Override completo de los estilos viejos (Montserrat/288px)
+══════════════════════════════════════════ */
+
+/* ══════════════════════════════════════════
+   C — PRODUCT CARDS (gearbox page)
+   Mismo estilo visual que gearbox-card
+   Clases propias: prd-card / prd-card__*
+══════════════════════════════════════════ */
+
+.products-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 288px);
+    gap: 24px;
+    align-items: start;
+}
+
+.prd-card {
+    display: flex;
+    flex-direction: column;
+    width: 288px;
+    border-radius: 10px;
+    border: 1px solid var(--Linea, #E3E0E0);
+    background: #FFF;
+    text-decoration: none;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+/* Imagen: 288×209px */
+.prd-card__img {
+    position: relative;
+    width: 288px;
+    height: 209px;
+    overflow: hidden;
+    border-radius: 9px 9px 0 0;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.prd-card__img img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    padding: 47px 35px 35px 35px;
+    box-sizing: border-box;
+    display: block;
+    transition: transform 0.3s ease;
+}
+
+.prd-card__img:hover img {
+    transform: scale(1.04);
+}
+
+/* Overlay azul multiply — aparece al hover */
+.prd-card__overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(31, 88, 156, 0);
+    mix-blend-mode: multiply;
+    z-index: 2;
+    pointer-events: none;
+    transition: background 0.25s ease;
+}
+
+.prd-card__img:hover .prd-card__overlay {
+    background: rgba(31, 88, 156, 0.60);
+}
+
+.prd-card__plus {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #FFF;
+    font-size: 32px;
+    font-weight: 300;
+    line-height: 1;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+    user-select: none;
+    z-index: 3;
+    pointer-events: none;
+}
+
+.prd-card__img:hover .prd-card__plus {
+    opacity: 1;
+}
+
+/* Divisor — línea centrada 240px */
+.prd-card__divider {
+    display: block;
+    width: 240px;
+    height: 1px;
+    background: #E3E0E0;
+    flex-shrink: 0;
+    align-self: center;
+}
+
+/* Cuerpo */
+.prd-card__body {
+    padding: 10px 24px 11px 24px;
+    display: flex;
+    flex-direction: column;
+}
+
+.prd-card__brand {
+    color: #1F589C;
+    font-family: "Open Sans", sans-serif;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 31px;
+}
+
+.prd-card__name {
+    color: #333;
+    font-family: "Open Sans", sans-serif;
+    font-size: 24px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.prd-card__subtitle {
+    color: #333;
+    font-family: "Open Sans", sans-serif;
+    font-size: 24px;
+    font-weight: 400;
+    line-height: 1.4;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+
+/* ══════════════════════════════════════════
+   C2 — RELATED PRODUCT CARDS (show page)
+   Mismo estilo visual que prd-card
+   Clases propias: rel-card / rel-card__*
+   Grid: 4 columnas en .product-related
+══════════════════════════════════════════ */
+
+.rel-card {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    border-radius: 10px;
+    border: 1px solid var(--Linea, #E3E0E0);
+    background: #FFF;
+    text-decoration: none;
+    overflow: hidden;
+}
+
+.rel-card__img {
+    position: relative;
+    width: 100%;
+    height: 209px;
+    overflow: hidden;
+    border-radius: 9px 9px 0 0;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.rel-card__img img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    padding: 36px 28px 28px 28px;
+    box-sizing: border-box;
+    display: block;
+    transition: transform 0.3s ease;
+}
+
+.rel-card__img:hover img {
+    transform: scale(1.04);
+}
+
+.rel-card__overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(31, 88, 156, 0);
+    mix-blend-mode: multiply;
+    z-index: 2;
+    pointer-events: none;
+    transition: background 0.25s ease;
+}
+
+.rel-card__img:hover .rel-card__overlay {
+    background: rgba(31, 88, 156, 0.60);
+}
+
+.rel-card__plus {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #FFF;
+    font-size: 28px;
+    font-weight: 300;
+    line-height: 1;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+    user-select: none;
+    z-index: 3;
+    pointer-events: none;
+}
+
+.rel-card__img:hover .rel-card__plus {
+    opacity: 1;
+}
+
+.rel-card__divider {
+    display: block;
+    width: 80%;
+    height: 1px;
+    background: #E3E0E0;
+    flex-shrink: 0;
+    align-self: center;
+}
+
+.rel-card__body {
+    padding: 10px 37px 11px 24px;
+    display: flex;
+    flex-direction: column;
+}
+
+.rel-card__brand {
+    color: #1F589C;
+    font-family: "Open Sans", sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 31px;
+    text-transform: uppercase;
+}
+
+.rel-card__name {
+    color: #333;
+    font-family: "Open Sans", sans-serif;
+    font-size: 24px;
+    font-weight: 400;
+    line-height: normal;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.rel-card__subtitle {
+    color: #333;
+    font-family: "Open Sans", sans-serif;
+    font-size: 24px;
+    font-weight: 400;
+    line-height: 1.4;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+/* Grid de related: 4 columnas auto-fill */
+.product-related .products-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+/* ══════════════════════════════════════════
+   D — PRODUCT DETAIL (show page)
+   Override de estilos de sections/products.css
+   para usar Open Sans y el nuevo modelo
+══════════════════════════════════════════ */
+
+.product-detail {
+    padding-bottom: 151px;
+}
+
+/* Override legacy sections/products.css — info column */
+.product-detail__info {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    padding-top: 8px;
+    text-align: left;
+    min-width: 0;
+    flex: 1;
+    min-height: 494px; /* igual que la imagen principal */
+}
+
+/* breadcrumb */
+.product-detail .breadcrumb {
+    padding-top: 11px;
+    padding-bottom: 73px;
+    margin-bottom: 0;
+    font-family: "Open Sans", sans-serif;
+}
+
+.product-detail .breadcrumb a {
+    font-family: "Open Sans", sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    color: #1D1E20;
+}
+
+.product-detail .breadcrumb span {
+    font-family: "Open Sans", sans-serif;
+    font-size: 12px;
+    font-weight: 300;
+    color: #1D1E20;
+}
+
+/* layout: galería izquierda + info derecha */
+.product-detail__layout {
+    display: flex;
+    flex-direction: row;
+    gap: 26px;
+    align-items: flex-start;
+    margin-bottom: 80px;
+}
+
+/* GALERÍA */
+.product-detail__gallery {
+    display: flex;
+    gap: 25px;
+    align-items: flex-start;
+    flex-shrink: 0;
+}
+
+.product-detail__thumbs {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.product-detail__thumb {
+    width: 80px;
+    height: 80px;
+    border-radius: 6px;
+    border: 1px solid var(--Linea, #E3E0E0);
+    background: #FFF;
+    overflow: hidden;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: border 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Inactivo: imagen cubre todo el thumb */
+.product-detail__thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    mix-blend-mode: multiply;
+}
+
+/* Activo: borde celeste + imagen contenida con padding (84%×81% del Figma) */
+.product-detail__thumb.active {
+    border: 2px solid var(--Celeste, #00AEEF);
+}
+
+.product-detail__thumb.active img {
+    width: 84.265%;
+    height: 81.44%;
+    object-fit: contain;
+    margin-left: 6.294px;
+    margin-top: 7.357px;
+}
+
+.product-detail__thumb:hover:not(.active) {
+    border-color: #00AEEF;
+}
+
+.product-detail__main-img {
+    width: 494px;
+    height: 494px;
+    border-radius: 10px;
+    background: rgba(245, 245, 245, 0.50);
+    position: relative;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    padding: 16px 20px 0 0;
+    box-sizing: border-box;
+}
+
+.product-detail__main-img img {
+    width: 432px;
+    height: 449px;
+    object-fit: contain;
+    box-sizing: border-box;
+    display: block;
+    mix-blend-mode: multiply;
+}
+
+.product-detail__zoom {
+    position: absolute;
+    top: 16px;
+    right: 20px;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.product-detail__zoom:hover {
+    background: none;
+}
+
+/* "MERCEDES BENZ" label */
+.product-detail__brand {
+    color: #1F589C;
+    font-family: "Open Sans", sans-serif;
+    font-size: 17px;
+    font-weight: 600;
+    line-height: 29px;
+    /* 170.588% */
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 0px;
+    display: block;
+}
+
+/* OEM code como título principal */
+.product-detail__code {
+    color: #333;
+    font-family: "Open Sans", sans-serif;
+    font-size: 21px;
+    font-weight: 400;
+    line-height: 29px;
+    margin-bottom: 0;
+}
+
+/* ─── separadores de sección (Figma: línea #E3E0E0 1px) ─── */
+/* Divisor 1: directamente bajo el código OEM, 15px hasta el nombre */
+.product-detail__sep {
+    border: none;
+    border-top: 1px solid #E3E0E0;
+    width: 100%;
+    margin: 3px 0 15px;
+}
+
+/* Divisor 2: 40px desde la tabla, 24px hasta los botones */
+.product-detail__sep--actions {
+    margin-top: 40px;
+    margin-bottom: 24px;
+}
+
+/* nombre del producto */
+.product-detail__name {
+    color: #1D1E20;
+    font-family: "Open Sans", sans-serif;
+    font-style: normal;
+    font-size: 18px;
+    font-weight: 400;
+    line-height: 25px;
+    /* 138.889% */
+    margin-bottom: 40px;
+}
+
+/* descripción */
+.product-detail__desc {
+    color: #1D1E20;
+    font-family: "Open Sans", sans-serif;
+    font-style: normal;
+    font-size: 18px;
+    font-weight: 400;
+    line-height: 25px;
+    margin-bottom: 40px;
+}
+
+/* tabla de referencias */
+.product-detail__refs {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 0;
+}
+
+.product-detail__refs tr {
+    border-top: 1px solid #E3E0E0;
+}
+
+.product-detail__refs tr:last-child {
+    border-bottom: 1px solid #E3E0E0;
+}
+
+.product-detail__refs td {
+    font-family: "Open Sans", sans-serif;
+    font-size: 16px;
+    vertical-align: top;
+    line-height: 35px;
+    /* 218.75% */
+}
+
+.product-detail__refs td:first-child {
+    color: #000;
+    font-weight: 400;
+    white-space: nowrap;
+    padding-right: 34px;
+    width: 160px;
+    text-align: left;
+}
+
+.product-detail__refs td:last-child {
+    color: #000;
+    font-weight: 400;
+    text-align: right;
+}
+
+/* badges de variantes */
+.product-detail__versions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 24px;
+}
+
+/* variantes dentro de una celda de tabla (sin margin externo) */
+.product-detail__versions--inline {
+    margin-bottom: 0;
+}
+
+.product-detail__version-badge {
+    display: inline-flex;
+    padding: 4px 12px;
+    background: #EFF6FF;
+    border: 1px solid #BFDBFE;
+    border-radius: 20px;
+    color: #1F589C;
+    font-family: "Open Sans", sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+/* botones */
+.product-detail__actions {
+    display: flex;
+    gap: 24px;
+    flex-wrap: nowrap;
+    margin-top: auto;
+    width: 100%;
+}
+
+/* ─── Ficha técnica (outline) ─── */
+.btn--outline {
+    display: flex;
+    flex: 1;
+    padding: 12px 25px;
+    justify-content: center;
+    align-items: center;
+    border-radius: 22px;
+    border: 1px solid var(--Azul, #1F589C);
+    background: var(--Blanco, #FFF);
+    color: var(--Azul, #1F589C);
+    text-align: center;
+    font-family: "Open Sans", sans-serif;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+    text-decoration: none;
+    cursor: pointer;
+    box-sizing: border-box;
+    transition: background 0.2s ease;
+}
+
+.btn--outline:hover {
+    background: rgba(31, 88, 156, 0.06);
+}
+
+/* ─── Consultar (primary) ─── */
+.btn--primary {
+    display: flex;
+    flex: 1;
+    padding: 12px 25px;
+    justify-content: center;
+    align-items: center;
+    border-radius: 22px;
+    border: none;
+    background: var(--Azul, #1F589C);
+    color: var(--Blanco, #FFF);
+    text-align: center;
+    font-family: "Open Sans", sans-serif;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+    text-decoration: none;
+    cursor: pointer;
+    box-sizing: border-box;
+    transition: background 0.2s ease;
+}
+
+.btn--primary:hover {
+    background: #174d87;
+}
+
+
+.product-related__title {
+    color: #000;
+    font-family: "Open Sans", sans-serif;
+    font-size: 28px;
+    font-weight: 600;
+    line-height: 25px;
+    /* 89.286% */
+    margin-bottom: 24px;
+}
+
+/* ══════════════════════════════════════════
+   SEARCH RESULTS HEADER
+══════════════════════════════════════════ */
+
+.products-search-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 24px;
+}
+
+.products-search-header__text {
+    color: #1D1E20;
+    font-family: "Open Sans", sans-serif;
+    font-size: 15px;
+    line-height: 1.5;
+    margin: 0;
+}
+
+.products-search-header__code {
+    color: #1F589C;
+    font-weight: 700;
+}
+
+.products-search-header__back {
+    color: #1F589C;
+    font-family: "Open Sans", sans-serif;
+    font-size: 13px;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.products-search-header__back:hover {
+    text-decoration: underline;
+}
+
+
+/* ══════════════════════════════════════════
+   EMPTY STATE
+══════════════════════════════════════════ */
+
+.products-empty {
+    text-align: center;
+    padding: 60px 20px;
+    color: #6B7280;
+    font-family: "Open Sans", sans-serif;
+    font-size: 15px;
+}
+
+
+/* ══════════════════════════════════════════
+   RESPONSIVE
+══════════════════════════════════════════ */
+
+/* ── ≤ 1280px ── */
+@media (max-width: 1280px) {
+
+    .products-index__grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .products-index__grid .brand-card {
+        width: 100%;
+        height: auto;
+        min-height: 240px;
+    }
+
+    .gearboxes-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .gearbox-card {
+        width: 100%;
+        height: auto;
+    }
+
+    .gearbox-card__img {
+        width: 100%;
+        height: auto;
+        aspect-ratio: 288/209;
+    }
+
+    .products-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .prd-card {
+        width: 100%;
+    }
+
+    .prd-card__img {
+        width: 100%;
+        height: auto;
+        aspect-ratio: 288/209;
+    }
+
+    .product-related .products-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* ── ≤ 1024px ── */
+@media (max-width: 1024px) {
+
+    .products-banner__topbar,
+    .products-banner__bottom {
+        padding-left: 24px;
+        padding-right: 24px;
+    }
+
+    .products-layout {
+        grid-template-columns: 200px 1fr;
+        gap: 24px;
+    }
+
+    .products-sidebar {
+        width: 100%;
+    }
+
+    .gearboxes-grid,
+    .products-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+    }
+
+    .product-related .products-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .product-detail__layout {
+        gap: 24px;
+    }
+
+    .product-detail__main-img {
+        width: 320px;
+        height: 320px;
+    }
+
+    .product-detail__main-img img {
+        width: 100%;
+        height: 100%;
+    }
+
+    .product-detail__refs td:first-child {
+        white-space: normal;
+        width: auto;
+        padding-right: 16px;
+    }
+}
+
+/* ── ≤ 768px ── */
+@media (max-width: 768px) {
+
+    /* Banner */
+    .products-banner {
+        height: 280px;
+        margin-top: -70px;
+    }
+
+    .products-banner__topbar {
+        padding-top: 82px;
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+
+    .products-banner__bottom {
+        padding-left: 16px;
+        padding-right: 16px;
+        padding-bottom: 24px;
+    }
+
+    .products-banner__title {
+        font-size: 24px;
+        white-space: normal;
+    }
+
+    /* Index */
+    .products-index {
+        padding-top: 40px;
+        padding-bottom: 48px;
+    }
+
+    .products-index__grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+
+    .products-index__grid .brand-card {
+        min-height: 180px;
+    }
+
+    /* Layout 2-col → 1 col */
+    .products-layout {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    /* Sidebar: horizontal scroll en mobile */
+    .products-sidebar {
+        display: flex;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        gap: 0;
+        width: 100%;
+        border-top: none;
+        border-bottom: 1px solid #E3E0E0;
+        padding-bottom: 12px;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .products-sidebar a.products-sidebar__item {
+        flex-shrink: 0;
+        padding: 6px 14px;
+        font-size: 13px;
+        border-bottom: none;
+        border-radius: 20px;
+        text-transform: none;
+        white-space: nowrap;
+    }
+
+    .products-sidebar a.products-sidebar__item.active {
+        background: #EFF6FF;
+        color: #1F589C;
+    }
+
+    /* Cards grid */
+    .gearboxes-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+
+    .gearbox-card {
+        height: auto;
+    }
+
+    .gearbox-card__body {
+        padding: 8px 12px 16px;
+    }
+
+    .gearbox-card__brand {
+        font-size: 12px;
+        line-height: 1.4;
+    }
+
+    .gearbox-card__name {
+        font-size: 18px;
+    }
+
+    .products-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+
+    .prd-card__body {
+        padding: 8px 12px 12px;
+    }
+
+    .prd-card__brand {
+        font-size: 12px;
+        line-height: 1.4;
+    }
+
+    .prd-card__name {
+        font-size: 18px;
+    }
+
+    .prd-card__subtitle {
+        font-size: 16px;
+    }
+
+    .product-related .products-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+
+    .rel-card__body {
+        padding: 8px 12px 12px;
+    }
+
+    .rel-card__brand {
+        font-size: 12px;
+        line-height: 1.4;
+    }
+
+    .rel-card__name {
+        font-size: 18px;
+    }
+
+    .rel-card__subtitle {
+        font-size: 16px;
+    }
+
+    /* Product detail: apila vertical */
+    .product-detail {
+        padding-bottom: 60px;
+    }
+
+    .product-detail__layout {
+        flex-direction: column;
+        gap: 24px;
+        margin-bottom: 40px;
+    }
+
+    .product-detail__gallery {
+        flex-direction: row;
+        align-items: flex-start;
+        width: 100%;
+    }
+
+    .product-detail__main-img {
+        flex: 1;
+        width: 100%;
+        height: auto;
+        aspect-ratio: 1;
+        padding: 12px;
+    }
+
+    .product-detail__main-img img {
+        width: 100%;
+        height: 100%;
+    }
+
+    .product-detail__thumbs {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .product-detail__thumb {
+        width: 56px;
+        height: 56px;
+    }
+
+    .product-detail__info {
+        padding-top: 0;
+        flex: none;
+        width: 100%;
+        min-height: auto;
+    }
+
+    .product-detail__brand {
+        font-size: 14px;
+    }
+
+    .product-detail__code {
+        font-size: 18px;
+    }
+
+    .product-detail__name {
+        font-size: 16px;
+        margin-bottom: 24px;
+    }
+
+    .product-detail__refs td {
+        font-size: 14px;
+        line-height: 28px;
+    }
+
+    .product-detail__refs td:first-child {
+        white-space: normal;
+        width: auto;
+        min-width: 100px;
+        padding-right: 12px;
+    }
+
+    .product-detail__actions {
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .btn--outline,
+    .btn--primary {
+        flex: 1 1 calc(50% - 6px);
+        min-width: 140px;
+        font-size: 14px;
+        padding: 10px 16px;
+    }
+
+    .product-related__title {
+        font-size: 22px;
+    }
+
+    /* Breadcrumb */
+    .products-bc {
+        padding-top: 8px;
+        padding-bottom: 24px;
+        gap: 4px;
+    }
+
+    .products-bc__link,
+    .products-bc__current {
+        font-size: 11px;
+    }
+
+    .product-detail .breadcrumb {
+        padding-top: 8px;
+        padding-bottom: 24px;
+    }
+}
+
+/* ── ≤ 480px ── */
+@media (max-width: 480px) {
+
+    .products-index__grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+
+    .products-index__grid .brand-card {
+        min-height: 150px;
+    }
+
+    .gearboxes-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+
+    .products-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+
+    .product-detail__gallery {
+        flex-direction: column-reverse;
+    }
+
+    .product-detail__thumbs {
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+
+    .product-detail__thumb {
+        width: 48px;
+        height: 48px;
+    }
+
+    .product-detail__main-img {
+        aspect-ratio: 4/3;
+    }
+
+    .btn--outline,
+    .btn--primary {
+        flex: 1 1 100%;
+    }
+
+    /* Tabla refs: apilada */
+    .product-detail__refs,
+    .product-detail__refs tbody,
+    .product-detail__refs tr,
+    .product-detail__refs td {
+        display: block;
+        width: 100%;
+    }
+
+    .product-detail__refs tr {
+        padding: 8px 0;
+    }
+
+    .product-detail__refs td:first-child {
+        font-weight: 600;
+        padding-right: 0;
+        text-align: left;
+        line-height: 1.4;
+        padding-bottom: 2px;
+    }
+
+    .product-detail__refs td:last-child {
+        text-align: left;
+        line-height: 1.4;
+    }
+}

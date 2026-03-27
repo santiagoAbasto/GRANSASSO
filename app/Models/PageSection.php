@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use App\Traits\SanitizesHtml;
 use Illuminate\Database\Eloquent\Model;
 
 class PageSection extends Model
 {
+    use SanitizesHtml;
+
     protected $fillable = [
         'page_id',
         'type',
@@ -71,9 +74,9 @@ class PageSection extends Model
     {
         $locale = $locale ?? app()->getLocale();
 
-        return $this->content[$locale]
+        return $this->sanitizeHtml($this->content[$locale]
             ?? $this->content['es']
-            ?? '';
+            ?? '');
     }
 
     public function getButtonText($locale = null)
@@ -83,6 +86,11 @@ class PageSection extends Model
         return $this->button_text[$locale]
             ?? $this->button_text['es']
             ?? '';
+    }
+
+    public function getSafeButtonLinkAttribute(): ?string
+    {
+        return $this->sanitizeUrl($this->button_link, allowRelative: true);
     }
 
     /*

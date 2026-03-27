@@ -24,7 +24,7 @@ $quality = $page?->sections
             </div>
 
             @if($quality->getButtonText())
-            <a href="{{ $quality->button_link ?? '#' }}" class="quality-section__btn">
+            <a href="{{ $quality->safe_button_link ?? '#' }}" class="quality-section__btn">
                 {{ $quality->getButtonText() }}
             </a>
             @endif

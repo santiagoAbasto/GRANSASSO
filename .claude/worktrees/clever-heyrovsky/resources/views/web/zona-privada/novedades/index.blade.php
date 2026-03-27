@@ -1,0 +1,95 @@
+@extends('web.zona-privada.layouts.app')
+
+@section('title', __('ui.zona_privada.novedades'))
+
+@section('content')
+
+<div class="zp-section-wrap">
+
+    {{-- Breadcrumb --}}
+    <nav class="zp-breadcrumb" style="display:flex;align-items:center;gap:2px;padding-top:11px;padding-bottom:73px">
+        <a href="{{ route('home') }}" style="color:#1D1E20;font-family:'Open Sans',sans-serif;font-size:12px;font-weight:600;line-height:normal;text-decoration:none">
+            {{ __('ui.breadcrumb.home') }}
+        </a>
+        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12" fill="none" style="width:12px;height:12px;aspect-ratio:1/1;flex-shrink:0">
+            <path d="M4.5 9L7.5 6L4.5 3" stroke="#1D1E20" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span style="color:#1D1E20;font-family:'Open Sans',sans-serif;font-size:12px;font-weight:300;line-height:normal">
+            {{ __('ui.zona_privada.novedades') }}
+        </span>
+    </nav>
+
+    @if($novedades->isEmpty())
+    <div style="padding:48px;text-align:center;color:#6B7280;font-family:'Open Sans',sans-serif;font-size:14px">
+        No hay novedades disponibles.
+    </div>
+    @else
+
+    {{-- Grid de novedades --}}
+    <div class="zp-novedades-flex">
+
+        @foreach($novedades as $novedad)
+        <a href="{{ route('zona-privada.novedades.show', $novedad) }}" class="zp-novedad-item">
+
+            {{-- Imagen --}}
+            @if($novedad->image)
+            <div style="height:300px;align-self:stretch;border-radius:8px 8px 0 0;background:url('{{ Storage::url($novedad->image) }}') lightgray 50% / cover no-repeat;flex-shrink:0"></div>
+            @else
+            <div style="height:300px;align-self:stretch;border-radius:8px 8px 0 0;background:#F4F6FA;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#C0C0C0" stroke-width="1.5">
+                    <rect x="3" y="3" width="18" height="18" rx="2"/>
+                    <circle cx="8.5" cy="8.5" r="1.5"/>
+                    <polyline points="21 15 16 10 5 21"/>
+                </svg>
+            </div>
+            @endif
+
+            {{-- Contenido --}}
+            <div style="padding:24px 24px 25px 24px;display:flex;flex-direction:column;align-items:flex-start;flex:1;width:100%;box-sizing:border-box">
+
+                @php $cat = $novedad->getLocalizedCategory(); @endphp
+                @if($cat)
+                <span style="align-self:stretch;color:#1F589C;font-family:'Open Sans',sans-serif;font-size:14px;font-weight:700;line-height:150%">
+                    {{ $cat }}
+                </span>
+                @endif
+
+                <h3 style="align-self:stretch;color:#1D1E20;font-family:'Open Sans',sans-serif;font-size:24px;font-weight:600;line-height:120%;margin:7px 0 0">
+                    {{ $novedad->getLocalizedTitle() }}
+                </h3>
+
+                @php $excerpt = $novedad->getLocalizedExcerpt(); @endphp
+                @if($excerpt)
+                <p style="align-self:stretch;flex-shrink:0;color:#1D1E20;font-family:'Open Sans',sans-serif;font-size:16px;font-weight:400;line-height:150%;margin:43px 0 0;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical">
+                    {{ strip_tags($excerpt) }}
+                </p>
+                @endif
+
+                <div style="display:flex;align-items:center;justify-content:space-between;align-self:stretch;margin-top:auto;padding-top:26px">
+                    <span style="color:#1D1E20;font-family:'Open Sans',sans-serif;font-size:16px;font-weight:400;line-height:150%;opacity:0.5">
+                        {{ __('ui.zona_privada.read_more') }}
+                    </span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                        <path d="M8 0L6.59 1.41L12.17 7H0V9H12.17L6.59 14.59L8 16L16 8L8 0Z" fill="#414047"/>
+                    </svg>
+                </div>
+
+            </div>
+        </a>
+        @endforeach
+
+    </div>
+
+    {{-- Paginación --}}
+    @if($novedades->hasPages())
+    <div style="display:flex;justify-content:center;padding:40px 0 0">
+        {{ $novedades->links() }}
+    </div>
+    @endif
+
+    @endif
+
+</div>
+<div style="height:105px"></div>
+
+@endsection

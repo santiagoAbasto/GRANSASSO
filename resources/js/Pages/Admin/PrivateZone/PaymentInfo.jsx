@@ -184,8 +184,8 @@ export default function PaymentInfo({ bankInfo, submissions }) {
                                     <td className="px-4 py-3 text-gray-500">{s.branch || "—"}</td>
                                     <td className="px-4 py-3 text-gray-500">{s.invoices_cancelled || "—"}</td>
                                     <td className="px-4 py-3">
-                                        {s.file_path ? (
-                                            <a href={`/storage/${s.file_path}`} target="_blank" className="text-[#25A7CA] hover:underline text-xs font-semibold">
+                                        {s.download_url ? (
+                                            <a href={s.download_url} className="text-[#25A7CA] hover:underline text-xs font-semibold">
                                                 Ver
                                             </a>
                                         ) : "—"}
@@ -199,4 +199,3 @@ export default function PaymentInfo({ bankInfo, submissions }) {
         </AdminLayout>
     );
 }
-

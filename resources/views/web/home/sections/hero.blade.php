@@ -60,7 +60,7 @@
                 @endif
 
                 @if($slide->getButtonText())
-                <a href="{{ $slide->button_link }}" class="hero-btn">
+                <a href="{{ $slide->safe_button_link ?? '#' }}" class="hero-btn">
                     {{ $slide->getButtonText() }}
                 </a>
                 @endif

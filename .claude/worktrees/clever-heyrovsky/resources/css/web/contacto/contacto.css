@@ -1,0 +1,344 @@
+/* =============================================
+   CONTACTO PAGE
+   Banner: 400px total (header 121px + 279px visibles)
+   Contact section: info col + form
+   Map: iframe full-width
+============================================= */
+
+
+/* ══════════════════════════════════════════
+   BANNER
+══════════════════════════════════════════ */
+
+.contacto-banner {
+    position: relative;
+    width: 100%;
+    height: 400px;
+    margin-top: -121px;
+    overflow: hidden;
+}
+
+.contacto-banner__slide {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: 0;
+    transition: opacity 0.6s ease;
+}
+
+.contacto-banner__slide.active {
+    opacity: 1;
+}
+
+.contacto-banner__overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(31, 88, 156, 0.60);
+    mix-blend-mode: multiply;
+    z-index: 2;
+}
+
+.contacto-banner__inner {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    isolation: isolate;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.contacto-banner__topbar,
+.contacto-banner__bottom {
+    max-width: 1366px;
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    box-sizing: border-box;
+}
+
+.contacto-banner__topbar {
+    padding-top: 132px;
+    padding-left: 71px;
+    padding-right: 71px;
+    padding-bottom: 0;
+}
+
+.contacto-banner__bottom {
+    padding-top: 0;
+    padding-left: 71px;
+    padding-right: 71px;
+    padding-bottom: 96px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.contacto-banner__title {
+    color: #FFF;
+    font-family: "Open Sans", sans-serif;
+    font-size: 40px;
+    font-weight: 600;
+    line-height: normal;
+}
+
+.contacto-banner__breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.contacto-banner__bc-home {
+    color: #FFF;
+    font-family: "Open Sans", sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: normal;
+    text-decoration: none;
+    opacity: 1;
+    transition: opacity 0.2s;
+}
+
+.contacto-banner__bc-home:hover {
+    opacity: 0.8;
+}
+
+.contacto-banner__bc-sep {
+    flex-shrink: 0;
+    opacity: 1;
+}
+
+.contacto-banner__bc-current {
+    color: #FFF;
+    font-family: "Open Sans", sans-serif;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: normal;
+    opacity: 0.8;
+}
+
+/* Dots — pill shape */
+.contacto-banner__dots {
+    display: flex;
+    align-items: center;
+    gap: 6.75px;
+}
+.contacto-banner__dot {
+    display: block;
+    width: 37px;
+    height: 5px;
+    border-radius: 2.5px;
+    background: #ffffff;
+    opacity: 0.5;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    transition: opacity 0.3s ease;
+    flex-shrink: 0;
+}
+.contacto-banner__dot.active {
+    opacity: 1;
+}
+
+
+/* ══════════════════════════════════════════
+   MAP
+══════════════════════════════════════════ */
+
+.contacto-map {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    overflow: hidden;
+    margin-bottom: 76px;
+}
+
+.contacto-map__inner {
+    width: 100%;
+    max-width: 1224px;
+    height: 534px;
+    overflow: hidden;
+    position: relative;
+    border-radius: 10px;
+}
+
+.contacto-map__inner iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
+}
+
+.contacto-map__link {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.contacto-map__placeholder {
+    width: 100%;
+    height: 100%;
+    background: #e8ecef;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    color: #1F589C;
+    font-family: "Open Sans", sans-serif;
+    font-size: 15px;
+    gap: 8px;
+    transition: background 0.2s;
+}
+
+.contacto-map__placeholder:hover {
+    background: #d8dfe6;
+}
+
+
+/* ══════════════════════════════════════════
+   EMAIL LIST
+══════════════════════════════════════════ */
+
+.contact-info__col-items {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.contact-info__email-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.contact-info__label--link {
+    text-decoration: none;
+    transition: color .2s;
+}
+
+.contact-info__label--link:hover {
+    color: #136CBA;
+}
+
+
+/* ══════════════════════════════════════════
+   RESPONSIVE
+══════════════════════════════════════════ */
+
+@media (max-width: 1024px) {
+    .contacto-banner__topbar,
+    .contacto-banner__bottom {
+        padding-left: 24px;
+        padding-right: 24px;
+    }
+
+    .contact-grid {
+        grid-template-columns: 1fr;
+        gap: 32px;
+    }
+
+    .contact-form {
+        grid-column: span 1;
+    }
+
+    .contacto-map {
+        padding-left: 24px;
+        padding-right: 24px;
+        box-sizing: border-box;
+    }
+}
+
+@media (max-width: 768px) {
+    .contacto-banner {
+        height: 280px;
+        margin-top: -70px;
+    }
+
+    .contacto-banner__topbar {
+        padding-top: 82px;
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+
+    .contacto-banner__bottom {
+        padding-left: 16px;
+        padding-right: 16px;
+        padding-bottom: 32px;
+    }
+
+    .contacto-banner__title {
+        font-size: 24px;
+        white-space: normal;
+    }
+
+    .contacto-banner__dot {
+        width: 28px;
+        height: 4px;
+    }
+
+    .contact-page {
+        padding-top: 40px;
+        padding-bottom: 40px;
+    }
+
+    .contact-info__text {
+        font-size: 15px;
+    }
+
+    .contact-info__row,
+    .contact-info__col-items {
+        gap: 8px;
+    }
+
+    .contact-info__label {
+        font-size: 14px;
+    }
+
+    .contact-form__inner {
+        grid-template-columns: 1fr;
+        gap: 0;
+    }
+
+    .contact-form__submit-area {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+    }
+
+    .contact-form__btn {
+        width: 100%;
+    }
+
+    .contacto-map {
+        padding-left: 16px;
+        padding-right: 16px;
+        margin-bottom: 40px;
+    }
+
+    .contacto-map__inner {
+        height: 350px;
+        border-radius: 8px;
+    }
+}
+
+@media (max-width: 480px) {
+    .contacto-banner {
+        height: 240px;
+    }
+
+    .contacto-banner__title {
+        font-size: 20px;
+    }
+
+    .contacto-map__inner {
+        height: 260px;
+        border-radius: 6px;
+    }
+
+    .contact-info__items {
+        gap: 16px;
+    }
+}

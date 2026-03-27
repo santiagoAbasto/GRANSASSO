@@ -68,11 +68,11 @@ Route::get('/api/gearboxes', function (\Illuminate\Http\Request $request) {
 })->name('api.gearboxes');
 
 Route::get('/desarrollos-especiales',  [DesarrollosController::class, 'index'])->name('desarrollos');
-Route::post('/desarrollos-especiales', [DesarrollosController::class, 'store'])->name('desarrollos.store');
+Route::post('/desarrollos-especiales', [DesarrollosController::class, 'store'])->middleware('throttle:5,1')->name('desarrollos.store');
 
 Route::get('/calidad', [CalidadController::class, 'index'])->name('calidad');
 Route::get('/contacto',  [ContactoWebController::class, 'index'])->name('contacto');
-Route::post('/contacto', [ContactController::class, 'store'])->name('contact.store');
+Route::post('/contacto', [ContactController::class, 'store'])->middleware('throttle:5,1')->name('contact.store');
 
 // Idioma
 Route::get('/lang/{locale}', function (string $locale) {
@@ -84,7 +84,7 @@ Route::get('/lang/{locale}', function (string $locale) {
 })->name('lang.switch');
 
 // Newsletter
-Route::post('/newsletter', [NewsletterController::class, 'store'])->name('newsletter.store');
+Route::post('/newsletter', [NewsletterController::class, 'store'])->middleware('throttle:5,1')->name('newsletter.store');
 
 /*
 |--------------------------------------------------------------------------
@@ -95,10 +95,10 @@ Route::post('/newsletter', [NewsletterController::class, 'store'])->name('newsle
 Route::prefix('zona-privada')->name('zona-privada.')->group(function () {
 
     // Auth (pública)
-    Route::post('/login',       [ZPAuthController::class, 'login'])->name('login');
+    Route::post('/login',       [ZPAuthController::class, 'login'])->middleware('throttle:5,1')->name('login');
     Route::post('/logout',      [ZPAuthController::class, 'logout'])->name('logout');
     Route::get('/registrarse',  [ZPAuthController::class, 'showRegister'])->name('register');
-    Route::post('/registrarse', [ZPAuthController::class, 'register'])->name('register.store');
+    Route::post('/registrarse', [ZPAuthController::class, 'register'])->middleware('throttle:3,10')->name('register.store');
 
     // Secciones protegidas por guard 'client'
     Route::middleware('auth.client')->group(function () {
@@ -106,7 +106,7 @@ Route::prefix('zona-privada')->name('zona-privada.')->group(function () {
         Route::get('/lista-precios/{priceList}/view', [ListaPreciosController::class, 'view'])->name('lista-precios.view');
         Route::get('/lista-precios/{priceList}/download', [ListaPreciosController::class, 'download'])->name('lista-precios.download');
         Route::get('/info-pagos',             [InfoPagosController::class, 'index'])->name('info-pagos');
-        Route::post('/info-pagos',            [InfoPagosController::class, 'store'])->name('info-pagos.store');
+        Route::post('/info-pagos',            [InfoPagosController::class, 'store'])->middleware('throttle:5,10')->name('info-pagos.store');
         Route::get('/novedades',              [NovedadesController::class, 'index'])->name('novedades');
         Route::get('/novedades/{novedad}',    [NovedadesController::class, 'show'])->name('novedades.show');
     });
@@ -121,7 +121,7 @@ Route::prefix('zona-privada')->name('zona-privada.')->group(function () {
 Route::prefix('admin')->name('admin.')->group(function () {
 
     // ── Autenticado ────────────────────────────────────────────────────
-    Route::middleware(['auth', 'verified'])->group(function () {
+    Route::middleware(['auth', 'verified', 'admin.access'])->group(function () {
 
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
@@ -199,6 +199,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // ── Mensajes de Desarrollos ───────────────────────────────────────
         Route::get('/desarrollos-messages',                         [DesarrollosMessageController::class, 'index'])->name('desarrollos-messages.index');
         Route::get('/desarrollos-messages/{desarrollosMessage}',    [DesarrollosMessageController::class, 'show'])->name('desarrollos-messages.show');
+        Route::get('/desarrollos-messages/{desarrollosMessage}/download', [DesarrollosMessageController::class, 'download'])->name('desarrollos-messages.download');
         Route::delete('/desarrollos-messages/{desarrollosMessage}', [DesarrollosMessageController::class, 'destroy'])->name('desarrollos-messages.destroy');
 
         // ── Secciones genéricas ───────────────────────────────────────────
@@ -246,6 +247,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         Route::get('/payment-info',                [AdminPaymentInfoController::class, 'index'])->name('payment-info.index');
         Route::post('/payment-info',               [AdminPaymentInfoController::class, 'update'])->name('payment-info.update');
+        Route::get('/payment-submissions/{submission}/download', [AdminPaymentInfoController::class, 'downloadSubmission'])->name('payment-submissions.download');
 
         Route::get('/private-novedades',                          [NovedadAdminController::class, 'index'])->name('private-novedades.index');
         Route::post('/private-novedades',                         [NovedadAdminController::class, 'store'])->name('private-novedades.store');

@@ -246,6 +246,7 @@ class CmsController extends Controller
         ]);
 
         $data = $this->sanitizeDataFields($data, ['title', 'subtitle', 'content', 'button_text']);
+        $buttonLink = $this->sanitizeUrl($data['button_link'] ?? null, allowRelative: true);
 
         $imagePath = null;
         if ($request->hasFile('image')) {
@@ -258,7 +259,7 @@ class CmsController extends Controller
             'subtitle'    => ['es' => $data['subtitle_es'] ?? null, 'en' => $data['subtitle_en'] ?? null, 'pt' => $data['subtitle_pt'] ?? null],
             'content'     => ['es' => $data['content_es'] ?? null, 'en' => $data['content_en'] ?? null, 'pt' => $data['content_pt'] ?? null],
             'button_text' => ['es' => $data['button_text_es'] ?? null, 'en' => $data['button_text_en'] ?? null, 'pt' => $data['button_text_pt'] ?? null],
-            'button_link' => $data['button_link'] ?? null,
+            'button_link' => $buttonLink,
             'order'       => strtoupper(trim($data['order'] ?? 'A')),
             'is_active'   => $data['is_active'] ?? true,
             'image'       => $imagePath,
@@ -291,6 +292,9 @@ class CmsController extends Controller
         ]);
 
         $data = $this->sanitizeDataFields($data, ['title', 'subtitle', 'content', 'button_text']);
+        $buttonLink = array_key_exists('button_link', $data)
+            ? $this->sanitizeUrl($data['button_link'], allowRelative: true)
+            : $section->button_link;
 
         $imagePath = $section->image;
         if ($request->hasFile('image')) {
@@ -307,7 +311,7 @@ class CmsController extends Controller
             'subtitle'    => array_merge($existing('subtitle'),    ['es' => $data['subtitle_es'] ?? null, 'en' => $data['subtitle_en'] ?? null, 'pt' => $data['subtitle_pt'] ?? null]),
             'content'     => array_merge($existing('content'),     ['es' => $data['content_es'] ?? null, 'en' => $data['content_en'] ?? null, 'pt' => $data['content_pt'] ?? null]),
             'button_text' => array_merge($existing('button_text'), ['es' => $data['button_text_es'] ?? null, 'en' => $data['button_text_en'] ?? null, 'pt' => $data['button_text_pt'] ?? null]),
-            'button_link' => $data['button_link'] ?? $section->button_link,
+            'button_link' => $buttonLink,
             'order'       => isset($data['order']) ? strtoupper(trim($data['order'])) : $section->order,
             'is_active'   => $data['is_active']   ?? $section->is_active,
             'image'       => $imagePath,
@@ -460,7 +464,7 @@ class CmsController extends Controller
             'address'   => $request->input('address', ''),
             'phones'    => array_values(array_filter($request->input('phones', []))),
             'emails'    => array_values(array_filter($request->input('emails', []))),
-            'map_embed' => $request->input('map_embed', ''),
+            'map_embed' => $this->sanitizeMapEmbed($request->input('map_embed', '')),
         ]]);
 
         return back()->with('success', 'Datos de contacto actualizados.');

@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use App\Traits\SanitizesHtml;
 use Illuminate\Database\Eloquent\Model;
 
 class Slider extends Model
 {
+    use SanitizesHtml;
+
     protected $fillable = [
         'title',
         'subtitle',
@@ -54,6 +57,11 @@ class Slider extends Model
         return $this->button_text[$locale]
             ?? $this->button_text['es']
             ?? '';
+    }
+
+    public function getSafeButtonLinkAttribute(): ?string
+    {
+        return $this->sanitizeUrl($this->button_link, allowRelative: true);
     }
 
     /*

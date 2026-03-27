@@ -37,7 +37,7 @@ class InfoPagosController extends Controller
 
         $filePath = null;
         if ($request->hasFile('file')) {
-            $filePath = $request->file('file')->store('payment-submissions', 'public');
+            $filePath = $request->file('file')->store('payment-submissions', 'local');
         }
 
         $user = Auth::guard('client')->user();
