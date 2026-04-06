@@ -59,7 +59,10 @@ export default function HeroEdit({ slide }) {
         button_text_en: slide.button_text_en ?? "",
         button_text_pt: slide.button_text_pt ?? "",
         button_link:    slide.button_link    ?? "",
+        media_type:     slide.media_type     ?? "image",
         image:          null,
+        video_url:      slide.video_url      ?? "",
+        video_file:     null,
         order:          slide.order          ?? "A",
         is_active:      slide.is_active      ?? true,
     });
@@ -83,20 +86,76 @@ export default function HeroEdit({ slide }) {
                 </div>
 
                 <form onSubmit={submit} className="space-y-6">
-                    {/* Imagen */}
+                    {/* Media */}
                     <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-                        <h2 className="font-semibold text-gray-700 mb-4">Imagen</h2>
+                        <h2 className="font-semibold text-gray-700 mb-4">Media del slide</h2>
+
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-5">
+                            {[
+                                { value: "image", label: "Imagen" },
+                                { value: "youtube", label: "YouTube embebido" },
+                                { value: "video", label: "Video local" },
+                            ].map((option) => (
+                                <label key={option.value} className="flex items-center gap-2 border border-gray-200 rounded-xl px-4 py-3 cursor-pointer">
+                                    <input
+                                        type="radio"
+                                        name="media_type"
+                                        value={option.value}
+                                        checked={data.media_type === option.value}
+                                        onChange={() => setData("media_type", option.value)}
+                                    />
+                                    <span className="text-sm text-gray-700">{option.label}</span>
+                                </label>
+                            ))}
+                        </div>
+
                         {slide.media_url && (
                             <div className="mb-4 rounded-xl overflow-hidden h-40 bg-gray-100">
-                                <img src={slide.media_url} alt="Slide actual" className="w-full h-full object-cover" />
+                                {slide.media_type === "image" ? (
+                                    <img src={slide.media_url} alt="Slide actual" className="w-full h-full object-cover" />
+                                ) : slide.media_type === "video" ? (
+                                    <video src={slide.media_url} className="w-full h-full object-cover" muted playsInline />
+                                ) : (
+                                    <div className="w-full h-full flex items-center justify-center bg-gray-800 text-white text-sm px-4 text-center">
+                                        Video de YouTube configurado
+                                    </div>
+                                )}
                             </div>
                         )}
-                        <ImageUploadField
-                            label="Reemplazar imagen"
-                            onChange={(f) => setData("image", f)}
-                            specs={{ width: 1440, height: 680, maxMB: 5, formats: ["JPG", "PNG"] }}
-                            error={errors.image}
-                        />
+
+                        {data.media_type === "image" && (
+                            <ImageUploadField
+                                label="Reemplazar imagen"
+                                onChange={(f) => setData("image", f)}
+                                specs={{ width: 1440, height: 680, maxMB: 5, formats: ["JPG", "PNG"] }}
+                                error={errors.image}
+                            />
+                        )}
+
+                        {data.media_type === "youtube" && (
+                            <div>
+                                <label className="block text-sm font-medium text-gray-600 mb-1">Link de YouTube</label>
+                                <input
+                                    type="url"
+                                    value={data.video_url}
+                                    onChange={(e) => setData("video_url", e.target.value)}
+                                    placeholder="https://www.youtube.com/watch?v=..."
+                                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#25A7CA]/30"
+                                />
+                                {errors.video_url && <p className="text-red-500 text-xs mt-1">{errors.video_url}</p>}
+                            </div>
+                        )}
+
+                        {data.media_type === "video" && (
+                            <ImageUploadField
+                                label="Reemplazar video local"
+                                onChange={(f) => setData("video_file", f)}
+                                accept="video/mp4,video/quicktime,video/webm"
+                                showPreview={false}
+                                specs={{ maxMB: 50, formats: ["MP4", "MOV", "WEBM"] }}
+                                error={errors.video_file}
+                            />
+                        )}
                     </div>
 
                     {/* Contenido multilenguaje */}

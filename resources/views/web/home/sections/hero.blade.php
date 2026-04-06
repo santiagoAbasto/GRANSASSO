@@ -4,35 +4,33 @@
 
     {{-- SLIDES BACKGROUND --}}
     @foreach($slides as $index => $slide)
-    @if($slide->media_type === 'video' && $slide->video_url)
-        @php
-            $embedUrl = null;
-            $url = $slide->video_url;
-            if (preg_match('/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]+)/', $url, $m)) {
-                $embedUrl = 'https://www.youtube.com/embed/' . $m[1] . '?autoplay=1&mute=1&loop=1&controls=0&showinfo=0&rel=0&playlist=' . $m[1];
-            }
-        @endphp
-        @if($embedUrl)
-        <div class="hero-slide {{ $index === 0 ? 'active' : '' }}"
-             data-index="{{ $index }}"
-             style="transform: none;">
+    @if($slide->media_type === 'youtube' && $slide->youtube_embed_url)
+        <div class="hero-slide hero-slide--youtube {{ $index === 0 ? 'active' : '' }}"
+             data-index="{{ $index }}">
             <iframe
-                src="{{ $index === 0 ? $embedUrl : '' }}"
-                data-src="{{ $embedUrl }}"
+                src="{{ $index === 0 ? $slide->youtube_embed_url : '' }}"
+                data-src="{{ $slide->youtube_embed_url }}"
+                class="hero-slide__iframe"
                 title="Video slide {{ $index + 1 }}"
-                style="width:100%; height:100%; border:none; position:absolute; inset:0; object-fit:cover; pointer-events:none;"
                 allow="autoplay; encrypted-media"
                 allowfullscreen
             ></iframe>
         </div>
-        @else
-        <div class="hero-slide {{ $index === 0 ? 'active' : '' }}"
-             data-index="{{ $index }}"
-             style="background-image: url('{{ $slide->media_url }}');">
+    @elseif($slide->media_type === 'video' && $slide->media_url)
+        <div class="hero-slide hero-slide--video {{ $index === 0 ? 'active' : '' }}"
+             data-index="{{ $index }}">
+            <video
+                class="hero-slide__video"
+                src="{{ $slide->media_url }}"
+                {{ $index === 0 ? 'autoplay' : '' }}
+                muted
+                loop
+                playsinline
+                preload="metadata"
+            ></video>
         </div>
-        @endif
     @else
-    <div class="hero-slide {{ $index === 0 ? 'active' : '' }}"
+    <div class="hero-slide hero-slide--image {{ $index === 0 ? 'active' : '' }}"
          data-index="{{ $index }}"
          style="background-image: url('{{ $slide->media_url }}');">
     </div>

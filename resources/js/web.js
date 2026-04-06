@@ -163,7 +163,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     /* =============================================
        HERO SLIDER
-       - Auto-avance cada 6s
+       - Auto-avance cada 20s
        - Dots sincronizan con el slide activo
        - Click en dot navega al slide correspondiente
        - Funciona con cualquier cantidad de slides
@@ -182,13 +182,37 @@ document.addEventListener("DOMContentLoaded", () => {
             let currentIndex = 0;
             let autoplay;
 
+            function stopSlideMedia(slide) {
+                const iframe = slide.querySelector("iframe");
+                const video = slide.querySelector("video");
+
+                if (iframe) iframe.src = "";
+
+                if (video) {
+                    video.pause();
+                    video.currentTime = 0;
+                }
+            }
+
+            function startSlideMedia(slide) {
+                const iframe = slide.querySelector("iframe");
+                const video = slide.querySelector("video");
+
+                if (iframe && iframe.dataset.src) {
+                    iframe.src = iframe.dataset.src;
+                }
+
+                if (video) {
+                    video.play().catch(() => {});
+                }
+            }
+
             function heroGoTo(index) {
                 slides[currentIndex].classList.remove("active");
                 if (dots[currentIndex])     dots[currentIndex].classList.remove("active");
                 if (contents[currentIndex]) contents[currentIndex].classList.remove("active");
 
-                const oldIframe = slides[currentIndex].querySelector("iframe");
-                if (oldIframe) oldIframe.src = "";
+                stopSlideMedia(slides[currentIndex]);
 
                 currentIndex = (index + slides.length) % slides.length;
 
@@ -196,14 +220,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (dots[currentIndex])     dots[currentIndex].classList.add("active");
                 if (contents[currentIndex]) contents[currentIndex].classList.add("active");
 
-                const newIframe = slides[currentIndex].querySelector("iframe");
-                if (newIframe && newIframe.dataset.src) {
-                    newIframe.src = newIframe.dataset.src;
-                }
+                startSlideMedia(slides[currentIndex]);
             }
 
             function startAutoplay() {
-                autoplay = setInterval(() => heroGoTo(currentIndex + 1), 6000);
+                autoplay = setInterval(() => heroGoTo(currentIndex + 1), 20000);
             }
 
             function resetAutoplay() {
@@ -218,6 +239,11 @@ document.addEventListener("DOMContentLoaded", () => {
             });
 
             startAutoplay();
+        } else if (slides.length === 1) {
+            const onlyVideo = slides[0].querySelector("video");
+            if (onlyVideo) {
+                onlyVideo.play().catch(() => {});
+            }
         }
     }
 

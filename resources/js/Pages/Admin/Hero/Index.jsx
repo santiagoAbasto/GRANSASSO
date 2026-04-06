@@ -45,6 +45,10 @@ export default function HeroIndex({ slides }) {
                                 <div className="w-full h-full flex items-center justify-center bg-gray-800 text-white">
                                     <Icon icon="solar:play-circle-outline" width={40} />
                                 </div>
+                            ) : slide.media_type === 'youtube' ? (
+                                <div className="w-full h-full flex items-center justify-center bg-red-50 text-red-600">
+                                    <Icon icon="solar:video-frame-play-vertical-outline" width={40} />
+                                </div>
                             ) : (
                                 <div className="w-full h-full flex items-center justify-center text-gray-300">
                                     <Icon icon="solar:gallery-outline" width={40} />
@@ -71,8 +75,14 @@ export default function HeroIndex({ slides }) {
                             <p className="font-semibold text-gray-800 truncate">{slide.title || '(Sin título)'}</p>
                             <p className="text-xs text-gray-500 mt-0.5 truncate">{slide.subtitle || '—'}</p>
                             <div className="flex items-center gap-1 mt-4">
-                                <span className={`text-xs px-2 py-0.5 rounded-full ${slide.media_type === 'video' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'}`}>
-                                    {slide.media_type === 'video' ? 'Video' : 'Imagen'}
+                                <span className={`text-xs px-2 py-0.5 rounded-full ${
+                                    slide.media_type === 'video'
+                                        ? 'bg-purple-100 text-purple-700'
+                                        : slide.media_type === 'youtube'
+                                            ? 'bg-red-100 text-red-700'
+                                            : 'bg-blue-100 text-blue-700'
+                                }`}>
+                                    {slide.media_type === 'video' ? 'Video local' : slide.media_type === 'youtube' ? 'YouTube' : 'Imagen'}
                                 </span>
                             </div>
                             <div className="flex gap-2 mt-4">
