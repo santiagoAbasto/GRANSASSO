@@ -95,7 +95,7 @@ trait SanitizesHtml
             return null;
         }
 
-        if ($allowRelative && preg_match('#^(\/|#)#', $url)) {
+        if ($allowRelative && (str_starts_with($url, '/') || str_starts_with($url, '#'))) {
             return $url;
         }
 

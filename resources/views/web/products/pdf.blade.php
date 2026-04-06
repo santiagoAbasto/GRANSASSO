@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="{{ str_replace('_', '-', $locale ?? app()->getLocale()) }}">
 <head>
 <meta charset="UTF-8">
 <style>
@@ -224,6 +224,7 @@ body {
 @php
     $gsLogo    = storage_path('app/public/images/logos/logo-color.png');
     $gsLogoSvg = storage_path('app/public/images/logos/logo-color.svg');
+    $generatedAt = now('America/Argentina/Buenos_Aires')->format('d/m/Y H:i');
 
     if (file_exists($gsLogoSvg)) {
         $logoPath = $gsLogoSvg;
@@ -247,8 +248,8 @@ body {
         @endif
     </div>
     <div class="hd__r">
-        <div style="font-size:16px; font-weight:bold; color:#1F589C; letter-spacing:1px; text-transform:uppercase;">FICHA TÉCNICA</div>
-        <div style="font-size:7px; font-weight:bold; color:#9CA3AF; text-transform:uppercase; letter-spacing:2px; margin-top:3px;">Información de Producto</div>
+        <div style="font-size:16px; font-weight:bold; color:#1F589C; letter-spacing:1px; text-transform:uppercase;">{{ __('ui.product_pdf.title') }}</div>
+        <div style="font-size:7px; font-weight:bold; color:#9CA3AF; text-transform:uppercase; letter-spacing:2px; margin-top:3px;">{{ __('ui.product_pdf.product_information') }}</div>
     </div>
 </div>
 
@@ -282,7 +283,7 @@ body {
                 <img src="{{ storage_path('app/public/' . $mainImage->path) }}" alt="{{ $oemCode }}">
             @else
                 <div style="height:130px; display:table; width:100%;">
-                    <div style="display:table-cell; vertical-align:middle; text-align:center; color:#D1D5DB; font-size:8px; text-transform:uppercase; letter-spacing:1px;">Sin imagen</div>
+                    <div style="display:table-cell; vertical-align:middle; text-align:center; color:#D1D5DB; font-size:8px; text-transform:uppercase; letter-spacing:1px;">{{ __('ui.product_pdf.no_image') }}</div>
                 </div>
             @endif
         </div>
@@ -302,29 +303,29 @@ body {
 
         {{-- Especificaciones --}}
         @if($codeGs || $figure || $refOriginal || $refsAdicionales->isNotEmpty() || $altOemCodes->isNotEmpty())
-        <div class="sec">Especificaciones</div>
+        <div class="sec">{{ __('ui.product_pdf.specifications') }}</div>
         <table class="dt">
             @if($codeGs)
-            <tr><td>Código GS</td><td>{{ $codeGs }}</td></tr>
+            <tr><td>{{ __('ui.product_pdf.gs_code') }}</td><td>{{ $codeGs }}</td></tr>
             @endif
             @if($figure)
-            <tr><td>Figura</td><td>{{ $figure }}</td></tr>
+            <tr><td>{{ __('ui.product_pdf.figure') }}</td><td>{{ $figure }}</td></tr>
             @endif
             @if($refOriginal)
-            <tr><td>Ref. Original</td><td>{{ $refOriginal }}</td></tr>
+            <tr><td>{{ __('ui.product_pdf.original_ref') }}</td><td>{{ $refOriginal }}</td></tr>
             @endif
             @if($refsAdicionales->isNotEmpty())
-            <tr><td>Refs. Adicionales</td><td>{{ $refsAdicionales->implode(' ; ') }}</td></tr>
+            <tr><td>{{ __('ui.product_pdf.additional_refs') }}</td><td>{{ $refsAdicionales->implode(' ; ') }}</td></tr>
             @endif
             @if($altOemCodes->isNotEmpty())
-            <tr><td>OEMs Alternativos</td><td>{{ $altOemCodes->implode(' / ') }}</td></tr>
+            <tr><td>{{ __('ui.product_pdf.alt_oem_codes') }}</td><td>{{ $altOemCodes->implode(' / ') }}</td></tr>
             @endif
         </table>
         @endif
 
         {{-- Aplicaciones --}}
         @if($applications->isNotEmpty())
-        <div class="sec">Aplicaciones Compatibles</div>
+        <div class="sec">{{ __('ui.product_pdf.compatible_applications') }}</div>
         <table class="apps">
             @foreach($applications as $app)
             <tr><td>{{ $app }}</td></tr>
@@ -334,7 +335,7 @@ body {
 
         {{-- Descripción --}}
         @if($productDesc)
-        <div class="sec">Descripción</div>
+        <div class="sec">{{ __('ui.product_pdf.description') }}</div>
         <div class="desc">{{ ucfirst(mb_strtolower($productDesc)) }}</div>
         @endif
 
@@ -343,19 +344,19 @@ body {
 
 {{-- ── GEARBOX ──────────────────────────────────────────────────────── --}}
 <div class="gb">
-    <div class="gb__title">Transmisión · Caja de Cambios</div>
+    <div class="gb__title">{{ __('ui.product_pdf.transmission_gearbox') }}</div>
     <div class="gb__grid">
         <div class="gb__cell">
-            <div class="gb__label">Marca</div>
+            <div class="gb__label">{{ __('ui.product_pdf.brand') }}</div>
             <div class="gb__value">{{ $brand->getName() }}</div>
         </div>
         <div class="gb__cell">
-            <div class="gb__label">Modelo</div>
-            <div class="gb__value">{{ $gearbox->name }}</div>
+            <div class="gb__label">{{ __('ui.product_pdf.model') }}</div>
+            <div class="gb__value">{{ lang($gearbox->name) }}</div>
         </div>
         @if($variants->isNotEmpty())
         <div class="gb__cell">
-            <div class="gb__label">Variantes</div>
+            <div class="gb__label">{{ __('ui.product_pdf.variants') }}</div>
             <div style="margin-top:3px;">
                 @foreach($variants as $v)<span class="badge">{{ $v }}</span>@endforeach
             </div>
@@ -363,17 +364,17 @@ body {
         @endif
     </div>
 
-    @if($gearbox->compatible_vehicles)
+    @if(lang($gearbox->compatible_vehicles))
     <div class="gb__compat">
-        <div class="gb__compat-label">Vehículos Típicamente Compatibles</div>
-        <div class="gb__compat-val">{{ $gearbox->compatible_vehicles }}</div>
+        <div class="gb__compat-label">{{ __('ui.product_pdf.compatible_vehicles') }}</div>
+        <div class="gb__compat-val">{{ lang($gearbox->compatible_vehicles) }}</div>
     </div>
     @endif
 </div>
 
 {{-- ── FOOTER IN FLOW ────────────────────────────────────────────── --}}
 <div class="footer-flow">
-    <strong style="color:#6B7280;">GranSasso Repuestos</strong> &nbsp;·&nbsp; FICHA TÉCNICA GENERADA EL {{ now('America/Argentina/Buenos_Aires')->format('d/m/Y H:i') }}
+    <strong style="color:#6B7280;">GranSasso Repuestos</strong> &nbsp;·&nbsp; {{ __('ui.product_pdf.generated_on', ['date' => $generatedAt]) }}
 </div>
 
 </body>

@@ -104,6 +104,28 @@ return [
         'zoom'            => 'Zoom image',
     ],
 
+    /* ── Product PDF ── */
+    'product_pdf' => [
+        'title'                   => 'Technical sheet',
+        'product_information'     => 'Product information',
+        'no_image'                => 'No image',
+        'specifications'          => 'Specifications',
+        'gs_code'                 => 'GS Code',
+        'figure'                  => 'Figure',
+        'original_ref'            => 'Original Ref.',
+        'additional_refs'         => 'Additional Refs.',
+        'alt_oem_codes'           => 'Alternative OEM Codes',
+        'compatible_applications' => 'Compatible Applications',
+        'description'             => 'Description',
+        'transmission_gearbox'    => 'Transmission · Gearbox',
+        'brand'                   => 'Brand',
+        'model'                   => 'Model',
+        'variants'                => 'Variants',
+        'compatible_vehicles'     => 'Typically Compatible Vehicles',
+        'generated_on'            => 'TECHNICAL SHEET GENERATED ON :date',
+        'file_name_prefix'        => 'technical-sheet',
+    ],
+
     /* ── Private Zone ── */
     'zona_privada' => [
         'login_title'      => 'Sign in',

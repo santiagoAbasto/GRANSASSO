@@ -98,6 +98,8 @@ class ProductController extends Controller
      */
     public function pdf($brandSlug, $gearboxSlug, $productCode)
     {
+        $locale = app()->getLocale();
+
         $brand = Brand::where('slug', $brandSlug)->firstOrFail();
 
         $gearbox = Gearbox::where('slug', $gearboxSlug)
@@ -131,10 +133,12 @@ class ProductController extends Controller
         $pdf = Pdf::loadView('web.products.pdf', compact(
             'brand', 'gearbox', 'product', 'oemCode', 'productName', 'productDesc',
             'refOriginal', 'refsAdicionales', 'altOemCodes', 'applications', 'variants',
-            'mainImage', 'allImages', 'codeGs', 'figure'
+            'mainImage', 'allImages', 'codeGs', 'figure', 'locale'
         ))->setPaper('a4');
 
-        return $pdf->stream("ficha-{$oemCode}.pdf");
+        $prefix = __('ui.product_pdf.file_name_prefix');
+
+        return $pdf->stream("{$prefix}-{$oemCode}.pdf");
     }
 
     /**

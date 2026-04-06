@@ -104,6 +104,28 @@ return [
         'zoom'            => 'Ampliar imagem',
     ],
 
+    /* ── PDF do produto ── */
+    'product_pdf' => [
+        'title'                   => 'Ficha técnica',
+        'product_information'     => 'Informações do produto',
+        'no_image'                => 'Sem imagem',
+        'specifications'          => 'Especificações',
+        'gs_code'                 => 'Código GS',
+        'figure'                  => 'Figura',
+        'original_ref'            => 'Ref. Original',
+        'additional_refs'         => 'Refs. Adicionais',
+        'alt_oem_codes'           => 'OEMs Alternativos',
+        'compatible_applications' => 'Aplicações Compatíveis',
+        'description'             => 'Descrição',
+        'transmission_gearbox'    => 'Transmissão · Caixa de Câmbio',
+        'brand'                   => 'Marca',
+        'model'                   => 'Modelo',
+        'variants'                => 'Variantes',
+        'compatible_vehicles'     => 'Veículos Tipicamente Compatíveis',
+        'generated_on'            => 'FICHA TÉCNICA GERADA EM :date',
+        'file_name_prefix'        => 'ficha-tecnica',
+    ],
+
     /* ── Área Privada ── */
     'zona_privada' => [
         'login_title'      => 'Entrar',

@@ -597,8 +597,8 @@ body {
     .nav-container,
     .footer__container,
     .footer__bottom-inner {
-        padding-left: 16px;
-        padding-right: 16px;
+        padding-left: 20px;
+        padding-right: 20px;
     }
 
     /* ── Hero: descuenta los 70px del navbar fijo para que llene exactamente la pantalla ── */
@@ -910,7 +910,12 @@ body {
 
     .footer__bottom {
         margin-top: 32px;
-        padding-bottom: 40px;
+        padding-bottom: calc(56px + env(safe-area-inset-bottom, 0px));
+    }
+
+    .footer__bottom-inner {
+        padding-right: 20px;
+        padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
     }
 
     /* ── Breadcrumb ── */
@@ -923,8 +928,8 @@ body {
     .whatsapp-float {
         width: 52px;
         height: 52px;
-        right: 16px;
-        bottom: 16px;
+        right: 20px;
+        bottom: 66px;
     }
 
     .whatsapp-float svg {
@@ -1065,10 +1070,11 @@ body {
 
 @media (max-width: 1024px) {
 
-    .navbar--home .hamburger__line {
-        background: #101010;
+    .navbar:not(.navbar--light) .hamburger__line {
+        background: #FFFFFF;
     }
-    .navbar:not(.navbar--home) .hamburger__line {
+
+    .navbar--light .hamburger__line {
         background: #136CBA;
     }
 
