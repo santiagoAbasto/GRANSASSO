@@ -53,13 +53,9 @@
 
                         {{-- Imagen --}}
                         <div class="gearbox-card__img">
-                            @if($gearbox->image)
-                                <img src="{{ asset('storage/' . $gearbox->image) }}"
+                            @if($gearbox->resolved_image_url)
+                                <img src="{{ $gearbox->resolved_image_url }}"
                                      alt="{{ $gearbox->name }}"
-                                     loading="lazy">
-                            @elseif($brand->logo)
-                                <img src="{{ asset('storage/' . $brand->logo) }}"
-                                     alt="{{ $brand->getName() }}"
                                      loading="lazy">
                             @else
                                 <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64"

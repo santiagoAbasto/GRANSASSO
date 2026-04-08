@@ -11,9 +11,8 @@ class EnsureAdminAccess
     public function handle(Request $request, Closure $next): Response
     {
         $user = $request->user();
-        $allowedEmails = config('security.admin_allowed_emails', []);
 
-        if (! $user || ! in_array(strtolower($user->email), $allowedEmails, true)) {
+        if (! $user || ! $user->isAdmin()) {
             abort(403, 'No tienes permisos para acceder al panel de administracion.');
         }
 

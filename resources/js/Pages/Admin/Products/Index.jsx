@@ -23,6 +23,7 @@ export default function ProductsIndex({ products, brands, gearboxes }) {
     const [bulkPrimary,    setBulkPrimary]  = useState(0);
     const [bulkPreviews,   setBulkPreviews] = useState([]);
     const [bulkUploading,  setBulkUploading] = useState(false);
+    const selectedGearbox = gearboxes.find((g) => String(g.id) === String(gearboxId)) || null;
 
     const applyFilters = () => {
         router.get(
@@ -79,6 +80,13 @@ export default function ProductsIndex({ products, brands, gearboxes }) {
     const destroy = (id) => {
         if (!confirm("¿Eliminar este producto y todos sus items?")) return;
         router.delete(`/admin/products/${id}`);
+    };
+
+    const destroyByGearbox = () => {
+        if (!gearboxId || !selectedGearbox) return;
+        const total = products.total ?? products.data.length;
+        if (!confirm(`¿Eliminar todos los productos de "${selectedGearbox.name}"? La caja se conservará, pero se borrarán ${total} producto(s).`)) return;
+        router.delete(`/admin/gearboxes/${selectedGearbox.id}/products`);
     };
 
     const Th = ({ children, className = "" }) => (
@@ -262,6 +270,30 @@ export default function ProductsIndex({ products, brands, gearboxes }) {
                     </div>
                 )}
 
+                {urlGearboxId && (
+                    <div className="bg-white border border-red-200 rounded-2xl p-5 mb-5 shadow-sm">
+                        <div className="flex items-start gap-3">
+                            <div className="w-10 h-10 rounded-xl bg-red-50 text-red-500 flex items-center justify-center flex-shrink-0">
+                                <Icon icon="solar:danger-triangle-outline" width={19} />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                                <p className="text-sm font-semibold text-gray-700">Eliminar productos de la caja</p>
+                                <p className="text-xs text-gray-400 mt-1">
+                                    Se eliminarán los {products.total ?? products.data.length} producto(s) de {selectedGearbox?.name ?? "la caja seleccionada"}.
+                                    La caja, su marca y sus campos extra se conservan.
+                                </p>
+                            </div>
+                            <button
+                                onClick={destroyByGearbox}
+                                disabled={!selectedGearbox || (products.total ?? products.data.length) === 0}
+                                className="px-4 py-2 bg-red-500 hover:bg-red-600 disabled:opacity-40 text-white rounded-xl text-sm font-semibold transition"
+                            >
+                                Eliminar todo
+                            </button>
+                        </div>
+                    </div>
+                )}
+
                 {/* ── Tabla ───────────────────────────────────────────────── */}
                 <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-x-auto">
                     <table className="w-full text-sm border-collapse">
@@ -435,7 +467,14 @@ export default function ProductsIndex({ products, brands, gearboxes }) {
                                 <tr>
                                     <td colSpan={9} className="py-16 text-center">
                                         <Icon icon="solar:box-outline" width={36} className="text-gray-200 mx-auto mb-2" />
-                                        <p className="text-sm text-gray-400">Sin productos. Usá el importador Excel o creá uno manualmente.</p>
+                                        <p className="text-sm text-gray-400">No hay productos cargados. Ve al importador para subir el Excel o crea uno manualmente.</p>
+                                        <button
+                                            onClick={() => router.visit("/admin/import")}
+                                            className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-[#25A7CA] text-white rounded-xl text-sm font-medium hover:bg-[#1d96b8] transition"
+                                        >
+                                            <Icon icon="solar:upload-outline" width={16} />
+                                            Ir al importador
+                                        </button>
                                     </td>
                                 </tr>
                             )}

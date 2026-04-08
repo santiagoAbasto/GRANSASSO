@@ -5,10 +5,11 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Imports\CatalogProductsImport;
 use App\Imports\ProductsImport;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
-use Maatwebsite\Excel\Concerns\ToArray;
 use Maatwebsite\Excel\Facades\Excel;
+use PhpOffice\PhpSpreadsheet\IOFactory;
 
 class ImportController extends Controller
 {
@@ -64,21 +65,23 @@ class ImportController extends Controller
     |
     */
 
-    private function detectFormat(\Illuminate\Http\UploadedFile $file): string
+    private function detectFormat(UploadedFile $file): string
     {
-        // Clase anónima ligera que lee todas las filas pero solo nos interesa
-        // la primera celda de la primera fila.
-        $detector = new class implements ToArray {
-            public string $firstCell = '';
+        $path = $file->getRealPath() ?: $file->getPathname();
 
-            public function array(array $array): void
-            {
-                $this->firstCell = strtolower(trim((string) ($array[0][0] ?? '')));
-            }
-        };
+        try {
+            $reader = IOFactory::createReaderForFile($path);
+            $reader->setReadDataOnly(true);
 
-        Excel::import($detector, $file);
+            $spreadsheet = $reader->load($path);
+            $firstCell = strtolower(trim((string) $spreadsheet->getSheet(0)->getCell('A1')->getValue()));
 
-        return $detector->firstCell === 'tipo' ? 'catalog' : 'flat';
+            $spreadsheet->disconnectWorksheets();
+            unset($spreadsheet);
+
+            return $firstCell === 'tipo' ? 'catalog' : 'flat';
+        } catch (\Throwable) {
+            return 'flat';
+        }
     }
 }

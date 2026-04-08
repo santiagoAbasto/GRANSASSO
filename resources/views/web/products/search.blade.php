@@ -63,23 +63,22 @@
                     @php
                         $gearbox     = $product->gearbox;
                         $brand       = $gearbox?->brand;
-                        $primaryItem = $product->items->first();
-                        $oemCode     = $primaryItem?->oem_code ?? '—';
-                        $productName = $product->getName();
-                        $codeGs      = $product->code_gs;
+                        $card        = $product->catalog_card ?? [];
+                        $titleCode   = $card['title_code'] ?? ($product->code_gs ?? '—');
+                        $oemCode     = $card['primary_oem_code'] ?? $titleCode;
+                        $productName = ! empty($card['description'])
+                            ? ucwords(mb_strtolower($card['description']))
+                            : null;
                     @endphp
 
                     @if($gearbox && $brand)
-                    <a href="{{ route('products.show', [$brand->slug, $gearbox->slug, $product->id]) }}"
-                       class="product-card">
+                    <a href="{{ route('products.show', [$brand->slug, $gearbox->slug, $product->code_gs ?? $product->slug]) }}"
+                       class="prd-card">
 
                         {{-- IMAGEN --}}
-                        <div class="product-card__img-wrap">
-                            @if($product->primaryImage)
-                                <img src="{{ asset('storage/' . $product->primaryImage->path) }}"
-                                     alt="{{ $oemCode }}" loading="lazy">
-                            @elseif($product->image)
-                                <img src="{{ asset('storage/' . $product->image) }}"
+                        <div class="prd-card__img">
+                            @if($product->resolved_image_url)
+                                <img src="{{ $product->resolved_image_url }}"
                                      alt="{{ $oemCode }}" loading="lazy">
                             @else
                                 <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64"
@@ -90,20 +89,18 @@
                                     <polyline points="21 15 16 10 5 21"/>
                                 </svg>
                             @endif
-                            <div class="product-card__overlay">
-                                <span class="product-card__plus">+</span>
-                            </div>
+                            <div class="prd-card__overlay"></div>
+                            <span class="prd-card__plus">+</span>
                         </div>
 
+                        <span class="prd-card__divider"></span>
+
                         {{-- INFO --}}
-                        <div class="product-card__body">
-                            <span class="product-card__category">{{ strtoupper($brand->getName()) }} · {{ $gearbox->name }}</span>
-                            <h3 class="product-card__name">{{ $oemCode }}</h3>
-                            @if($codeGs)
-                            <p class="product-card__subtitle">Cód. GS: {{ $codeGs }}</p>
-                            @endif
+                        <div class="prd-card__body">
+                            <span class="prd-card__brand">{{ strtoupper($brand->getName()) }} · {{ $gearbox->name }}</span>
+                            <h3 class="prd-card__name">{{ $titleCode }}</h3>
                             @if($productName)
-                            <p class="product-card__subtitle">{{ $productName }}</p>
+                            <p class="prd-card__subtitle">{{ $productName }}</p>
                             @endif
                         </div>
 

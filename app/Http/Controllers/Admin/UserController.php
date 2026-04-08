@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Hash;
 use Inertia\Inertia;
 
@@ -12,12 +13,13 @@ class UserController extends Controller
 {
     public function index()
     {
-        $principalId = User::oldest()->value('id');
+        $principalId = User::where('is_admin', true)->oldest()->value('id');
 
-        $users = User::latest()->get()->map(fn ($u) => [
+        $users = User::where('is_admin', true)->latest()->get()->map(fn ($u) => [
             'id'           => $u->id,
             'name'         => $u->name,
             'email'        => $u->email,
+            'is_admin'     => (bool) $u->is_admin,
             'is_principal' => $u->id === $principalId,
             'created_at'   => $u->created_at->format('d/m/Y'),
         ]);
@@ -37,9 +39,11 @@ class UserController extends Controller
         ]);
 
         User::create([
-            'name'     => $data['name'],
-            'email'    => $data['email'],
-            'password' => Hash::make($data['password']),
+            'name'              => $data['name'],
+            'email'             => $data['email'],
+            'is_admin'          => true,
+            'email_verified_at' => Carbon::now(),
+            'password'          => Hash::make($data['password']),
         ]);
 
         return back()->with('success', 'Usuario creado correctamente.');
@@ -53,8 +57,10 @@ class UserController extends Controller
             'password' => 'nullable|string|min:8|confirmed',
         ]);
 
-        $user->name  = $data['name'];
+        $user->name = $data['name'];
         $user->email = $data['email'];
+        $user->is_admin = true;
+        $user->email_verified_at = $user->email_verified_at ?? Carbon::now();
         if (!empty($data['password'])) {
             $user->password = Hash::make($data['password']);
         }
@@ -65,7 +71,7 @@ class UserController extends Controller
 
     public function destroy(User $user)
     {
-        $principalId = User::oldest()->value('id');
+        $principalId = User::where('is_admin', true)->oldest()->value('id');
         if ($user->id === $principalId) {
             return back()->with('error', 'No se puede eliminar el usuario principal.');
         }

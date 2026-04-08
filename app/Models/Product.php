@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\CatalogImage;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -191,6 +192,22 @@ class Product extends Model
             ->unique()
             ->values()
             ->toArray();
+    }
+
+    public function getResolvedImageUrlAttribute(): ?string
+    {
+        $primaryImageUrl = null;
+
+        if ($this->relationLoaded('primaryImage')) {
+            $primaryImageUrl = $this->primaryImage?->url;
+        } else {
+            $primaryPath = $this->primaryImage()->value('path');
+            $primaryImageUrl = CatalogImage::urlForPath($primaryPath);
+        }
+
+        return $primaryImageUrl
+            ?? CatalogImage::urlForPath($this->image)
+            ?? CatalogImage::placeholderUrl();
     }
 
     /*

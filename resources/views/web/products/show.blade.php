@@ -1,61 +1,34 @@
 @extends('web.layouts.app')
 
 @php
-    $primaryItem   = $product->items->first();
-    $oemCode       = $primaryItem?->oem_code ?? $product->code_gs ?? '—';
-    $productName   = $product->getName()
-        ? ucwords(mb_strtolower($product->getName()))
-        : null;
-    $rawDesc     = $product->getDescription();
-    $productDesc = $rawDesc ? ucwords(mb_strtolower($rawDesc)) : null;
-
-    // Figura: del producto o del primer item que la tenga
-    $figure = $product->figure
-        ?? $product->items->pluck('figure')->filter()->first();
-
-    // Código GS
-    $codeGs = $product->code_gs;
-
-    // Referencias: del primer item que tenga dato
-    $refOriginal = $product->items
-        ->map(fn ($i) => $i->getReferenciaOriginal())
+    $oemCode               = $productView['primary_oem_code'];
+    $productName           = ! empty($productView['display_name']) ? $productView['display_name'] : null;
+    $rawDesc               = $productView['display_description'];
+    $productDesc           = $rawDesc ?: null;
+    $figure                = $productView['figure'];
+    $codeGs                = $productView['code_gs'];
+    $refOriginal           = $productView['ref_original'];
+    $refsAdicionales       = collect($productView['refs_adicionales']);
+    $variants              = collect($productView['variant_labels']);
+    $applications          = collect($productView['applications']);
+    $altOemCodes           = collect($productView['alt_oem_codes']);
+    $notes                 = collect($productView['notes']);
+    $catalogRows           = collect($productView['catalog_rows']);
+    $catalogVariantColumns = collect($productView['catalog_variant_columns']);
+    $gearboxCatalogMeta    = is_array($gearbox->catalog_meta ?? null) ? $gearbox->catalog_meta : [];
+    $catalogHeaderNotes    = collect($gearboxCatalogMeta['application_secondary'] ?? [])
+        ->map(fn ($value) => preg_replace('/\s+/u', ' ', trim((string) $value)) ?: null)
         ->filter()
-        ->first();
-
-    // Referencias adicionales: deduplicadas de todos los items
-    $refsAdicionales = $product->items
-        ->flatMap(fn ($i) => $i->getReferenciasAdicionales())
-        ->filter()
-        ->unique()
+        ->unique(fn ($value) => mb_strtolower($value))
         ->values();
-
-    // Variantes de caja (G60, G85, etc.)
-    $variants = collect($product->getAvailableVariants())
-        ->map(fn ($v) => strtoupper($v));
-
-    // Aplicaciones de vehículo (las que NO son variantes de caja)
-    $variantSet   = $variants->map(fn ($v) => strtolower($v))->toArray();
-    $applications = $product->items
-        ->filter(fn ($i) => $i->application !== null)
-        ->pluck('application')
-        ->unique()
-        ->filter(fn ($app) => ! in_array(strtolower($app), $variantSet, true))
+    $galleryImages         = $product->images
+        ->filter(fn ($img) => !empty($img->url))
         ->values();
+    $fallbackImageSrc      = $product->resolved_image_url;
 
-    // OEM codes alternativos (todos excepto el principal)
-    $altOemCodes = $product->items
-        ->pluck('oem_code')
-        ->filter()
-        ->unique()
-        ->filter(fn ($oem) => $oem !== $oemCode)
-        ->values();
-
-    // Notas de items (deduplicadas, non-empty)
-    $notes = $product->items
-        ->pluck('notes')
-        ->filter()
-        ->unique()
-        ->values();
+    if ($productName && $productDesc && mb_strtolower($productName) === mb_strtolower($productDesc)) {
+        $productDesc = null;
+    }
 @endphp
 
 @section('title', $oemCode . ' — ' . ($productName ?? $brand->getName()))
@@ -86,35 +59,57 @@
 
                 {{-- Thumbnails --}}
                 <div class="product-detail__thumbs">
-                    @forelse($product->images as $img)
+                    @forelse($galleryImages as $img)
                     <div class="product-detail__thumb {{ $loop->first ? 'active' : '' }}"
-                         data-src="{{ asset('storage/' . $img->path) }}"
+                         data-src="{{ $img->url }}"
                          role="button"
                          tabindex="0"
                          aria-label="Imagen {{ $loop->iteration }}">
-                        <img src="{{ asset('storage/' . $img->path) }}"
+                        <img src="{{ $img->url }}"
                              alt="{{ $oemCode }} — imagen {{ $loop->iteration }}">
                     </div>
                     @empty
+                    @if($fallbackImageSrc)
                     <div class="product-detail__thumb active"
-                         data-src="{{ asset('images/placeholder-product.png') }}">
-                        <img src="{{ asset('images/placeholder-product.png') }}"
+                         data-src="{{ $fallbackImageSrc }}">
+                        <img src="{{ $fallbackImageSrc }}"
                              alt="{{ $oemCode }}">
                     </div>
+                    @else
+                    <div class="product-detail__thumb active">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="42" height="42"
+                             viewBox="0 0 24 24" fill="none" stroke="#D1D5DB"
+                             stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="3" width="18" height="18" rx="2"/>
+                            <circle cx="8.5" cy="8.5" r="1.5"/>
+                            <polyline points="21 15 16 10 5 21"/>
+                        </svg>
+                    </div>
+                    @endif
                     @endforelse
                 </div>
 
                 {{-- Imagen principal --}}
                 <div class="product-detail__main-img" id="productMainDisplay">
                     @php
-                        $mainImg = $product->primaryImage ?? $product->images->first();
-                        $mainSrc = $mainImg
-                            ? asset('storage/' . $mainImg->path)
-                            : asset('images/placeholder-product.png');
+                        $mainImg = $galleryImages->first();
+                        $mainSrc = $mainImg?->url ?? $fallbackImageSrc;
                     @endphp
+                    @if($mainSrc)
                     <img src="{{ $mainSrc }}"
                          alt="{{ $oemCode }}"
                          id="productMainImg">
+                    @else
+                    <div class="product-detail__main-empty">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="72" height="72"
+                             viewBox="0 0 24 24" fill="none" stroke="#D1D5DB"
+                             stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="3" width="18" height="18" rx="2"/>
+                            <circle cx="8.5" cy="8.5" r="1.5"/>
+                            <polyline points="21 15 16 10 5 21"/>
+                        </svg>
+                    </div>
+                    @endif
                     <button class="product-detail__zoom"
                             aria-label="{{ __('ui.product_detail.zoom') }}">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
@@ -137,14 +132,25 @@
                 {{-- Divisor 1: directo bajo el código OEM --}}
                 <hr class="product-detail__sep">
 
+                @if($codeGs || $figure)
+                <div class="product-detail__headline-meta">
+                    @if($codeGs)
+                    <span class="product-detail__headline-pill"># GSS {{ $codeGs }}</span>
+                    @endif
+                    @if($figure)
+                    <span class="product-detail__headline-pill">FIG. {{ $figure }}</span>
+                    @endif
+                </div>
+                @endif
+
                 {{-- Nombre del producto --}}
                 @if($productName)
-                <p class="product-detail__name" style="color:#1D1E20;font-family:'Open Sans',sans-serif;font-style:normal;font-size:18px;font-weight:400;line-height:25px;margin-bottom:40px;">{{ $productName }}</p>
+                <p class="product-detail__name" style="color:#1D1E20;font-family:'Open Sans',sans-serif;font-style:normal;font-size:18px;font-weight:400;line-height:25px;margin-bottom:40px;">{!! nl2br(e($productName)) !!}</p>
                 @endif
 
                 {{-- Descripción --}}
                 @if($productDesc)
-                <p class="product-detail__desc" style="color:#1D1E20;font-family:'Open Sans',sans-serif;font-style:normal;font-size:18px;font-weight:400;line-height:25px;margin-bottom:40px;">{{ $productDesc }}</p>
+                <p class="product-detail__desc" style="color:#1D1E20;font-family:'Open Sans',sans-serif;font-style:normal;font-size:18px;font-weight:400;line-height:25px;margin-bottom:40px;">{!! nl2br(e($productDesc)) !!}</p>
                 @endif
 
                 {{-- ── Tabla de datos ─────────────────────────────────── --}}
@@ -153,7 +159,7 @@
                     {{-- Código GS --}}
                     @if($codeGs)
                     <tr>
-                        <td>Código GS</td>
+                        <td>{{ __('ui.product_detail.gs_code') }}</td>
                         <td>{{ $codeGs }}</td>
                     </tr>
                     @endif
@@ -161,29 +167,40 @@
                     {{-- Figura --}}
                     @if($figure)
                     <tr>
-                        <td>Figura</td>
+                        <td>{{ __('ui.product_detail.figure') }}</td>
                         <td>{{ $figure }}</td>
                     </tr>
                     @endif
 
                     {{-- Modelo de caja --}}
                     <tr>
-                        <td>Modelo de caja</td>
+                        <td>{{ __('ui.product_detail.gearbox_model') }}</td>
                         <td>{{ $gearbox->name }}</td>
                     </tr>
 
                     {{-- Vehículos compatibles de la caja --}}
                     @if($gearbox->compatible_vehicles)
                     <tr>
-                        <td>Vehículos compatibles</td>
+                        <td>{{ __('ui.product_detail.compatible_vehicles') }}</td>
                         <td>{{ $gearbox->compatible_vehicles }}</td>
+                    </tr>
+                    @endif
+
+                    @if($catalogHeaderNotes->isNotEmpty())
+                    <tr>
+                        <td>{{ __('ui.product_detail.catalog_data') }}</td>
+                        <td>
+                            @foreach($catalogHeaderNotes as $catalogNote)
+                            {{ $catalogNote }}@if(!$loop->last)<br>@endif
+                            @endforeach
+                        </td>
                     </tr>
                     @endif
 
                     {{-- Campos extra de la caja --}}
                     @if($gearbox->extra_field_1)
                     <tr>
-                        <td>Información adicional</td>
+                        <td>{{ __('ui.product_detail.additional_info') }}</td>
                         <td>{{ $gearbox->extra_field_1 }}</td>
                     </tr>
                     @endif
@@ -198,7 +215,7 @@
                     {{-- Variantes compatibles --}}
                     @if($variants->isNotEmpty())
                     <tr>
-                        <td>Modelos compatibles</td>
+                        <td>{{ __('ui.product_detail.compatible_variants') }}</td>
                         <td>{{ $variants->implode(' / ') }}</td>
                     </tr>
                     @endif
@@ -228,7 +245,7 @@
                     @endif
 
                     {{-- Aplicaciones de vehículo --}}
-                    @if($applications->isNotEmpty())
+                    @if($applications->isNotEmpty() && $catalogRows->isEmpty())
                     <tr>
                         <td>{{ __('ui.product_detail.application') }}</td>
                         <td>
@@ -242,7 +259,7 @@
                     {{-- Notas --}}
                     @if($notes->isNotEmpty())
                     <tr>
-                        <td>Notas</td>
+                        <td>{{ __('ui.product_detail.notes') }}</td>
                         <td>
                             @foreach($notes as $note)
                             {{ $note }}@if(!$loop->last)<br>@endif
@@ -273,6 +290,66 @@
             </div>
         </div>
 
+        @if($catalogRows->isNotEmpty())
+        <section class="product-detail__catalog">
+            <div class="product-detail__catalog-head">
+                <span class="product-detail__catalog-eyebrow">{{ __('ui.product_detail.catalog_eyebrow') }}</span>
+                <h2 class="product-detail__catalog-title">{{ __('ui.product_detail.catalog_title') }}</h2>
+                <p class="product-detail__catalog-copy">{{ __('ui.product_detail.catalog_copy') }}</p>
+            </div>
+
+            <div class="product-detail__catalog-wrap">
+                <table class="product-detail__catalog-table">
+                    <thead>
+                        <tr>
+                            <th>Fig.</th>
+                            <th># GSS</th>
+                            <th># OEM</th>
+                            <th>{{ __('ui.product_detail.description') }}</th>
+                            <th>{{ __('ui.product_detail.application') }}</th>
+                            @if($catalogVariantColumns->isNotEmpty())
+                                @foreach($catalogVariantColumns as $variant)
+                                <th>{{ $variant }}</th>
+                                @endforeach
+                            @endif
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($catalogRows as $row)
+                        <tr>
+                            <td>{{ $row['figure'] ?: '—' }}</td>
+                            <td>{{ $row['code_gs'] ?: '—' }}</td>
+                            <td>{{ $row['oem_code'] ?: '—' }}</td>
+                            <td>
+                                <div class="product-detail__catalog-desc">
+                                    {!! $row['description'] ? nl2br(e($row['description'])) : '—' !!}
+                                </div>
+                                @if(!empty($row['reference_original']))
+                                <div class="product-detail__catalog-note">{{ __('ui.product_detail.catalog_original_ref') }}: {{ $row['reference_original'] }}</div>
+                                @endif
+                                @if(!empty($row['additional_references']))
+                                <div class="product-detail__catalog-note">{{ __('ui.product_detail.catalog_additional_refs') }}: {{ implode(' / ', $row['additional_references']) }}</div>
+                                @endif
+                                @if(!empty($row['notes']))
+                                <div class="product-detail__catalog-note">{{ __('ui.product_detail.notes') }}: {{ $row['notes'] }}</div>
+                                @endif
+                            </td>
+                            <td>{{ !empty($row['applications']) ? implode(' / ', $row['applications']) : '—' }}</td>
+                            @if($catalogVariantColumns->isNotEmpty())
+                                @foreach($catalogVariantColumns as $variant)
+                                <td class="product-detail__catalog-check">
+                                    {{ in_array($variant, $row['variants'], true) ? 'X' : '—' }}
+                                </td>
+                                @endforeach
+                            @endif
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </section>
+        @endif
+
         {{-- ══ PRODUCTOS RELACIONADOS ═════════════════════════════════════ --}}
         @if($related->count())
         <div class="product-related">
@@ -280,15 +357,19 @@
             <div class="products-grid">
                 @foreach($related as $rel)
                 @php
-                    $relItem = $rel->items->first();
-                    $relOem  = $relItem?->oem_code ?? $rel->code_gs ?? '—';
+                    $relCard        = $rel->catalog_card ?? [];
+                    $relTitle       = $relCard['title_code'] ?? ($rel->code_gs ?? '—');
+                    $relOem         = $relCard['primary_oem_code'] ?? '—';
+                    $relDescription = ! empty($relCard['description'])
+                        ? ucwords(mb_strtolower($relCard['description']))
+                        : null;
                 @endphp
                 <a href="{{ route('products.show', [$brand->slug, $gearbox->slug, $rel->slug]) }}"
                    class="rel-card">
 
                     <div class="rel-card__img">
-                        @if($rel->primaryImage)
-                            <img src="{{ asset('storage/' . $rel->primaryImage->path) }}"
+                        @if($rel->resolved_image_url)
+                            <img src="{{ $rel->resolved_image_url }}"
                                  alt="{{ $relOem }}" loading="lazy">
                         @else
                             <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40"
@@ -307,9 +388,9 @@
 
                     <div class="rel-card__body">
                         <span class="rel-card__brand">{{ strtoupper($brand->getName()) }}</span>
-                        <h3 class="rel-card__name">{{ $relOem }}</h3>
-                        @if($rel->getName())
-                        <p class="rel-card__subtitle">{{ ucwords(mb_strtolower($rel->getName())) }}</p>
+                        <h3 class="rel-card__name">{{ $relTitle }}</h3>
+                        @if($relDescription)
+                        <p class="rel-card__subtitle">{{ $relDescription }}</p>
                         @endif
                     </div>
 

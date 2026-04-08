@@ -601,16 +601,16 @@ body {
         padding-right: 20px;
     }
 
-    /* ── Hero: descuenta los 70px del navbar fijo para que llene exactamente la pantalla ── */
+    /* ── Hero mobile: ocupa la primera pantalla completa ── */
     .hero {
-        height: calc(100dvh - 70px);
-        height: calc(100vh - 70px);
+        height: 100dvh;
+        height: 100vh;
         min-height: 410px;
     }
 
     .hero-inner {
-        height: calc(100dvh - 70px);
-        height: calc(100vh - 70px);
+        height: 100dvh;
+        height: 100vh;
         min-height: 410px;
     }
 

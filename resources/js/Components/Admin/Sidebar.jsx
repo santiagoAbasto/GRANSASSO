@@ -83,6 +83,13 @@ export default function Sidebar() {
             ],
         },
         {
+            title: "WhatsApp",
+            icon: "solar:chat-round-like-outline",
+            children: [
+                { title: "Botón flotante", icon: "solar:chat-round-like-outline", url: "/admin/whatsapp-float" },
+            ],
+        },
+        {
             title: "Extras",
             icon: "solar:widget-add-outline",
             children: [

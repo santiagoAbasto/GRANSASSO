@@ -34,6 +34,9 @@ use App\Http\Controllers\Admin\PriceListAdminController;
 use App\Http\Controllers\Admin\PaymentInfoController as AdminPaymentInfoController;
 use App\Http\Controllers\Admin\NovedadAdminController;
 use App\Http\Controllers\Admin\PrivateNotificationController;
+use App\Http\Controllers\Admin\WhatsappFloatController;
+use App\Http\Middleware\AuthClient;
+use App\Http\Middleware\EnsureAdminAccess;
 
 /*
 |--------------------------------------------------------------------------
@@ -101,7 +104,7 @@ Route::prefix('zona-privada')->name('zona-privada.')->group(function () {
     Route::post('/registrarse', [ZPAuthController::class, 'register'])->middleware('throttle:3,10')->name('register.store');
 
     // Secciones protegidas por guard 'client'
-    Route::middleware('auth.client')->group(function () {
+    Route::middleware(AuthClient::class)->group(function () {
         Route::get('/lista-precios',          [ListaPreciosController::class, 'index'])->name('lista-precios');
         Route::get('/lista-precios/{priceList}/view', [ListaPreciosController::class, 'view'])->name('lista-precios.view');
         Route::get('/lista-precios/{priceList}/download', [ListaPreciosController::class, 'download'])->name('lista-precios.download');
@@ -121,7 +124,7 @@ Route::prefix('zona-privada')->name('zona-privada.')->group(function () {
 Route::prefix('admin')->name('admin.')->group(function () {
 
     // ── Autenticado ────────────────────────────────────────────────────
-    Route::middleware(['auth', 'verified', 'admin.access'])->group(function () {
+    Route::middleware(['auth', 'verified', EnsureAdminAccess::class])->group(function () {
 
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
@@ -142,6 +145,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('/gearboxes',             [GearboxController::class, 'store'])->name('gearboxes.store');
         Route::put('/gearboxes/{gearbox}',    [GearboxController::class, 'update'])->name('gearboxes.update');
         Route::delete('/gearboxes/{gearbox}', [GearboxController::class, 'destroy'])->name('gearboxes.destroy');
+        Route::delete('/gearboxes/{gearbox}/products', [AdminProductController::class, 'destroyByGearbox'])->name('gearboxes.products.destroy');
 
         // Productos
         Route::get('/products',                           [AdminProductController::class, 'index'])->name('products.index');
@@ -248,6 +252,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/payment-info',                [AdminPaymentInfoController::class, 'index'])->name('payment-info.index');
         Route::post('/payment-info',               [AdminPaymentInfoController::class, 'update'])->name('payment-info.update');
         Route::get('/payment-submissions/{submission}/download', [AdminPaymentInfoController::class, 'downloadSubmission'])->name('payment-submissions.download');
+
+        Route::get('/whatsapp-float',              [WhatsappFloatController::class, 'index'])->name('whatsapp-float.index');
+        Route::post('/whatsapp-float',             [WhatsappFloatController::class, 'update'])->name('whatsapp-float.update');
 
         Route::get('/private-novedades',                          [NovedadAdminController::class, 'index'])->name('private-novedades.index');
         Route::post('/private-novedades',                         [NovedadAdminController::class, 'store'])->name('private-novedades.store');

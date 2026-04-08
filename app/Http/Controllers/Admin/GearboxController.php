@@ -15,6 +15,7 @@ class GearboxController extends Controller
     public function index()
     {
         $gearboxes = Gearbox::with('brand')
+            ->withCount('products')
             ->orderBy('order')
             ->orderBy('name')
             ->get()
@@ -27,9 +28,10 @@ class GearboxController extends Controller
                 'name'                => $g->name,
                 'slug'                => $g->slug,
                 'compatible_vehicles' => $g->compatible_vehicles,
-                'image_url'           => $g->image ? asset('storage/' . $g->image) : null,
+                'image_url'           => $g->resolved_image_url,
                 'is_active'           => $g->is_active,
                 'order'               => $g->order,
+                'products_count'      => $g->products_count,
                 // Campos manuales — se editan masivamente por caja
                 'extra_field_1'       => $g->extra_field_1,
                 'extra_field_2'       => $g->extra_field_2,

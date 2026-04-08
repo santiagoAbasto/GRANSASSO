@@ -213,6 +213,12 @@ export default function GearboxesIndex({ gearboxes, brands }) {
         router.delete(`/admin/gearboxes/${g.id}`);
     };
 
+    const handleDeleteProducts = (g) => {
+        if ((g.products_count ?? 0) === 0) return;
+        if (!confirm(`¿Eliminar todos los productos de "${g.name}"? La caja se conservará, pero se borrarán sus ${g.products_count} producto(s).`)) return;
+        router.delete(`/admin/gearboxes/${g.id}/products`);
+    };
+
     return (
         <AdminLayout>
             <div className="max-w-5xl">
@@ -277,6 +283,10 @@ export default function GearboxesIndex({ gearboxes, brands }) {
                                             <span className="text-xs font-semibold text-[#25A7CA] uppercase">{g.brand_name}</span>
                                             <span className="font-semibold text-gray-800">{g.name}</span>
                                             <StatusBadge active={g.is_active} />
+                                            <span className="inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-full bg-gray-50 text-gray-500 border border-gray-100">
+                                                <Icon icon="solar:box-outline" width={12} />
+                                                {g.products_count ?? 0} productos
+                                            </span>
                                         </div>
                                         {g.compatible_vehicles && (
                                             <p className="text-xs text-gray-400 mt-0.5 truncate">{g.compatible_vehicles}</p>
@@ -292,6 +302,16 @@ export default function GearboxesIndex({ gearboxes, brands }) {
                                         >
                                             <Icon icon="solar:pen-outline" width={17} />
                                         </button>
+                                        {(g.products_count ?? 0) > 0 && (
+                                            <button
+                                                onClick={() => handleDeleteProducts(g)}
+                                                className="inline-flex items-center gap-1.5 px-2.5 py-2 text-xs font-medium text-amber-700 bg-amber-50 hover:bg-amber-100 rounded-lg transition"
+                                                title="Vaciar productos de la caja"
+                                            >
+                                                <Icon icon="solar:box-outline" width={14} />
+                                                Vaciar
+                                            </button>
+                                        )}
                                         <button
                                             onClick={() => handleDelete(g)}
                                             className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition"

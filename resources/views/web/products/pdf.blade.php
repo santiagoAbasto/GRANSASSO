@@ -144,6 +144,44 @@ body {
 .apps tr:last-child { border-bottom: none; }
 .apps td { padding: 4px 4px; color: #374151; line-height: 1.4; }
 
+.catalog {
+    margin-top: 16px;
+    page-break-inside: auto;
+}
+.catalog__table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 7.6px;
+}
+.catalog__table th,
+.catalog__table td {
+    border: 1px solid #E5E7EB;
+    padding: 4px 5px;
+    vertical-align: top;
+    line-height: 1.4;
+}
+.catalog__table th {
+    background: #F9FAFB;
+    color: #6B7280;
+    font-size: 7px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+}
+.catalog__desc {
+    font-size: 7.8px;
+    color: #111827;
+}
+.catalog__note {
+    margin-top: 2px;
+    font-size: 7px;
+    color: #6B7280;
+}
+.catalog__check {
+    text-align: center;
+    font-weight: bold;
+}
+
 /* ── GEARBOX SECTION ─────────────────────────────── */
 .gb {
     margin-top: 22px;
@@ -225,6 +263,14 @@ body {
     $gsLogo    = storage_path('app/public/images/logos/logo-color.png');
     $gsLogoSvg = storage_path('app/public/images/logos/logo-color.svg');
     $generatedAt = now('America/Argentina/Buenos_Aires')->format('d/m/Y H:i');
+    $gearboxCatalogMeta = is_array($gearbox->catalog_meta ?? null) ? $gearbox->catalog_meta : [];
+    $catalogHeaderNotes = collect($gearboxCatalogMeta['application_secondary'] ?? [])->filter()->values();
+    $mainImagePath = $mainImage
+        ? \App\Support\CatalogImage::storagePathForPath($mainImage->path)
+        : null;
+    $productImagePath = \App\Support\CatalogImage::storagePathForPath($product->image);
+    $placeholderImagePath = \App\Support\CatalogImage::placeholderStoragePath();
+    $resolvedMainImagePath = $mainImagePath ?: $productImagePath ?: $placeholderImagePath;
 
     if (file_exists($gsLogoSvg)) {
         $logoPath = $gsLogoSvg;
@@ -234,7 +280,14 @@ body {
         $logoPath = null;
     }
 
-    $extraImgs = $allImages->filter(fn($img) => !$mainImage || $img->id !== $mainImage->id)->values();
+    $extraImgs = $allImages
+        ->filter(fn($img) => !$mainImage || $img->id !== $mainImage->id)
+        ->map(fn($img) => [
+            'id' => $img->id,
+            'path' => \App\Support\CatalogImage::storagePathForPath($img->path),
+        ])
+        ->filter(fn(array $img) => !empty($img['path']))
+        ->values();
 @endphp
 
 {{-- ── HEADER ──────────────────────────────────────────────────────── --}}
@@ -279,8 +332,8 @@ body {
     <div class="body__left">
 
         <div class="img-main">
-            @if($mainImage)
-                <img src="{{ storage_path('app/public/' . $mainImage->path) }}" alt="{{ $oemCode }}">
+            @if($resolvedMainImagePath)
+                <img src="{{ $resolvedMainImagePath }}" alt="{{ $oemCode }}">
             @else
                 <div style="height:130px; display:table; width:100%;">
                     <div style="display:table-cell; vertical-align:middle; text-align:center; color:#D1D5DB; font-size:8px; text-transform:uppercase; letter-spacing:1px;">{{ __('ui.product_pdf.no_image') }}</div>
@@ -291,7 +344,7 @@ body {
         @if($extraImgs->isNotEmpty())
             @foreach($extraImgs as $img)
             <div class="img-extra">
-                <img src="{{ storage_path('app/public/' . $img->path) }}" alt="">
+                <img src="{{ $img['path'] }}" alt="">
             </div>
             @endforeach
         @endif
@@ -336,11 +389,62 @@ body {
         {{-- Descripción --}}
         @if($productDesc)
         <div class="sec">{{ __('ui.product_pdf.description') }}</div>
-        <div class="desc">{{ ucfirst(mb_strtolower($productDesc)) }}</div>
+        <div class="desc">{!! nl2br(e($productDesc)) !!}</div>
         @endif
 
     </div>
 </div>
+
+@if($catalogRows->isNotEmpty())
+<div class="catalog">
+    <div class="sec">{{ __('ui.product_pdf.catalog_title') }}</div>
+    <table class="catalog__table">
+        <thead>
+            <tr>
+                <th>Fig.</th>
+                <th># GSS</th>
+                <th># OEM</th>
+                <th>{{ __('ui.product_pdf.description') }}</th>
+                @if($catalogVariants->isNotEmpty())
+                    @foreach($catalogVariants as $variant)
+                    <th>{{ $variant }}</th>
+                    @endforeach
+                @else
+                <th>{{ __('ui.product_pdf.catalog_application') }}</th>
+                @endif
+            </tr>
+        </thead>
+        <tbody>
+            @foreach($catalogRows as $row)
+            <tr>
+                <td>{{ $row['figure'] ?: '—' }}</td>
+                <td>{{ $row['code_gs'] ?: '—' }}</td>
+                <td>{{ $row['oem_code'] ?: '—' }}</td>
+                <td>
+                    <div class="catalog__desc">{!! $row['description'] ? nl2br(e($row['description'])) : '—' !!}</div>
+                    @if(!empty($row['reference_original']))
+                    <div class="catalog__note">{{ __('ui.product_pdf.catalog_original_ref') }}: {{ $row['reference_original'] }}</div>
+                    @endif
+                    @if(!empty($row['additional_references']))
+                    <div class="catalog__note">{{ __('ui.product_pdf.catalog_additional_refs') }}: {{ implode(' / ', $row['additional_references']) }}</div>
+                    @endif
+                    @if(!empty($row['notes']))
+                    <div class="catalog__note">{{ __('ui.product_pdf.notes') }}: {{ $row['notes'] }}</div>
+                    @endif
+                </td>
+                @if($catalogVariants->isNotEmpty())
+                    @foreach($catalogVariants as $variant)
+                    <td class="catalog__check">{{ in_array($variant, $row['variants'], true) ? 'X' : '—' }}</td>
+                    @endforeach
+                @else
+                <td>{{ !empty($row['applications']) ? implode(' / ', $row['applications']) : '—' }}</td>
+                @endif
+            </tr>
+            @endforeach
+        </tbody>
+    </table>
+</div>
+@endif
 
 {{-- ── GEARBOX ──────────────────────────────────────────────────────── --}}
 <div class="gb">
@@ -368,6 +472,12 @@ body {
     <div class="gb__compat">
         <div class="gb__compat-label">{{ __('ui.product_pdf.compatible_vehicles') }}</div>
         <div class="gb__compat-val">{{ lang($gearbox->compatible_vehicles) }}</div>
+    </div>
+    @endif
+    @if($catalogHeaderNotes->isNotEmpty())
+    <div class="gb__compat">
+        <div class="gb__compat-label">{{ __('ui.product_pdf.catalog_data') }}</div>
+        <div class="gb__compat-val">{{ $catalogHeaderNotes->implode(' / ') }}</div>
     </div>
     @endif
 </div>

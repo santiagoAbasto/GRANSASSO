@@ -246,7 +246,7 @@
 @media (max-width: 768px) {
     .hero-search {
         padding: 0 16px;
-        margin-top: -20px;
+        margin-top: 16px;
         margin-bottom: 32px;
     }
 

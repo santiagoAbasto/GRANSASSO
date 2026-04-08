@@ -9,6 +9,7 @@ use App\Models\Product;
 use App\Models\ProductImage;
 use App\Models\ProductItem;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
@@ -24,6 +25,7 @@ class ProductController extends Controller
     public function index(Request $request)
     {
         $query = Product::with(['gearbox.brand', 'primaryImage', 'items'])
+            ->whereHas('gearbox')
             ->when(
                 $request->brand_id,
                 fn ($q) => $q->whereHas('gearbox', fn ($q2) => $q2->where('brand_id', $request->brand_id))
@@ -203,6 +205,25 @@ class ProductController extends Controller
         return back()->with('success', 'Producto eliminado.');
     }
 
+    public function destroyByGearbox(Gearbox $gearbox)
+    {
+        $productsQuery = Product::where('gearbox_id', $gearbox->id);
+        $productsCount = (clone $productsQuery)->count();
+
+        if ($productsCount === 0) {
+            return back()->with('success', "La caja {$gearbox->name} no tiene productos para eliminar.");
+        }
+
+        DB::transaction(function () use ($productsQuery) {
+            $productsQuery->delete();
+        });
+
+        return back()->with(
+            'success',
+            "{$productsCount} producto(s) eliminados de la caja {$gearbox->name}."
+        );
+    }
+
     /*
     |--------------------------------------------------------------------------
     | BULK IMAGE
@@ -259,6 +280,8 @@ class ProductController extends Controller
 
     private function mapProductForIndex(Product $p): array
     {
+        $gearbox = $p->gearbox;
+
         // Todos los OEMs únicos de los items
         $oemCodes = $p->items
             ->pluck('oem_code')
@@ -282,10 +305,10 @@ class ProductController extends Controller
             'oem_codes'     => $oemCodes,
             'name_es'       => $p->getName() ?? $p->getDescription(),
             'gearbox'       => [
-                'id'                  => $p->gearbox->id,
-                'name'                => $p->gearbox->name,
-                'compatible_vehicles' => $p->gearbox->compatible_vehicles,
-                'brand'               => ['name' => $p->gearbox->brand->name ?? ''],
+                'id'                  => $gearbox?->id,
+                'name'                => $gearbox?->name,
+                'compatible_vehicles' => $gearbox?->compatible_vehicles,
+                'brand'               => ['name' => $gearbox?->brand->name ?? ''],
             ],
             'variants'      => $variants,
             'items_count'   => $p->items->count(),

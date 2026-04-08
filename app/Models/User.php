@@ -21,6 +21,7 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
+        'is_admin',
         'password',
     ];
 
@@ -43,7 +44,16 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
+            'is_admin' => 'boolean',
             'password' => 'hashed',
         ];
+    }
+
+    public function isAdmin(): bool
+    {
+        $allowedEmails = config('security.admin_allowed_emails', []);
+
+        return (bool) $this->is_admin
+            || in_array(strtolower((string) $this->email), $allowedEmails, true);
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\CatalogImage;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
@@ -23,6 +24,7 @@ use Illuminate\Support\Str;
  * @property array|null  $description       JSON multilingüe
  * @property string|null $image
  * @property string|null $compatible_vehicles
+ * @property array|null  $catalog_meta      Metadata cruda del catálogo importado
  * @property string      $order
  * @property bool        $is_active
  * @property string|null $extra_field_1     Campo manual — se edita por caja
@@ -35,6 +37,7 @@ class Gearbox extends Model
         'name',
         'slug',
         'compatible_vehicles',
+        'catalog_meta',
         'description',
         'image',
         'is_active',
@@ -45,6 +48,7 @@ class Gearbox extends Model
 
     protected $casts = [
         'description' => 'array',
+        'catalog_meta' => 'array',
         'is_active'   => 'boolean',
     ];
 
@@ -91,6 +95,13 @@ class Gearbox extends Model
         return $this->description[$locale]
             ?? $this->description['es']
             ?? '';
+    }
+
+    public function getResolvedImageUrlAttribute(): ?string
+    {
+        return CatalogImage::urlForPath($this->image)
+            ?? $this->brand?->logo_url
+            ?? CatalogImage::placeholderUrl();
     }
 
     /*

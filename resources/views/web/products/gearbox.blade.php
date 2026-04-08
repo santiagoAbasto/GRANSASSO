@@ -57,10 +57,11 @@
                 <div class="products-grid">
                     @foreach($products as $product)
                     @php
-                        $primaryItem = $product->items->first();
-                        $oemCode     = $primaryItem?->oem_code ?? $product->code_gs ?? '—';
-                        $rawName     = $product->getName() ?? $product->getDescription();
-                        $productName = $rawName ? ucwords(mb_strtolower($rawName)) : null;
+                        $card        = $product->catalog_card ?? [];
+                        $titleCode   = $card['title_code'] ?? ($product->code_gs ?? '—');
+                        $productName = ! empty($card['description'])
+                            ? ucwords(mb_strtolower($card['description']))
+                            : null;
                     @endphp
 
                     <a href="{{ route('products.show', [$brand->slug, $gearbox->slug, $product->slug]) }}"
@@ -68,12 +69,9 @@
 
                         {{-- IMAGEN --}}
                         <div class="prd-card__img">
-                            @if($product->primaryImage)
-                                <img src="{{ asset('storage/' . $product->primaryImage->path) }}"
-                                     alt="{{ $oemCode }}" loading="lazy">
-                            @elseif($product->image)
-                                <img src="{{ asset('storage/' . $product->image) }}"
-                                     alt="{{ $oemCode }}" loading="lazy">
+                            @if($product->resolved_image_url)
+                                <img src="{{ $product->resolved_image_url }}"
+                                     alt="{{ $titleCode }}" loading="lazy">
                             @else
                                 <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64"
                                      viewBox="0 0 24 24" fill="none" stroke="#D1D5DB"
@@ -93,7 +91,7 @@
                         {{-- INFO --}}
                         <div class="prd-card__body">
                             <span class="prd-card__brand">{{ strtoupper($brand->getName()) }}</span>
-                            <h3 class="prd-card__name">{{ $oemCode }}</h3>
+                            <h3 class="prd-card__name">{{ $titleCode }}</h3>
                             @if($productName)
                             <p class="prd-card__subtitle">{{ $productName }}</p>
                             @endif

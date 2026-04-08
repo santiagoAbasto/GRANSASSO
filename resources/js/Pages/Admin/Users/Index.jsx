@@ -180,7 +180,7 @@ export default function UsersIndex({ users, principalId }) {
                     <div>
                         <h1 className="text-2xl font-bold text-gray-800">Usuarios Admin</h1>
                         <p className="text-sm text-gray-500 mt-0.5">
-                            Administrá quién tiene acceso al panel.
+                            Administrá quién tiene acceso real al panel de administración.
                         </p>
                     </div>
                     <button
@@ -198,7 +198,7 @@ export default function UsersIndex({ users, principalId }) {
                     <p className="text-xs text-amber-700 leading-relaxed">
                         El <strong>usuario principal</strong> (el primero creado) no puede eliminarse como medida de seguridad.
                         Solo se puede actualizar su nombre, correo y contraseña.
-                        Todos los demás usuarios tienen acceso completo al panel de administración.
+                        Todos los usuarios creados aquí quedan habilitados como administradores del panel.
                     </p>
                 </div>
 

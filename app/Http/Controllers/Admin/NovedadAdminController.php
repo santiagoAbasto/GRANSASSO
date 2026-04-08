@@ -12,7 +12,21 @@ class NovedadAdminController extends Controller
 {
     public function index()
     {
-        $novedades = Novedad::orderByDesc('created_at')->get();
+        $novedades = Novedad::orderByDesc('created_at')
+            ->get()
+            ->map(fn (Novedad $novedad) => [
+                'id' => $novedad->id,
+                'title' => $novedad->getNormalizedTranslations('title'),
+                'category' => $novedad->getNormalizedTranslations('category'),
+                'excerpt' => $novedad->getNormalizedTranslations('excerpt'),
+                'body' => $novedad->getNormalizedTranslations('body'),
+                'image' => $novedad->image,
+                'image_url' => $novedad->image_url,
+                'is_active' => $novedad->is_active,
+                'created_at' => optional($novedad->created_at)?->toISOString(),
+                'updated_at' => optional($novedad->updated_at)?->toISOString(),
+            ])
+            ->values();
 
         return Inertia::render('Admin/PrivateZone/Novedades', [
             'novedades' => $novedades,
