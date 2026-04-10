@@ -22,7 +22,7 @@ $_pageKey = match(true) {
 };
 $_seo        = $_pageKey ? SeoMeta::where('page', $_pageKey)->first() : null;
 $_seoKeywords = $_seo?->keywords    ?: '';
-$_seoOgImage  = $_seo?->og_image_url ?: null;
+$_seoOgImage  = $_seo?->og_image_url ?: asset('images/og/gran-sasso-default.png');
 
 // ── Título final: página específica tiene prioridad sobre el del admin ──
 $_pageTitle  = $__env->hasSection('title') ? trim($__env->yieldContent('title')) : null;

@@ -17,9 +17,13 @@ class NovedadAdminController extends Controller
             ->map(fn (Novedad $novedad) => [
                 'id' => $novedad->id,
                 'title' => $novedad->getNormalizedTranslations('title'),
+                'title_display' => $novedad->getLocalizedTitle('es'),
                 'category' => $novedad->getNormalizedTranslations('category'),
+                'category_display' => $novedad->getLocalizedCategory('es'),
                 'excerpt' => $novedad->getNormalizedTranslations('excerpt'),
+                'excerpt_display' => $novedad->getLocalizedExcerpt('es'),
                 'body' => $novedad->getNormalizedTranslations('body'),
+                'body_display' => $novedad->getLocalizedBody('es'),
                 'image' => $novedad->image,
                 'image_url' => $novedad->image_url,
                 'is_active' => $novedad->is_active,

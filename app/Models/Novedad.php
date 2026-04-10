@@ -64,12 +64,15 @@ class Novedad extends Model
     {
         $locale ??= app()->getLocale();
 
-        return $this->getNormalizedTranslationValue('body', $locale);
+        return self::sanitizeRichText(
+            $this->getNormalizedTranslationValue('body', $locale)
+        );
     }
 
     public function getNormalizedTranslations(string $field): array
     {
-        $value = $this->getAttribute($field);
+        $rawValue = $this->getRawOriginal($field);
+        $value = $rawValue !== null ? $rawValue : $this->getAttribute($field);
 
         return self::normalizeTranslations($value);
     }
@@ -145,5 +148,17 @@ class Novedad extends Model
     private static function normalizeScalar(mixed $value): string
     {
         return trim((string) ($value ?? ''));
+    }
+
+    private static function sanitizeRichText(string $html): string
+    {
+        if ($html === '') {
+            return '';
+        }
+
+        $html = preg_replace('/\sdata-[a-z0-9_-]+="[^"]*"/i', '', $html) ?? $html;
+        $html = preg_replace('/\sdata-[a-z0-9_-]+=\'[^\']*\'/i', '', $html) ?? $html;
+
+        return trim($html);
     }
 }

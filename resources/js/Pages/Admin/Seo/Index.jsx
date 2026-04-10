@@ -1,29 +1,121 @@
 import AdminLayout from "@/Layouts/AdminLayout";
 import { useForm } from "@inertiajs/react";
 import { Icon } from "@iconify/react";
-import { useState } from "react";
+import { useRef, useState } from "react";
+
+const hasValue = (value) => {
+    if (typeof value === "string") {
+        return value.trim().length > 0;
+    }
+
+    return Boolean(value);
+};
+
+const hasAnySeoData = (page) => (
+    hasValue(page.title) ||
+    hasValue(page.description) ||
+    hasValue(page.keywords) ||
+    hasValue(page.og_image_url)
+);
+
+const isSeoConfigured = (page) => (
+    hasValue(page.title) &&
+    hasValue(page.description) &&
+    hasValue(page.keywords)
+);
 
 function MetaForm({ page }) {
     const [open, setOpen] = useState(false);
-    const { data, setData, post, processing, errors, reset } = useForm({
+    const fileInputRef = useRef(null);
+    const { data, setData, post, processing, errors, transform } = useForm({
         page:        page.key,
         title:       page.title || "",
         description: page.description || "",
         keywords:    page.keywords || "",
         og_image:    null,
+        remove_og_image: false,
     });
 
     const [previewOg, setPreviewOg] = useState(page.og_image_url || null);
 
-    const submit = (e) => {
-        e.preventDefault();
+    const submitPayload = (payload, { closeOnSuccess = true } = {}) => {
+        const identity = (current) => current;
+
+        transform(() => payload);
         post("/admin/seo", {
             forceFormData: true,
-            onSuccess: () => setOpen(false),
+            preserveScroll: true,
+            onSuccess: () => {
+                transform(identity);
+
+                if (closeOnSuccess) {
+                    setOpen(false);
+                }
+            },
+            onFinish: () => transform(identity),
         });
     };
 
-    const filled = page.title || page.description || page.keywords;
+    const submit = (e) => {
+        e.preventDefault();
+        submitPayload(data);
+    };
+
+    const clearSelectedImage = () => {
+        setPreviewOg(null);
+        setData((current) => ({
+            ...current,
+            og_image: null,
+            remove_og_image: true,
+        }));
+
+        if (fileInputRef.current) {
+            fileInputRef.current.value = "";
+        }
+    };
+
+    const clearSection = () => {
+        const clearedData = {
+            page: page.key,
+            title: "",
+            description: "",
+            keywords: "",
+            og_image: null,
+            remove_og_image: true,
+        };
+
+        setPreviewOg(null);
+        setData(clearedData);
+
+        if (fileInputRef.current) {
+            fileInputRef.current.value = "";
+        }
+
+        submitPayload(clearedData);
+    };
+
+    const isConfigured = isSeoConfigured(page);
+    const hasPartialData = hasAnySeoData(page);
+    const statusTone = isConfigured
+        ? "bg-emerald-500"
+        : hasPartialData
+            ? "bg-amber-400"
+            : "bg-gray-200";
+    const statusBadgeClass = isConfigured
+        ? "bg-emerald-50 text-emerald-600 border border-emerald-100"
+        : hasPartialData
+            ? "bg-amber-50 text-amber-500 border border-amber-100"
+            : "bg-gray-50 text-gray-400 border border-gray-200";
+    const statusLabel = isConfigured
+        ? "Configurado"
+        : hasPartialData
+            ? "Incompleto"
+            : "Sin configurar";
+    const statusSummary = isConfigured
+        ? page.title
+        : hasPartialData
+            ? "Faltan completar metadatos o imagen"
+            : null;
 
     return (
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
@@ -34,12 +126,13 @@ function MetaForm({ page }) {
                 className="w-full flex items-center justify-between px-5 py-4 hover:bg-gray-50/50 transition"
             >
                 <div className="flex items-center gap-3">
-                    <div className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${filled ? "bg-green-400" : "bg-gray-200"}`} />
+                    <div className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${statusTone}`} />
                     <span className="font-medium text-gray-800 text-sm">{page.label}</span>
-                    {filled ? (
-                        <span className="text-xs text-gray-400 truncate max-w-xs hidden sm:block">{page.title}</span>
-                    ) : (
-                        <span className="text-xs bg-amber-50 text-amber-500 border border-amber-100 rounded-full px-2 py-0.5">Sin configurar</span>
+                    <span className={`text-xs rounded-full px-2 py-0.5 ${statusBadgeClass}`}>
+                        {statusLabel}
+                    </span>
+                    {statusSummary && (
+                        <span className="text-xs text-gray-400 truncate max-w-xs hidden sm:block">{statusSummary}</span>
                     )}
                 </div>
                 <Icon
@@ -107,12 +200,21 @@ function MetaForm({ page }) {
                             type="text"
                             value={data.keywords}
                             onChange={(e) => setData("keywords", e.target.value)}
+                            maxLength={500}
                             placeholder="instrumentación, medición, control industrial, caudalímetros..."
                             className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#25A7CA]/30"
                         />
-                        <p className="text-xs text-gray-400 mt-1">
-                            Separadas por comas. Palabras relacionadas con la página que ayudan a buscadores a entender el contenido.
-                        </p>
+                        <div className="flex items-start justify-between mt-1">
+                            <p className="text-xs text-gray-400">
+                                Separadas por comas. Palabras relacionadas con la página que ayudan a buscadores a entender el contenido.
+                            </p>
+                            <span className={`text-xs flex-shrink-0 ml-2 ${data.keywords.length > 400 ? "text-amber-500" : "text-gray-300"}`}>
+                                {data.keywords.length}/500
+                            </span>
+                        </div>
+                        {errors.keywords && (
+                            <p className="text-xs text-red-500 mt-1">{errors.keywords}</p>
+                        )}
                     </div>
 
                     {/* Imagen para redes sociales */}
@@ -127,24 +229,47 @@ function MetaForm({ page }) {
                             </div>
                         )}
                         <input
+                            ref={fileInputRef}
                             type="file"
                             accept="image/*"
                             onChange={(e) => {
                                 const f = e.target.files[0];
                                 if (f) {
-                                    setData("og_image", f);
+                                    setData((current) => ({
+                                        ...current,
+                                        og_image: f,
+                                        remove_og_image: false,
+                                    }));
                                     setPreviewOg(URL.createObjectURL(f));
                                 }
                             }}
                             className="block w-full text-sm text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-medium file:bg-[#25A7CA]/10 file:text-[#25A7CA]"
                         />
+                        {previewOg && (
+                            <button
+                                type="button"
+                                onClick={clearSelectedImage}
+                                className="mt-2 text-xs text-red-500 hover:text-red-600"
+                            >
+                                Quitar imagen
+                            </button>
+                        )}
                         <p className="text-xs text-gray-400 mt-1">
                             Se muestra cuando alguien comparte el link en WhatsApp, Facebook o LinkedIn. Tamaño ideal: 1200 × 630 píxeles.
                         </p>
                     </div>
 
                     {/* Botones */}
-                    <div className="flex justify-end gap-3 pt-1 border-t border-gray-50">
+                    <div className="flex justify-between gap-3 pt-1 border-t border-gray-50">
+                        <button
+                            type="button"
+                            onClick={clearSection}
+                            disabled={processing}
+                            className="px-4 py-2 border border-red-200 rounded-xl text-sm text-red-500 hover:bg-red-50 disabled:opacity-60"
+                        >
+                            Limpiar sección
+                        </button>
+                        <div className="flex justify-end gap-3">
                         <button
                             type="button"
                             onClick={() => setOpen(false)}
@@ -169,6 +294,7 @@ function MetaForm({ page }) {
                                 </>
                             )}
                         </button>
+                        </div>
                     </div>
                 </form>
             )}
@@ -177,7 +303,7 @@ function MetaForm({ page }) {
 }
 
 export default function SeoIndex({ pages }) {
-    const configured = pages.filter(p => p.title || p.description || p.keywords).length;
+    const configured = pages.filter(isSeoConfigured).length;
 
     return (
         <AdminLayout>

@@ -9,6 +9,7 @@ const LANGS = [
     { code: "en", label: "English", flag: "🇺🇸" },
     { code: "pt", label: "Português", flag: "🇧🇷" },
 ];
+const LANG_CODES = LANGS.map((lang) => lang.code);
 
 const emptyLang = () => ({ es: "", en: "", pt: "" });
 
@@ -21,6 +22,75 @@ const emptyForm = {
     excerpt:         emptyLang(),
     body:            emptyLang(),
 };
+
+function decodeNestedJson(value) {
+    let current = value;
+
+    while (typeof current === "string") {
+        const trimmed = current.trim();
+
+        if (!trimmed) {
+            return "";
+        }
+
+        try {
+            const parsed = JSON.parse(trimmed);
+            current = parsed;
+        } catch {
+            return trimmed;
+        }
+    }
+
+    return current;
+}
+
+function normalizeTranslations(value) {
+    const decoded = decodeNestedJson(value);
+
+    if (!decoded || typeof decoded !== "object" || Array.isArray(decoded)) {
+        const scalar = typeof decoded === "string" ? decoded : "";
+        return Object.fromEntries(LANG_CODES.map((code) => [code, scalar]));
+    }
+
+    return Object.fromEntries(
+        LANG_CODES.map((code) => {
+            const candidate = decoded[code] ?? decoded.es ?? decoded.en ?? decoded.pt ?? "";
+            const normalized = decodeNestedJson(candidate);
+            return [code, typeof normalized === "string" ? normalized : ""];
+        })
+    );
+}
+
+function normalizeNovedad(novedad) {
+    const title = normalizeTranslations(novedad.title);
+    const category = normalizeTranslations(novedad.category);
+    const excerpt = normalizeTranslations(novedad.excerpt);
+    const body = normalizeTranslations(novedad.body);
+
+    if (!title.es && novedad.title_display) {
+        title.es = novedad.title_display;
+    }
+
+    if (!category.es && novedad.category_display) {
+        category.es = novedad.category_display;
+    }
+
+    if (!excerpt.es && novedad.excerpt_display) {
+        excerpt.es = novedad.excerpt_display;
+    }
+
+    if (!body.es && novedad.body_display) {
+        body.es = novedad.body_display;
+    }
+
+    return {
+        ...novedad,
+        title,
+        category,
+        excerpt,
+        body,
+    };
+}
 
 /* ─── editor de texto enriquecido ────────────────────────────────────── */
 const TOOLBAR = [
@@ -182,6 +252,7 @@ function LangTabs({ active, onChange, errors }) {
 
 /* ─── componente principal ───────────────────────────────────────────── */
 export default function Novedades({ novedades }) {
+    const normalizedNovedades = novedades.map(normalizeNovedad);
     const [showForm, setShowForm] = useState(false);
     const [editing, setEditing]   = useState(null);
     const [form, setForm]         = useState(emptyForm);
@@ -447,7 +518,7 @@ export default function Novedades({ novedades }) {
                                     </td>
                                 </tr>
                             )}
-                            {novedades.map(n => {
+                            {normalizedNovedades.map(n => {
                                 const hasEn = !!n.title?.en;
                                 const hasPt = !!n.title?.pt;
                                 return (
