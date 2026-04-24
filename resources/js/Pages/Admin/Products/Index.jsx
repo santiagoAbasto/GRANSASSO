@@ -386,6 +386,14 @@ export default function ProductsIndex({ products, brands, gearboxes }) {
                                         <div className="text-sm font-semibold text-gray-700 mt-0.5">
                                             {product.gearbox?.name ?? <span className="text-gray-300">—</span>}
                                         </div>
+                                        {product.secondary_gearboxes?.length > 0 && (
+                                            <div className="mt-1 text-[11px] leading-relaxed text-slate-400">
+                                                También en:{" "}
+                                                {product.secondary_gearboxes
+                                                    .map((gearbox) => `${gearbox.brand} / ${gearbox.name}`)
+                                                    .join(" · ")}
+                                            </div>
+                                        )}
                                     </td>
 
                                     {/* ── Modelos ── completo, hace wrap ─── */}

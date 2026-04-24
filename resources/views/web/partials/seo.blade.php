@@ -18,6 +18,7 @@ $_pageKey = match(true) {
     $_route === 'products.subcategory'          => 'subcategories',
     str_starts_with($_route, 'industries')      => 'industries',
     str_starts_with($_route, 'posts')           => 'novedades',
+    str_starts_with($_route, 'novedades')       => 'novedades',
     str_starts_with($_route, 'contact')         => 'contacto',
     default                                     => null,
 };

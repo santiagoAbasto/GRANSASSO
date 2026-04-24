@@ -80,15 +80,15 @@ export default function HeroEdit({ slide }) {
                         <Icon icon="solar:arrow-left-outline" width={18} />
                     </button>
                     <div>
-                        <h1 className="text-2xl font-bold text-gray-800">Editar Slide</h1>
-                        <p className="text-sm text-gray-500">Slide #{slide.id}</p>
+                        <h1 className="text-2xl font-bold text-gray-800">Editar diapositiva</h1>
+                        <p className="text-sm text-gray-500">Diapositiva #{slide.id}</p>
                     </div>
                 </div>
 
                 <form onSubmit={submit} className="space-y-6">
                     {/* Media */}
                     <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-                        <h2 className="font-semibold text-gray-700 mb-4">Media del slide</h2>
+                        <h2 className="font-semibold text-gray-700 mb-4">Contenido de la diapositiva</h2>
 
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-5">
                             {[
@@ -112,7 +112,7 @@ export default function HeroEdit({ slide }) {
                         {slide.media_url && (
                             <div className="mb-4 rounded-xl overflow-hidden h-40 bg-gray-100">
                                 {slide.media_type === "image" ? (
-                                    <img src={slide.media_url} alt="Slide actual" className="w-full h-full object-cover" />
+                                    <img src={slide.media_url} alt="Diapositiva actual" className="w-full h-full object-cover" />
                                 ) : slide.media_type === "video" ? (
                                     <video src={slide.media_url} className="w-full h-full object-cover" muted playsInline />
                                 ) : (
@@ -162,7 +162,7 @@ export default function HeroEdit({ slide }) {
                     <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-5">
                         <h2 className="font-semibold text-gray-700">Contenido multilenguaje</h2>
 
-                        <MultiInput label="Título" field="title" data={data} setData={setData} placeholder="Título del slide" />
+                        <MultiInput label="Título" field="title" data={data} setData={setData} placeholder="Título de la diapositiva" />
                         <MultiInput label="Subtítulo" field="subtitle" data={data} setData={setData} placeholder="Subtítulo" />
                         <MultiInput label="Texto del botón" field="button_text" data={data} setData={setData} placeholder="Ver productos" />
 

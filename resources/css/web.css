@@ -24,6 +24,7 @@
 /* HOME */
 
 @import "./web/home/home.css";
+@import "./web/home/gallery.css";
 @import "./web/home/productos-destacados.css";
 @import "./web/home/about.css";
 @import "./web/home/calidad.css";
@@ -40,6 +41,10 @@
 /* CALIDAD */
 
 @import "./web/calidad/calidad.css";
+
+/* NOVEDADES */
+
+@import "./web/novedades/novedades.css";
 
 /* CONTACTO */
 

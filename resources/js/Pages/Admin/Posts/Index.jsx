@@ -3,8 +3,8 @@ import { router } from "@inertiajs/react";
 import { Icon } from "@iconify/react";
 import { useState } from "react";
 
-/* Switch "En Home" */
-function HomeSwitch({ postId, value }) {
+/* Switch "En inicio" */
+function InicioSwitch({ postId, value }) {
     const [active, setActive] = useState(value);
     const [loading, setLoading] = useState(false);
 
@@ -28,7 +28,7 @@ function HomeSwitch({ postId, value }) {
         <button
             onClick={toggle}
             disabled={loading}
-            title={active ? "Quitar del home" : "Mostrar en home"}
+            title={active ? "Quitar del inicio" : "Mostrar en el inicio"}
             className={`relative inline-flex h-5 w-9 flex-shrink-0 items-center rounded-full transition-colors duration-200 focus:outline-none
                 ${active ? "bg-[#25A7CA]" : "bg-gray-200"}
                 ${loading ? "opacity-60 cursor-wait" : "cursor-pointer"}`}
@@ -146,7 +146,7 @@ export default function PostsIndex({ posts, filters }) {
                             <th className="px-5 py-3">
                                 <div className="flex items-center justify-center gap-1">
                                     <Icon icon="solar:home-smile-outline" width={13} />
-                                    En Home
+                                    En inicio
                                 </div>
                             </th>
                             <th className="px-5 py-3">Acciones</th>
@@ -196,10 +196,10 @@ export default function PostsIndex({ posts, filters }) {
                                     </span>
                                 </td>
 
-                                {/* En Home */}
+                                {/* En inicio */}
                                 <td className="px-5 py-3 text-center">
                                     <div className="flex justify-center">
-                                        <HomeSwitch postId={p.id} value={p.is_featured} />
+                                        <InicioSwitch postId={p.id} value={p.is_featured} />
                                     </div>
                                 </td>
 

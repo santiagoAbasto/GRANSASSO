@@ -6,9 +6,7 @@
 
 @include('web.home.sections.hero')
 
-@include('web.home.sections.hero-search')
-
-@include('web.home.sections.productos-destacados')
+@include('web.home.sections.gallery')
 
 @include('web.home.sections.about')
 

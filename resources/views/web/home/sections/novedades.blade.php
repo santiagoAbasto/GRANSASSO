@@ -11,7 +11,7 @@
         {{-- HEADER --}}
         <div class="novedades__header">
             <h2 class="novedades__title">Novedades</h2>
-            <a href="{{ route('posts.index') }}" class="novedades__ver-todas">Ver todas</a>
+            <a href="{{ route('novedades') }}" class="novedades__ver-todas">Ver todas</a>
         </div>
 
         {{-- SLIDER WRAPPER --}}
@@ -22,7 +22,7 @@
                 <div class="novedades__grid">
 
                     @foreach($group as $post)
-                    <a href="{{ route('posts.show', $post->slug) }}" class="news-card">
+                    <a href="{{ route('novedades.show', $post) }}" class="news-card">
 
                         {{-- IMAGEN: --cover para fotos reales (JPG/JPEG), --contain para logos y docs (PNG, etc.) --}}
                         @php

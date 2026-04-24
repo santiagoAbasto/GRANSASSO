@@ -15,12 +15,27 @@
     width: 100%;
 }
 
+@media (min-width: 1025px) {
+    .footer {
+        height: 300px;
+        display: flex;
+        flex-direction: column;
+    }
+}
+
 /* ── Área principal ── */
 
 .footer__main {
     background: var(--Azul, #1F589C);
-    padding-top: 74px;
+    padding-top: 56px;
     /* Logo arranca a 74px del tope */
+}
+
+@media (min-width: 1025px) {
+    .footer__main {
+        flex: 1;
+        padding-top: 32px;
+    }
 }
 
 .footer__container {
@@ -32,14 +47,27 @@
     box-sizing: border-box;
 }
 
+@media (min-width: 1025px) {
+    .footer__container {
+        display: grid;
+        grid-template-columns: 150px minmax(180px, 1fr) 288px minmax(260px, 320px);
+        column-gap: 36px;
+        align-items: start;
+    }
+}
+
 /* ── Logo ── */
 
 .footer__logo-col {
     flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .footer__logo-wrap {
-    display: inline-block;
+    display: inline-flex;
+    justify-content: center;
     text-decoration: none;
     border: none;
     outline: none;
@@ -47,16 +75,22 @@
 
 .footer__logo-img {
     display: block;
-    width: 118px;
-    height: 121.124px;
+    width: 144px;
+    height: auto;
     border: none;
     outline: none;
+}
+
+@media (min-width: 1025px) {
+    .footer__logo-img {
+        width: 132px;
+    }
 }
 
 /* ── Columnas ── */
 
 .footer__col {
-    padding-top: 5px;
+    padding-top: 0;
     /* 74 + 5 = 79px desde tope para cols */
 }
 
@@ -82,6 +116,25 @@
     width: 350px;
 }
 
+@media (min-width: 1025px) {
+    .footer__secciones,
+    .footer__newsletter-col,
+    .footer__contact-col {
+        margin-left: 0;
+    }
+
+    .footer__secciones,
+    .footer__newsletter-col,
+    .footer__contact-col,
+    .footer__logo-col {
+        min-width: 0;
+    }
+
+    .footer__contact-col {
+        width: auto;
+    }
+}
+
 .footer__contact-col .footer__contact-text {
     white-space: normal;
     word-break: break-word;
@@ -89,6 +142,20 @@
 
 .footer__contact-row--phones .footer__contact-text {
     white-space: nowrap;
+}
+
+@media (min-width: 1025px) {
+    .footer__contact-row--phones {
+        align-items: center;
+    }
+
+    .footer__contact-row--phones .footer__contact-text {
+        display: block;
+        overflow: hidden;
+        text-overflow: clip;
+        white-space: nowrap;
+        font-size: 13px;
+    }
 }
 
 .footer__contact-icon {
@@ -105,7 +172,13 @@
     font-size: 20px;
     font-weight: 600;
     line-height: 120%;
-    margin-bottom: 26px;
+    margin-bottom: 20px;
+}
+
+@media (min-width: 1025px) {
+    .footer__title {
+        margin-bottom: 16px;
+    }
 }
 
 /* ── Secciones: dos columnas de links ── */
@@ -124,7 +197,13 @@
 }
 
 .footer__links-list li+li {
-    margin-top: 14px;
+    margin-top: 10px;
+}
+
+@media (min-width: 1025px) {
+    .footer__links-list li+li {
+        margin-top: 8px;
+    }
 }
 
 .footer__link {
@@ -210,9 +289,15 @@
     display: flex;
     align-items: flex-start;
     gap: 11px;
-    margin-bottom: 23px;
+    margin-bottom: 18px;
     color: #FFF;
     text-decoration: none;
+}
+
+@media (min-width: 1025px) {
+    .footer__contact-row {
+        margin-bottom: 14px;
+    }
 }
 
 .footer__contact-row:last-child {
@@ -248,7 +333,30 @@
 /* ── Redes sociales (dentro de newsletter col) ── */
 
 .footer__social {
-    margin-top: 35px;
+    margin-top: 24px;
+}
+
+@media (min-width: 1025px) {
+    .footer__social {
+        margin-top: 18px;
+    }
+}
+
+.footer__logo-social {
+    margin-top: 18px;
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+
+.footer__shipping {
+    margin-top: 24px;
+}
+
+@media (min-width: 1025px) {
+    .footer__shipping {
+        margin-top: 18px;
+    }
 }
 
 .footer__social .footer__title {
@@ -257,8 +365,9 @@
 
 .footer__social-links {
     display: flex;
-    gap: 16px;
+    gap: 7px;
     align-items: center;
+    justify-content: center;
 }
 
 .footer__social-link {
@@ -274,9 +383,14 @@
     opacity: 0.75;
 }
 
+.footer__social-link--disabled {
+    opacity: 0.9;
+    pointer-events: none;
+}
+
 .footer__social-link svg {
-    width: 24px;
-    height: 24px;
+    width: 20px;
+    height: 20px;
     display: block;
 }
 
@@ -285,10 +399,17 @@
 
 .footer__bottom {
     position: relative;
-    margin-top: 109px;
-    height: 64px;
+    margin-top: 72px;
+    height: 54px;
     overflow: hidden;
     background: transparent;
+}
+
+@media (min-width: 1025px) {
+    .footer__bottom {
+        margin-top: 0;
+        height: 44px;
+    }
 }
 
 .footer__bottom::before {

@@ -4,7 +4,9 @@ namespace App\Models;
 
 use App\Support\CatalogImage;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
@@ -58,6 +60,18 @@ class Product extends Model
     }
 
     /**
+     * Cajas adicionales donde este producto también debe mostrarse.
+     * La caja principal sigue viviendo en products.gearbox_id para no
+     * romper la lógica del importador y del catálogo base.
+     */
+    public function secondaryGearboxes(): BelongsToMany
+    {
+        return $this->belongsToMany(Gearbox::class, 'product_gearbox_links')
+            ->withTimestamps()
+            ->orderBy('name');
+    }
+
+    /**
      * Items del producto (uno por fila del Excel).
      * Aquí viven: oem_code, application, extra_data (G60, G85, etc.)
      */
@@ -88,6 +102,41 @@ class Product extends Model
     public function primaryImage(): HasOne
     {
         return $this->hasOne(ProductImage::class)->where('is_primary', true);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | HELPERS — Visibilidad por caja
+    |--------------------------------------------------------------------------
+    */
+
+    public function isVisibleInGearbox(int $gearboxId): bool
+    {
+        if ((int) $this->gearbox_id === $gearboxId) {
+            return true;
+        }
+
+        if ($this->relationLoaded('secondaryGearboxes')) {
+            return $this->secondaryGearboxes->contains(fn (Gearbox $gearbox) => (int) $gearbox->id === $gearboxId);
+        }
+
+        return $this->secondaryGearboxes()->where('gearboxes.id', $gearboxId)->exists();
+    }
+
+    public function scopeVisibleInGearbox(Builder $query, int $gearboxId): Builder
+    {
+        return $query->where(function (Builder $q) use ($gearboxId) {
+            $q->where('gearbox_id', $gearboxId)
+                ->orWhereHas('secondaryGearboxes', fn (Builder $secondary) => $secondary->where('gearboxes.id', $gearboxId));
+        });
+    }
+
+    public function scopeVisibleInBrand(Builder $query, int $brandId): Builder
+    {
+        return $query->where(function (Builder $q) use ($brandId) {
+            $q->whereHas('gearbox', fn (Builder $primary) => $primary->where('brand_id', $brandId))
+                ->orWhereHas('secondaryGearboxes', fn (Builder $secondary) => $secondary->where('gearboxes.brand_id', $brandId));
+        });
     }
 
     /*

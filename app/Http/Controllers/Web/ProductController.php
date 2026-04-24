@@ -59,9 +59,9 @@ class ProductController extends Controller
         $brands = Brand::active()->ordered()->get();
         $gearbox->setRelation('brand', $brand);
 
-        $products = Product::where('gearbox_id', $gearbox->id)
+        $products = Product::visibleInGearbox($gearbox->id)
             ->where('is_active', true)
-            ->with(['primaryImage', 'items'])
+            ->with(['primaryImage', 'items', 'secondaryGearboxes.brand'])
             ->orderBy('figure')
             ->get();
 
@@ -83,21 +83,16 @@ class ProductController extends Controller
             ->where('brand_id', $brand->id)
             ->firstOrFail();
 
-        $product = Product::where(function ($q) use ($productCode) {
-                $q->where('code_gs', $productCode)
-                  ->orWhere('slug', $productCode);
-            })
-            ->where('gearbox_id', $gearbox->id)
-            ->firstOrFail();
+        $product = $this->findProductInGearbox($gearbox, $productCode);
 
-        $product->load(['images', 'items', 'primaryImage']);
+        $product->load(['images', 'items', 'primaryImage', 'secondaryGearboxes.brand']);
         $gearbox->setRelation('brand', $brand);
         $product->setRelation('gearbox', $gearbox);
 
-        $related = Product::where('gearbox_id', $gearbox->id)
+        $related = Product::visibleInGearbox($gearbox->id)
             ->where('id', '!=', $product->id)
             ->where('is_active', true)
-            ->with(['primaryImage', 'items'])
+            ->with(['primaryImage', 'items', 'secondaryGearboxes.brand'])
             ->limit(4)
             ->get();
 
@@ -122,14 +117,9 @@ class ProductController extends Controller
             ->where('brand_id', $brand->id)
             ->firstOrFail();
 
-        $product = Product::where(function ($q) use ($productCode) {
-                $q->where('code_gs', $productCode)
-                  ->orWhere('slug', $productCode);
-            })
-            ->where('gearbox_id', $gearbox->id)
-            ->firstOrFail();
-
-        $product->load(['images', 'items', 'primaryImage']);
+        $product = $this->findProductInGearbox($gearbox, $productCode);
+        $product->load(['images', 'items', 'primaryImage', 'secondaryGearboxes.brand']);
+        $product->setRelation('gearbox', $gearbox);
 
         $productView      = $this->buildProductViewData($product);
         $oemCode          = $productView['primary_oem_code'];
@@ -188,7 +178,7 @@ class ProductController extends Controller
         // Con código: buscar por code_gs (productos) o oem_code (items)
         $query = Product::query()
             ->where('is_active', true)
-            ->with(['gearbox.brand', 'primaryImage', 'items']);
+            ->with(['gearbox.brand', 'secondaryGearboxes.brand', 'primaryImage', 'items']);
 
         // Filtrar por marca si se seleccionó
         $brand   = $brandSlug ? Brand::where('slug', $brandSlug)->first() : null;
@@ -198,10 +188,9 @@ class ProductController extends Controller
                 ? Gearbox::where('brand_id', $brand->id)->where('slug', $gearboxSlug)->first()
                 : null;
             if ($gearbox) {
-                $query->where('gearbox_id', $gearbox->id);
+                $query->visibleInGearbox($gearbox->id);
             } else {
-                $gearboxIds = Gearbox::where('brand_id', $brand->id)->pluck('id');
-                $query->whereIn('gearbox_id', $gearboxIds);
+                $query->visibleInBrand($brand->id);
             }
         }
 
@@ -212,6 +201,13 @@ class ProductController extends Controller
         });
 
         $products = $query->orderBy('code_gs')->get();
+
+        $products->each(function (Product $product) use ($brand, $gearbox) {
+            $contextGearbox = $this->resolveRouteGearbox($product, $brand, $gearbox);
+            if ($contextGearbox) {
+                $product->setRelation('gearbox', $contextGearbox);
+            }
+        });
 
         $this->decorateProductsForCards($products);
 
@@ -512,5 +508,56 @@ class ProductController extends Controller
                 implode('|', [$right->figure ?? 'zzz', $right->oem_code ?? 'zzz', $right->application ?? 'zzz'])
             ))
             ->values();
+    }
+
+    private function findProductInGearbox(Gearbox $gearbox, string $productCode): Product
+    {
+        return Product::query()
+            ->where(function ($q) use ($productCode) {
+                $q->where('code_gs', $productCode)
+                    ->orWhere('slug', $productCode);
+            })
+            ->visibleInGearbox($gearbox->id)
+            ->firstOrFail();
+    }
+
+    private function resolveRouteGearbox(Product $product, ?Brand $selectedBrand = null, ?Gearbox $selectedGearbox = null): ?Gearbox
+    {
+        if ($selectedGearbox && $product->isVisibleInGearbox((int) $selectedGearbox->id)) {
+            $selectedGearbox->loadMissing('brand');
+            return $selectedGearbox;
+        }
+
+        $primaryGearbox = $product->gearbox;
+
+        if (! $selectedBrand && ! $selectedGearbox) {
+            if ($primaryGearbox) {
+                $primaryGearbox->loadMissing('brand');
+            }
+
+            $fallbackGearbox = $primaryGearbox ?? $product->secondaryGearboxes->first();
+            $fallbackGearbox?->loadMissing('brand');
+
+            return $fallbackGearbox;
+        }
+
+        if ($selectedBrand && $primaryGearbox?->brand_id === $selectedBrand->id) {
+            $primaryGearbox->loadMissing('brand');
+            return $primaryGearbox;
+        }
+
+        $secondaryGearbox = $product->secondaryGearboxes
+            ->first(fn (Gearbox $gearbox) => ! $selectedBrand || (int) $gearbox->brand_id === (int) $selectedBrand->id);
+
+        if ($secondaryGearbox) {
+            $secondaryGearbox->loadMissing('brand');
+            return $secondaryGearbox;
+        }
+
+        if ($primaryGearbox) {
+            $primaryGearbox->loadMissing('brand');
+        }
+
+        return $primaryGearbox;
     }
 }

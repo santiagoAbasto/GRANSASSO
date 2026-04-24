@@ -12,6 +12,25 @@ $main    = $page?->sections->where('type', 'about_main')->first();
 $mision  = $page?->sections->where('type', 'about_mision')->first();
 $vision  = $page?->sections->where('type', 'about_vision')->first();
 $calidad = $page?->sections->where('type', 'about_calidad')->first();
+
+$formatEmpresaContent = static function ($content): string {
+    $content = trim((string) $content);
+
+    if ($content === '') {
+        return '';
+    }
+
+    // Compatibilidad con contenido viejo guardado por el editor rich-text.
+    $content = preg_replace('/<div\b[^>]*>\s*(<br\s*\/?>)?\s*<\/div>/i', '<p><br></p>', $content) ?? $content;
+    $content = preg_replace('/<div\b[^>]*>/i', '<p>', $content) ?? $content;
+    $content = preg_replace('/<\/div>/i', '</p>', $content) ?? $content;
+
+    if (preg_match('/<[^>]+>/', $content)) {
+        return $content;
+    }
+
+    return nl2br(e($content));
+};
 @endphp
 
 
@@ -101,7 +120,7 @@ $calidad = $page?->sections->where('type', 'about_calidad')->first();
                     {{ $main->getTitle() ?: 'Quiénes somos' }}
                 </h2>
 
-                <div class="empresa-about__text">{!! $main->getContent() !!}</div>
+                <div class="empresa-about__text">{!! $formatEmpresaContent($main->getContent()) !!}</div>
 
             </div>
 
@@ -139,7 +158,7 @@ $calidad = $page?->sections->where('type', 'about_calidad')->first();
                     {{ $mision?->getTitle() ?: 'Misión' }}
                 </h3>
 
-                <div class="empresa-card__text">{!! $mision?->getContent() !!}</div>
+                <div class="empresa-card__text">{!! $formatEmpresaContent($mision?->getContent()) !!}</div>
 
             </div>
 
@@ -166,7 +185,7 @@ $calidad = $page?->sections->where('type', 'about_calidad')->first();
                     {{ $vision?->getTitle() ?: 'Visión' }}
                 </h3>
 
-                <div class="empresa-card__text">{!! $vision?->getContent() !!}</div>
+                <div class="empresa-card__text">{!! $formatEmpresaContent($vision?->getContent()) !!}</div>
 
             </div>
 
@@ -186,7 +205,7 @@ $calidad = $page?->sections->where('type', 'about_calidad')->first();
                     {{ $calidad?->getTitle() ?: 'Calidad' }}
                 </h3>
 
-                <div class="empresa-card__text">{!! $calidad?->getContent() !!}</div>
+                <div class="empresa-card__text">{!! $formatEmpresaContent($calidad?->getContent()) !!}</div>
 
             </div>
 

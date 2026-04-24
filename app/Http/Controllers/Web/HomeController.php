@@ -3,10 +3,8 @@
 namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
-use App\Models\Brand;
 use App\Models\Page;
 use App\Models\Slider;
-use Illuminate\Support\Collection;
 
 class HomeController extends Controller
 {
@@ -25,14 +23,9 @@ class HomeController extends Controller
             $page->setRelation('sections', collect());
         }
 
-        $brands = Brand::active()
-            ->where('show_in_home', true)
-            ->ordered()
-            ->get();
-
         // Posts/Novedades: colección vacía hasta que se implemente el módulo de posts
         $posts = collect();
 
-        return view('web.home.home', compact('slides', 'page', 'brands', 'posts'));
+        return view('web.home.home', compact('slides', 'page', 'posts'));
     }
 }

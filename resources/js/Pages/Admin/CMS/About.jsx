@@ -107,8 +107,8 @@ export default function About({ page, sections }) {
         <AdminLayout>
             <div className="max-w-3xl">
                 <div className="mb-6">
-                    <h1 className="text-2xl font-bold text-gray-800">CMS – Nosotros</h1>
-                    <p className="text-sm text-gray-500">Gestión del contenido de la página "Nosotros"</p>
+                    <h1 className="text-2xl font-bold text-gray-800">Nosotros</h1>
+                    <p className="text-sm text-gray-500">Editá el contenido de la página Nosotros.</p>
                 </div>
 
                 <div className="space-y-4">

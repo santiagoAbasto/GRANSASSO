@@ -413,10 +413,14 @@
 }
 
 .desarrollos-gallery__item {
+    position: relative;
+    padding: 0;
+    border: 0;
     border-radius: 8px;
     overflow: hidden;
     aspect-ratio: 1 / 1;
     background: #f0f0f0;
+    cursor: zoom-in;
 }
 
 .desarrollos-gallery__img {
@@ -430,6 +434,67 @@
 
 .desarrollos-gallery__item:hover .desarrollos-gallery__img {
     filter: grayscale(0%) brightness(1);
+}
+
+.desarrollos-lightbox-open {
+    overflow: hidden;
+}
+
+.desarrollos-lightbox {
+    position: fixed;
+    inset: 0;
+    z-index: 1200;
+}
+
+.desarrollos-lightbox__backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(8, 15, 28, 0.82);
+    backdrop-filter: blur(6px);
+}
+
+.desarrollos-lightbox__dialog {
+    position: relative;
+    z-index: 1;
+    width: min(94vw, 1280px);
+    height: min(90vh, 920px);
+    margin: 5vh auto;
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.35);
+    background: #0b1320;
+}
+
+.desarrollos-lightbox__img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    background: #0b1320;
+}
+
+.desarrollos-lightbox__close {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    border: 0;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.28);
+    color: #ffffff;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.desarrollos-lightbox__close:hover {
+    background: rgba(255, 255, 255, 0.22);
+    transform: scale(1.04);
 }
 
 
@@ -467,6 +532,20 @@
         padding-top: 84px;
         padding-left: 24px;
         padding-right: 24px;
+    }
+
+    .desarrollos-lightbox__dialog {
+        width: min(94vw, 1100px);
+        height: min(86vh, 860px);
+        margin: 7vh auto;
+        border-radius: 14px;
+    }
+
+    .desarrollos-lightbox__close {
+        top: 10px;
+        right: 10px;
+        width: 38px;
+        height: 38px;
     }
 
     .desarrollos-banner__bottom {

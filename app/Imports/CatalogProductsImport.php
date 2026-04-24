@@ -412,18 +412,27 @@ class CatalogProductsImport implements ToArray, WithEvents
         $product = null;
 
         if ($codeGs !== null) {
-            $product = Product::where('gearbox_id', $gearbox->id)
+            $product = Product::visibleInGearbox($gearbox->id)
                 ->where('code_gs', $codeGs)
                 ->first();
         } elseif ($figure !== null) {
-            $product = Product::where('gearbox_id', $gearbox->id)
+            $product = Product::visibleInGearbox($gearbox->id)
                 ->where('figure', $figure)
                 ->whereNull('code_gs')
                 ->first();
         } elseif ($oemFallback !== null) {
-            $product = Product::where('gearbox_id', $gearbox->id)
+            $product = Product::visibleInGearbox($gearbox->id)
                 ->whereHas('items', fn ($q) => $q->where('oem_code', $oemFallback))
                 ->first();
+        }
+
+        if (! $product) {
+            $product = $this->findCompatibleProductAcrossCatalog(
+                $gearbox,
+                $figure,
+                $codeGs,
+                $oemFallback
+            );
         }
 
         if (! $product) {
@@ -443,6 +452,8 @@ class CatalogProductsImport implements ToArray, WithEvents
             return $product;
         }
 
+        $this->linkProductToGearbox($product, $gearbox);
+
         $updates = [];
 
         if ($figure !== null && $product->figure === null) {
@@ -461,6 +472,48 @@ class CatalogProductsImport implements ToArray, WithEvents
 
         $this->updated++;
         return $product;
+    }
+
+    private function findCompatibleProductAcrossCatalog(
+        Gearbox $gearbox,
+        ?string $figure,
+        ?string $codeGs,
+        ?string $oemFallback
+    ): ?Product {
+        if ($codeGs === null && $figure === null) {
+            return null;
+        }
+
+        $query = Product::query()
+            ->where(function ($q) use ($gearbox) {
+                $q->where('gearbox_id', '!=', $gearbox->id)
+                    ->orWhereHas('secondaryGearboxes', fn ($secondary) => $secondary->where('gearboxes.id', '!=', $gearbox->id));
+            });
+
+        if ($codeGs !== null) {
+            $query->where('code_gs', $codeGs);
+        } else {
+            $query->whereNull('code_gs');
+        }
+
+        if ($figure !== null) {
+            $query->where('figure', $figure);
+        }
+
+        if ($oemFallback !== null) {
+            $query->whereHas('items', fn ($q) => $q->where('oem_code', $oemFallback));
+        }
+
+        return $query->orderBy('id')->first();
+    }
+
+    private function linkProductToGearbox(Product $product, Gearbox $gearbox): void
+    {
+        if ((int) $product->gearbox_id === (int) $gearbox->id) {
+            return;
+        }
+
+        $product->secondaryGearboxes()->syncWithoutDetaching([$gearbox->id]);
     }
 
     private function processRowItems(

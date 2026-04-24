@@ -73,15 +73,15 @@ export default function HeroCreate() {
                         <Icon icon="solar:arrow-left-outline" width={18} />
                     </button>
                     <div>
-                        <h1 className="text-2xl font-bold text-gray-800">Nuevo Slide</h1>
-                        <p className="text-sm text-gray-500">Agregar slide al slider principal</p>
+                        <h1 className="text-2xl font-bold text-gray-800">Nueva diapositiva</h1>
+                        <p className="text-sm text-gray-500">Agregá una diapositiva al banner principal del inicio.</p>
                     </div>
                 </div>
 
                 <form onSubmit={submit} className="space-y-6">
                     {/* Media */}
                     <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-                        <h2 className="font-semibold text-gray-700 mb-4">Media del slide</h2>
+                        <h2 className="font-semibold text-gray-700 mb-4">Contenido de la diapositiva</h2>
 
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-5">
                             {[
@@ -140,7 +140,7 @@ export default function HeroCreate() {
                     <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-5">
                         <h2 className="font-semibold text-gray-700">Contenido multilenguaje</h2>
 
-                        <MultiInput label="Título" field="title" data={data} setData={setData} placeholder="Título del slide" />
+                        <MultiInput label="Título" field="title" data={data} setData={setData} placeholder="Título de la diapositiva" />
                         <MultiInput label="Subtítulo" field="subtitle" data={data} setData={setData} placeholder="Subtítulo" />
                         <MultiInput label="Texto del botón" field="button_text" data={data} setData={setData} placeholder="Ver productos" />
 
@@ -175,7 +175,7 @@ export default function HeroCreate() {
                     <div className="flex justify-end gap-3">
                         <button type="button" onClick={() => router.visit("/admin/hero")} className="px-5 py-2.5 rounded-xl border border-gray-200 text-sm text-gray-700 hover:bg-gray-50">Cancelar</button>
                         <button type="submit" disabled={processing} className="px-5 py-2.5 rounded-xl bg-[#25A7CA] text-white text-sm font-medium hover:bg-[#1d96b8] disabled:opacity-60 transition">
-                            {processing ? "Guardando..." : "Crear Slide"}
+                            {processing ? "Guardando..." : "Crear diapositiva"}
                         </button>
                     </div>
                 </form>

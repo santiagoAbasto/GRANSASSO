@@ -3,6 +3,7 @@ import AdminLayout from "@/Layouts/AdminLayout";
 import { router } from "@inertiajs/react";
 import { useForm } from "@inertiajs/react";
 import { Icon } from "@iconify/react";
+import RichTextEditor from "@/Components/Admin/RichTextEditor";
 
 /* inline order input shared by both sections */
 function OrderInput({ img }) {
@@ -82,13 +83,13 @@ function BannerSection({ section }) {
                         <Icon icon="solar:gallery-wide-outline" width={16} className="text-[#25A7CA]" />
                     </div>
                     <div>
-                        <p className="text-sm font-semibold text-gray-800">Banner / Slider</p>
+                        <p className="text-sm font-semibold text-gray-800">Banner principal</p>
                         <p className="text-xs text-gray-400">
                             {images.length === 0
                                 ? "Sin imágenes — el banner no se mostrará"
                                 : images.length === 1
-                                ? "1 imagen — banner estático (sin dots)"
-                                : `${images.length} imágenes — slider automático con dots`}
+                                ? "1 imagen — banner estático (sin indicadores)"
+                                : `${images.length} imágenes — carrusel automático con indicadores`}
                         </p>
                     </div>
                 </div>
@@ -263,12 +264,111 @@ function GallerySection({ section }) {
     );
 }
 
+function MainTextSection({ section }) {
+    const isNew = !section;
+    const { data, setData, post, processing } = useForm({
+        _method: isNew ? undefined : "PUT",
+        type: "desarrollos_main",
+        title_es: section?.title_es ?? "",
+        title_en: section?.title_en ?? "",
+        title_pt: section?.title_pt ?? "",
+        content_es: section?.content_es ?? "",
+        content_en: section?.content_en ?? "",
+        content_pt: section?.content_pt ?? "",
+        is_active: section?.is_active ?? true,
+        order: section?.order ?? "C",
+    });
+
+    const submit = (e) => {
+        e.preventDefault();
+        const url = isNew
+            ? `/admin/pages/${section.page_id}/sections`
+            : `/admin/sections/${section.id}`;
+        post(url);
+    };
+
+    return (
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+                <div className="flex items-center gap-2">
+                    <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-emerald-100">
+                        <Icon icon="solar:document-text-outline" width={16} className="text-emerald-600" />
+                    </div>
+                    <div>
+                        <p className="text-sm font-semibold text-gray-800">Texto principal</p>
+                        <p className="text-xs text-gray-400">Editá el título y el contenido largo que se ve en la web pública.</p>
+                    </div>
+                </div>
+                <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${data.is_active ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"}`}>
+                    {data.is_active ? "Activo" : "Inactivo"}
+                </span>
+            </div>
+
+            <form onSubmit={submit} className="p-5 space-y-5">
+                {[
+                    { code: "es", label: "Español", flag: "🇦🇷" },
+                    { code: "en", label: "English", flag: "🇺🇸" },
+                    { code: "pt", label: "Português", flag: "🇧🇷" },
+                ].map((locale) => (
+                    <div key={locale.code} className="rounded-xl border border-gray-100 p-4 space-y-3">
+                        <div className="flex items-center gap-2">
+                            <span>{locale.flag}</span>
+                            <span className="text-sm font-semibold text-gray-700">{locale.label}</span>
+                        </div>
+
+                        <div>
+                            <label className="block text-xs font-medium text-gray-500 mb-1">Título</label>
+                            <input
+                                type="text"
+                                value={data[`title_${locale.code}`]}
+                                onChange={(e) => setData(`title_${locale.code}`, e.target.value)}
+                                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#25A7CA]/30"
+                            />
+                        </div>
+
+                        <div>
+                            <label className="block text-xs font-medium text-gray-500 mb-1">Contenido</label>
+                            <RichTextEditor
+                                value={data[`content_${locale.code}`]}
+                                onChange={(value) => setData(`content_${locale.code}`, value)}
+                                placeholder="Escribí el contenido..."
+                            />
+                        </div>
+                    </div>
+                ))}
+
+                <div className="flex items-center justify-between pt-2 border-t border-gray-100">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                        <input
+                            type="checkbox"
+                            checked={!!data.is_active}
+                            onChange={(e) => setData("is_active", e.target.checked)}
+                            className="w-4 h-4 rounded accent-[#25A7CA]"
+                        />
+                        <span className="text-sm text-gray-700">Sección activa</span>
+                    </label>
+
+                    <button
+                        type="submit"
+                        disabled={processing}
+                        className="inline-flex items-center gap-2 px-5 py-2 bg-[#25A7CA] text-white rounded-lg text-sm font-medium hover:bg-[#1d96b8] disabled:opacity-60 transition"
+                    >
+                        <Icon icon={processing ? "solar:refresh-outline" : "solar:diskette-outline"} width={15} className={processing ? "animate-spin" : ""} />
+                        {processing ? "Guardando..." : "Guardar texto"}
+                    </button>
+                </div>
+            </form>
+        </div>
+    );
+}
+
 /* ─────────────────────────────────────────────────────────────────────────
    PAGE PRINCIPAL
 ───────────────────────────────────────────────────────────────────────── */
 export default function Desarrollos({ page, sections }) {
     const banner  = sections.find((s) => s.type === "banner");
     const gallery = sections.find((s) => s.type === "desarrollos_gallery");
+    const mainText = sections.find((s) => s.type === "desarrollos_main");
 
     return (
         <AdminLayout>
@@ -277,8 +377,8 @@ export default function Desarrollos({ page, sections }) {
                 {/* Header */}
                 <div className="flex items-center justify-between">
                     <div>
-                        <h1 className="text-2xl font-bold text-gray-800">CMS – Desarrollos especiales</h1>
-                        <p className="text-sm text-gray-500">Gestión del banner y la galería de trabajos realizados</p>
+                        <h1 className="text-2xl font-bold text-gray-800">Desarrollos especiales</h1>
+                        <p className="text-sm text-gray-500">Editá el texto principal, las imágenes del banner y la galería.</p>
                     </div>
                     <a
                         href="/desarrollos-especiales"
@@ -296,11 +396,13 @@ export default function Desarrollos({ page, sections }) {
                     <div className="flex items-start gap-3">
                         <Icon icon="solar:info-circle-outline" width={18} className="text-[#25A7CA] mt-0.5 flex-shrink-0" />
                         <div className="text-sm text-gray-600">
-                            <p className="font-medium text-gray-700 mb-1">Contenido de la página</p>
-                            <p>El texto principal ("Desarrollo y fabricación a medida") está fijo en el código. Desde aquí podés gestionar las imágenes del <strong>banner</strong> y la <strong>galería de trabajos realizados</strong>.</p>
+                            <p className="font-medium text-gray-700 mb-1">Qué podés editar</p>
+                            <p>Desde acá podés actualizar el texto principal de la página, las imágenes principales y la galería de trabajos realizados.</p>
                         </div>
                     </div>
                 </div>
+
+                {mainText && <MainTextSection section={{ ...mainText, page_id: page.id }} />}
 
                 {/* Banner */}
                 {banner && <BannerSection section={banner} />}

@@ -282,22 +282,31 @@ class ProductsImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
 
         if ($codeGs !== null) {
             // code_gs es el identificador principal del negocio
-            $product = Product::where('gearbox_id', $gearbox->id)
-                               ->where('code_gs', $codeGs)
-                               ->first();
+            $product = Product::visibleInGearbox($gearbox->id)
+                ->where('code_gs', $codeGs)
+                ->first();
         } elseif ($figure !== null) {
             // Solo figura disponible
-            $product = Product::where('gearbox_id', $gearbox->id)
-                               ->where('figure', $figure)
-                               ->whereNull('code_gs')
-                               ->first();
+            $product = Product::visibleInGearbox($gearbox->id)
+                ->where('figure', $figure)
+                ->whereNull('code_gs')
+                ->first();
         } else {
             // Sin identificadores de negocio: buscar via item por oem_code
             if ($oemCode !== '') {
-                $product = Product::where('gearbox_id', $gearbox->id)
+                $product = Product::visibleInGearbox($gearbox->id)
                     ->whereHas('items', fn ($q) => $q->where('oem_code', $oemCode))
                     ->first();
             }
+        }
+
+        if (! $product) {
+            $product = $this->findCompatibleProductAcrossCatalog(
+                $gearbox,
+                $figure,
+                $codeGs,
+                $oemCode !== '' ? $oemCode : null
+            );
         }
 
         // ── Creación ──────────────────────────────────────────────────────
@@ -317,6 +326,8 @@ class ProductsImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
             $this->created++;
             return $product;
         }
+
+        $this->linkProductToGearbox($product, $gearbox);
 
         // ── Actualización parcial (no sobreescribir traducciones manuales) ─
         $updates = [];
@@ -343,6 +354,53 @@ class ProductsImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
 
         $this->updated++;
         return $product;
+    }
+
+    /**
+     * Si el mismo producto aparece en otra marca/caja del Excel, lo reutilizamos
+     * y vinculamos esa caja como adicional. Para evitar falsos positivos, la
+     * coincidencia cruzada exige una clave fuerte del catálogo.
+     */
+    private function findCompatibleProductAcrossCatalog(
+        Gearbox $gearbox,
+        ?string $figure,
+        ?string $codeGs,
+        ?string $oemCode
+    ): ?Product {
+        if ($codeGs === null && $figure === null) {
+            return null;
+        }
+
+        $query = Product::query()
+            ->where(function ($q) use ($gearbox) {
+                $q->where('gearbox_id', '!=', $gearbox->id)
+                    ->orWhereHas('secondaryGearboxes', fn ($secondary) => $secondary->where('gearboxes.id', '!=', $gearbox->id));
+            });
+
+        if ($codeGs !== null) {
+            $query->where('code_gs', $codeGs);
+        } else {
+            $query->whereNull('code_gs');
+        }
+
+        if ($figure !== null) {
+            $query->where('figure', $figure);
+        }
+
+        if ($oemCode !== null) {
+            $query->whereHas('items', fn ($q) => $q->where('oem_code', $oemCode));
+        }
+
+        return $query->orderBy('id')->first();
+    }
+
+    private function linkProductToGearbox(Product $product, Gearbox $gearbox): void
+    {
+        if ((int) $product->gearbox_id === (int) $gearbox->id) {
+            return;
+        }
+
+        $product->secondaryGearboxes()->syncWithoutDetaching([$gearbox->id]);
     }
 
     /*

@@ -52,13 +52,13 @@ function BannerSection({ section }) {
                         <Icon icon="solar:gallery-wide-outline" width={16} className="text-[#25A7CA]" />
                     </div>
                     <div>
-                        <p className="text-sm font-semibold text-gray-800">Banner / Slider</p>
+                        <p className="text-sm font-semibold text-gray-800">Banner principal</p>
                         <p className="text-xs text-gray-400">
                             {images.length === 0
                                 ? "Sin imágenes — el banner no se mostrará"
                                 : images.length === 1
-                                ? "1 imagen — banner estático (sin dots)"
-                                : `${images.length} imágenes — slider automático con dots`}
+                                ? "1 imagen — banner estático (sin indicadores)"
+                                : `${images.length} imágenes — carrusel automático con indicadores`}
                         </p>
                     </div>
                 </div>
@@ -419,8 +419,8 @@ export default function Empresa({ page, sections }) {
                 {/* Header */}
                 <div className="flex items-center justify-between">
                     <div>
-                        <h1 className="text-2xl font-bold text-gray-800">CMS – Empresa</h1>
-                        <p className="text-sm text-gray-500">Gestión de secciones de la página "Empresa"</p>
+                        <h1 className="text-2xl font-bold text-gray-800">Empresa</h1>
+                        <p className="text-sm text-gray-500">Editá el contenido de la página Empresa.</p>
                     </div>
                     {!showCreate && (
                         <button

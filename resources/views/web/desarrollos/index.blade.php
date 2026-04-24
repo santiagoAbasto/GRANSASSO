@@ -7,8 +7,30 @@
 @php
 $bannerSection  = $page?->sections->where('type', 'banner')->first();
 $bannerSlides   = $bannerSection?->images->sortBy('order') ?? collect();
+$mainSection    = $page?->sections->where('type', 'desarrollos_main')->where('is_active', true)->first();
 $gallerySection = $page?->sections->where('type', 'desarrollos_gallery')->first();
 $galleryImages  = $gallerySection?->images->sortBy('order') ?? collect();
+
+$formatDesarrollosContent = static function ($content): string {
+    $content = trim((string) $content);
+
+    if ($content === '') {
+        return '';
+    }
+
+    if (preg_match('/<[^>]+>/', $content)) {
+        return $content;
+    }
+
+    $paragraphs = preg_split("/(?:\r?\n){2,}/", $content) ?: [];
+    $paragraphs = array_values(array_filter(array_map('trim', $paragraphs), static fn ($paragraph) => $paragraph !== ''));
+
+    if (count($paragraphs) > 1) {
+        return implode('', array_map(static fn ($paragraph) => '<p>' . nl2br(e($paragraph)) . '</p>', $paragraphs));
+    }
+
+    return '<p>' . nl2br(e($content)) . '</p>';
+};
 @endphp
 
 
@@ -103,15 +125,19 @@ $galleryImages  = $gallerySection?->images->sortBy('order') ?? collect();
             {{-- LEFT: text content --}}
             <div class="desarrollos-main__content">
 
-                <h2 class="desarrollos-main__title">{{ __('ui.desarrollos.section_title') }}</h2>
+                <h2 class="desarrollos-main__title">
+                    {{ $mainSection?->getTitle() ?: __('ui.desarrollos.section_title') }}
+                </h2>
 
                 <div class="desarrollos-main__body">
-                    <p>{{ __('ui.desarrollos.p1') }}</p>
-                    <p>{{ __('ui.desarrollos.p2') }}</p>
-                    <p>{{ __('ui.desarrollos.p3') }}</p>
-                    <p>{{ __('ui.desarrollos.p4') }}</p>
-                    <p>{{ __('ui.desarrollos.p5') }}</p>
-                    <p>{{ __('ui.desarrollos.p6') }}</p>
+                    {!! $mainSection ? $formatDesarrollosContent($mainSection->getContent()) : implode('', [
+                        '<p>' . e(__('ui.desarrollos.p1')) . '</p>',
+                        '<p>' . e(__('ui.desarrollos.p2')) . '</p>',
+                        '<p>' . e(__('ui.desarrollos.p3')) . '</p>',
+                        '<p>' . e(__('ui.desarrollos.p4')) . '</p>',
+                        '<p>' . e(__('ui.desarrollos.p5')) . '</p>',
+                        '<p>' . e(__('ui.desarrollos.p6')) . '</p>',
+                    ]) !!}
                 </div>
 
             </div>
@@ -220,17 +246,35 @@ $galleryImages  = $gallerySection?->images->sortBy('order') ?? collect();
         <h2 class="desarrollos-gallery__title">{{ __('ui.desarrollos.gallery_title') }}</h2>
         <div class="desarrollos-gallery__grid">
             @foreach($galleryImages as $img)
-            <div class="desarrollos-gallery__item">
+            <button
+                type="button"
+                class="desarrollos-gallery__item"
+                data-gallery-trigger
+                data-full="{{ asset('storage/' . $img->image) }}"
+                data-alt="{{ __('ui.desarrollos.gallery_title') }}"
+                aria-label="Ampliar imagen de la galería">
                 <img
                     src="{{ asset('storage/' . $img->image) }}"
                     alt="{{ __('ui.desarrollos.gallery_title') }}"
                     class="desarrollos-gallery__img"
                     loading="lazy">
-            </div>
+            </button>
             @endforeach
         </div>
     </div>
 </section>
+
+<div class="desarrollos-lightbox" data-gallery-modal hidden>
+    <div class="desarrollos-lightbox__backdrop" data-gallery-close></div>
+    <div class="desarrollos-lightbox__dialog" role="dialog" aria-modal="true" aria-label="Imagen ampliada">
+        <button type="button" class="desarrollos-lightbox__close" data-gallery-close aria-label="Cerrar imagen ampliada">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+        </button>
+        <img src="" alt="" class="desarrollos-lightbox__img" data-gallery-modal-image>
+    </div>
+</div>
 @endif
 
 
@@ -270,6 +314,41 @@ $galleryImages  = $gallerySection?->images->sortBy('order') ?? collect();
         });
     });
     startTimer();
+}());
+
+(function () {
+    const modal = document.querySelector('[data-gallery-modal]');
+    const modalImage = document.querySelector('[data-gallery-modal-image]');
+    const triggers = document.querySelectorAll('[data-gallery-trigger]');
+    const closers = document.querySelectorAll('[data-gallery-close]');
+
+    if (!modal || !modalImage || triggers.length === 0) return;
+
+    function closeModal() {
+        modal.hidden = true;
+        document.body.classList.remove('desarrollos-lightbox-open');
+        modalImage.src = '';
+        modalImage.alt = '';
+    }
+
+    triggers.forEach(function (trigger) {
+        trigger.addEventListener('click', function () {
+            modalImage.src = trigger.getAttribute('data-full') || '';
+            modalImage.alt = trigger.getAttribute('data-alt') || '';
+            modal.hidden = false;
+            document.body.classList.add('desarrollos-lightbox-open');
+        });
+    });
+
+    closers.forEach(function (closer) {
+        closer.addEventListener('click', closeModal);
+    });
+
+    document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape' && !modal.hidden) {
+            closeModal();
+        }
+    });
 }());
 </script>
 @endpush

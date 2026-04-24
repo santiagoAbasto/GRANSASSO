@@ -1,6 +1,6 @@
 @php
     $isHome = request()->routeIs('home');
-    $hasTransparentNav = $isHome || request()->routeIs('empresa') || request()->routeIs('products.index') || request()->routeIs('desarrollos') || request()->routeIs('calidad') || request()->routeIs('contacto');
+    $hasTransparentNav = $isHome || request()->routeIs('empresa') || request()->routeIs('products.index') || request()->routeIs('desarrollos') || request()->routeIs('calidad') || request()->routeIs('novedades*') || request()->routeIs('contacto');
     $hasLightNav = request()->routeIs('products.brand')
                 || request()->routeIs('products.gearbox')
                 || request()->routeIs('products.show')
@@ -14,15 +14,16 @@
         {{-- LOGO --}}
         <div class="logo">
             <a href="{{ route('home') }}">
-                @if($hasLightNav)
-                    <img src="{{ asset('storage/images/logos/logo-color.svg') }}"
-                         alt="Gran Sasso"
-                         onerror="this.onerror=null;this.src='{{ asset('storage/images/logos/logo.png') }}'">
-                @else
-                    <img src="{{ asset('storage/images/logos/logo.svg') }}"
-                         alt="Gran Sasso"
-                         onerror="this.onerror=null;this.src='{{ asset('storage/images/logos/logo.png') }}'">
-                @endif
+                <img
+                    src="{{ asset('storage/images/logos/logo.svg') }}"
+                    alt="Gran Sasso"
+                    class="logo__img logo__img--default"
+                    onerror="this.onerror=null;this.src='{{ asset('storage/images/logos/logo.png') }}'">
+                <img
+                    src="{{ asset('storage/images/logos/logo-color.svg') }}"
+                    alt="Gran Sasso"
+                    class="logo__img logo__img--color"
+                    onerror="this.onerror=null;this.src='{{ asset('storage/images/logos/logo.png') }}'">
             </a>
         </div>
 
@@ -52,6 +53,9 @@
 
             <a href="{{ route('calidad') }}"
                class="{{ request()->routeIs('calidad') ? 'active' : '' }}">{{ __('ui.nav.quality') }}</a>
+
+            <a href="{{ route('novedades') }}"
+               class="{{ request()->routeIs('novedades*') ? 'active' : '' }}">{{ __('ui.nav.novedades') }}</a>
 
             <a href="{{ route('contacto') }}"
                class="{{ request()->routeIs('contacto') ? 'active' : '' }}">{{ __('ui.nav.contact') }}</a>

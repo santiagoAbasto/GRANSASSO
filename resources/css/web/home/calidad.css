@@ -1,6 +1,6 @@
 /* =============================================
    CALIDAD
-   Sección: full-width · height 465px · background-size cover (zoom OK)
+   Sección: full-width · height 465px · background-size contain
    Overlay: rgba(6, 22, 58, 0.55)
    Inner: centrado en 1224px · izq: título + texto + botón · der: badge ISO
 ============================================= */
@@ -9,7 +9,8 @@
     position: relative;
     width: 100%;
     height: 465px;
-    background-size: cover;
+    background-color: #0D2038;
+    background-size: contain;
     background-position: center;
     background-repeat: no-repeat;
     overflow: hidden;

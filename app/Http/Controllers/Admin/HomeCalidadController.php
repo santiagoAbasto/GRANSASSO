@@ -32,9 +32,17 @@ class HomeCalidadController extends Controller
         if ($section) {
             $sectionData = [
                 'id'         => $section->id,
-                'title'      => $section->title      ?? ['es' => '', 'en' => '', 'pt' => ''],
+                'title'      => [
+                    'es' => $this->sanitizePlainText($section->title['es'] ?? ''),
+                    'en' => $this->sanitizePlainText($section->title['en'] ?? ''),
+                    'pt' => $this->sanitizePlainText($section->title['pt'] ?? ''),
+                ],
                 'content'    => $section->content    ?? ['es' => '', 'en' => '', 'pt' => ''],
-                'button_text'=> $section->button_text ?? ['es' => '', 'en' => '', 'pt' => ''],
+                'button_text'=> [
+                    'es' => $this->sanitizePlainText($section->button_text['es'] ?? ''),
+                    'en' => $this->sanitizePlainText($section->button_text['en'] ?? ''),
+                    'pt' => $this->sanitizePlainText($section->button_text['pt'] ?? ''),
+                ],
                 'button_link'=> $section->button_link ?? '',
                 'is_active'  => $section->is_active,
                 'image_url'  => $section->image ? asset('storage/' . $section->image) : null,
@@ -78,7 +86,8 @@ class HomeCalidadController extends Controller
             'image_3'        => 'nullable|image|max:3072',
         ]);
 
-        $data = $this->sanitizeDataFields($data, ['title', 'content', 'button_text']);
+        $data = $this->sanitizePlainTextFields($data, ['title', 'button_text']);
+        $data = $this->sanitizeDataFields($data, ['content']);
         $buttonLink = $this->sanitizeUrl($data['button_link'] ?? null, allowRelative: true);
 
         $page    = Page::where('slug', 'home')->firstOrFail();
@@ -134,7 +143,7 @@ class HomeCalidadController extends Controller
             }
         }
 
-        return back()->with('success', 'Sección Calidad actualizada correctamente.');
+        return back()->with('success', 'Sección Importamos/calidad actualizada correctamente.');
     }
 
     /*

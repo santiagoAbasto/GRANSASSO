@@ -12,7 +12,7 @@ function getYouTubeId(url) {
     return m ? m[1] : null;
 }
 
-/* ── Tarjeta de un slide existente (con edición inline) ── */
+/* ── Tarjeta de una diapositiva existente (con edición inline) ── */
 function SlideCard({ slide, onDelete }) {
     const [editing, setEditing] = useState(false);
     const isVideo = !!slide.video_url;
@@ -157,7 +157,7 @@ function SlideCard({ slide, onDelete }) {
     );
 }
 
-/* ── Formulario para agregar un slide nuevo ── */
+/* ── Formulario para agregar una diapositiva nueva ── */
 function AddSlideForm({ sectionId, onCancel }) {
     const [type, setType] = useState("image");
     const { data, setData, post, processing, errors, reset } = useForm({
@@ -176,7 +176,7 @@ function AddSlideForm({ sectionId, onCancel }) {
 
     return (
         <form onSubmit={submit} className="bg-white rounded-xl border border-[#25A7CA]/30 shadow-sm p-5 space-y-4">
-            <h3 className="font-semibold text-gray-700 text-sm">Nuevo slide</h3>
+            <h3 className="font-semibold text-gray-700 text-sm">Nueva diapositiva</h3>
 
             {/* Tipo */}
             <div className="flex gap-2">
@@ -263,7 +263,7 @@ function AddSlideForm({ sectionId, onCancel }) {
                         icon={processing ? "solar:refresh-outline" : "solar:add-circle-outline"}
                         width={15}
                     />
-                    {processing ? "Agregando..." : "Agregar slide"}
+                    {processing ? "Agregando..." : "Agregar diapositiva"}
                 </button>
             </div>
         </form>
@@ -276,7 +276,7 @@ export default function ProductsBanner({ section }) {
     const slides = section?.slides ?? [];
 
     const handleDelete = (id) => {
-        if (!confirm("¿Eliminar este slide?")) return;
+        if (!confirm("¿Eliminar esta diapositiva?")) return;
         router.delete(`/admin/section-images/${id}`);
     };
 
@@ -291,9 +291,9 @@ export default function ProductsBanner({ section }) {
                 {/* Header */}
                 <div className="mb-6 flex items-start justify-between gap-4">
                     <div>
-                        <h1 className="text-2xl font-bold text-gray-800">Banner – Productos</h1>
+                        <h1 className="text-2xl font-bold text-gray-800">Banner de productos</h1>
                         <p className="text-sm text-gray-500 mt-1">
-                            Slides del banner. Imagen o video de YouTube. Con ≥2 slides aparecen los dots de navegación.
+                            Editá las imágenes y videos que se muestran en la portada de Productos.
                         </p>
                     </div>
                     <div className="flex items-center gap-3 flex-shrink-0">
@@ -312,14 +312,14 @@ export default function ProductsBanner({ section }) {
                             {section?.is_active ? "Visible en el sitio" : "Oculta"}
                         </button>
 
-                        {/* Botón nuevo slide */}
+                        {/* Botón nueva diapositiva */}
                         {!showAdd && (
                             <button
                                 onClick={() => setShowAdd(true)}
                                 className="inline-flex items-center gap-2 px-4 py-2 bg-[#25A7CA] text-white rounded-lg text-sm font-medium hover:bg-[#1d96b8] transition"
                             >
                                 <Icon icon="solar:add-circle-outline" width={17} />
-                                Nuevo slide
+                                Nueva diapositiva
                             </button>
                         )}
                     </div>
@@ -332,17 +332,17 @@ export default function ProductsBanner({ section }) {
                     </div>
                 )}
 
-                {/* Lista de slides */}
+                {/* Lista de diapositivas */}
                 {slides.length === 0 && !showAdd ? (
                     <div className="bg-white rounded-xl border border-dashed border-gray-300 p-12 text-center">
                         <Icon icon="solar:gallery-wide-outline" width={40} className="mx-auto text-gray-300 mb-3" />
-                        <p className="text-gray-400 text-sm mb-4">No hay slides. Agrega el primero.</p>
+                        <p className="text-gray-400 text-sm mb-4">No hay diapositivas cargadas. Agregá la primera.</p>
                         <button
                             onClick={() => setShowAdd(true)}
                             className="inline-flex items-center gap-2 px-4 py-2 bg-[#25A7CA] text-white rounded-lg text-sm font-medium hover:bg-[#1d96b8] transition"
                         >
                             <Icon icon="solar:add-circle-outline" width={17} />
-                            Agregar slide
+                            Agregar diapositiva
                         </button>
                     </div>
                 ) : (
@@ -356,7 +356,7 @@ export default function ProductsBanner({ section }) {
                 {slides.length > 0 && (
                     <p className="mt-4 text-xs text-gray-400 flex items-center gap-1.5">
                         <Icon icon="solar:info-circle-outline" width={13} />
-                        Los slides se ordenan alfabéticamente (A, B… Z, AA, AB…). Con ≥2 slides aparecen los dots de navegación.
+                        Las diapositivas se ordenan alfabéticamente (A, B… Z, AA, AB…). Con 2 o más diapositivas aparecen los indicadores de navegación.
                     </p>
                 )}
 

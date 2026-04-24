@@ -4,7 +4,7 @@ import { Icon } from "@iconify/react";
 
 export default function HeroIndex({ slides }) {
     const destroy = (id) => {
-        if (!confirm("¿Eliminar este slide?")) return;
+        if (!confirm("¿Eliminar esta diapositiva?")) return;
         router.delete(`/admin/hero/${id}`);
     };
 
@@ -16,15 +16,15 @@ export default function HeroIndex({ slides }) {
         <AdminLayout>
             <div className="flex items-center justify-between mb-6">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-800">Hero / Slider</h1>
-                    <p className="text-sm text-gray-500">Gestión del slider principal</p>
+                    <h1 className="text-2xl font-bold text-gray-800">Banners del inicio</h1>
+                    <p className="text-sm text-gray-500">Gestioná las diapositivas principales de la portada.</p>
                 </div>
                 <button
                     onClick={() => router.visit('/admin/hero/create')}
                     className="flex items-center gap-2 bg-[#25A7CA] text-white px-4 py-2 rounded-xl text-sm font-medium hover:bg-[#1d96b8] transition"
                 >
                     <Icon icon="solar:add-circle-outline" width={18} />
-                    Nuevo Slide
+                    Nueva diapositiva
                 </button>
             </div>
 
@@ -32,7 +32,7 @@ export default function HeroIndex({ slides }) {
                 {slides.length === 0 && (
                     <div className="col-span-3 bg-white rounded-2xl border border-dashed border-gray-300 p-12 text-center">
                         <Icon icon="solar:gallery-outline" width={40} className="text-gray-300 mx-auto mb-3" />
-                        <p className="text-gray-500 text-sm">No hay slides. Crea el primero.</p>
+                        <p className="text-gray-500 text-sm">No hay diapositivas cargadas. Creá la primera.</p>
                     </div>
                 )}
                 {slides.map((slide) => (

@@ -23,6 +23,7 @@ use App\Http\Controllers\Web\CalidadController;
 use App\Http\Controllers\Web\ContactController;
 use App\Http\Controllers\Web\ContactoWebController;
 use App\Http\Controllers\Web\DesarrollosController;
+use App\Http\Controllers\Web\NovedadesController as PublicNovedadesController;
 use App\Http\Controllers\Admin\CalidadDownloadController;
 use App\Http\Controllers\Admin\DesarrollosMessageController;
 use App\Http\Controllers\Web\ZonaPrivada\AuthController as ZPAuthController;
@@ -34,6 +35,7 @@ use App\Http\Controllers\Admin\PriceListAdminController;
 use App\Http\Controllers\Admin\PaymentInfoController as AdminPaymentInfoController;
 use App\Http\Controllers\Admin\NovedadAdminController;
 use App\Http\Controllers\Admin\PrivateNotificationController;
+use App\Http\Controllers\Admin\PublicNovedadAdminController;
 use App\Http\Controllers\Admin\WhatsappFloatController;
 use App\Http\Middleware\AuthClient;
 use App\Http\Middleware\EnsureAdminAccess;
@@ -74,6 +76,8 @@ Route::get('/desarrollos-especiales',  [DesarrollosController::class, 'index'])-
 Route::post('/desarrollos-especiales', [DesarrollosController::class, 'store'])->middleware('throttle:5,1')->name('desarrollos.store');
 
 Route::get('/calidad', [CalidadController::class, 'index'])->name('calidad');
+Route::get('/novedades', [PublicNovedadesController::class, 'index'])->name('novedades');
+Route::get('/novedades/{novedad}', [PublicNovedadesController::class, 'show'])->name('novedades.show');
 Route::get('/contacto',  [ContactoWebController::class, 'index'])->name('contacto');
 Route::post('/contacto', [ContactController::class, 'store'])->middleware('throttle:5,1')->name('contact.store');
 
@@ -178,6 +182,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         // ── CMS: Home → About ─────────────────────────────────────────────
         Route::get('/home-about',              [CmsController::class, 'homeAbout'])->name('home-about.index');
+        Route::get('/home-gallery',            [CmsController::class, 'homeGallery'])->name('home-gallery.index');
 
         // ── CMS: Banner Productos ─────────────────────────────────────────
         Route::get('/products-banner',         [CmsController::class, 'productsBanner'])->name('cms.products-banner');
@@ -187,6 +192,13 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         // ── CMS: Calidad ──────────────────────────────────────────────────
         Route::get('/calidad',                 [CmsController::class, 'calidad'])->name('cms.calidad');
+
+        // ── CMS: Novedades públicas ───────────────────────────────────────
+        Route::get('/novedades',               [CmsController::class, 'novedades'])->name('cms.novedades');
+        Route::post('/public-novedades',                         [PublicNovedadAdminController::class, 'store'])->name('public-novedades.store');
+        Route::put('/public-novedades/{novedad}',                [PublicNovedadAdminController::class, 'update'])->name('public-novedades.update');
+        Route::delete('/public-novedades/images/{image}',        [PublicNovedadAdminController::class, 'destroyImage'])->name('public-novedades.images.destroy');
+        Route::delete('/public-novedades/{novedad}',             [PublicNovedadAdminController::class, 'destroy'])->name('public-novedades.destroy');
 
         // ── Descargas de Calidad ──────────────────────────────────────────
         Route::post('/calidad-downloads',                        [CalidadDownloadController::class, 'store'])->name('calidad-downloads.store');

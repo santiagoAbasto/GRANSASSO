@@ -24,13 +24,13 @@ class ProductController extends Controller
 
     public function index(Request $request)
     {
-        $query = Product::with(['gearbox.brand', 'primaryImage', 'items'])
+        $query = Product::with(['gearbox.brand', 'secondaryGearboxes.brand', 'primaryImage', 'items'])
             ->whereHas('gearbox')
             ->when(
                 $request->brand_id,
-                fn ($q) => $q->whereHas('gearbox', fn ($q2) => $q2->where('brand_id', $request->brand_id))
+                fn ($q) => $q->visibleInBrand((int) $request->brand_id)
             )
-            ->when($request->gearbox_id, fn ($q) => $q->where('gearbox_id', $request->gearbox_id))
+            ->when($request->gearbox_id, fn ($q) => $q->visibleInGearbox((int) $request->gearbox_id))
             // Búsqueda libre: descripción, cod GS o figura
             ->when($request->search, fn ($q) => $q->where(function ($q2) use ($request) {
                 $term = "%{$request->search}%";
@@ -82,6 +82,8 @@ class ProductController extends Controller
         $data = $request->validate([
             // ── Producto base ─────────────────────────────────────────────
             'gearbox_id'              => 'required|exists:gearboxes,id',
+            'additional_gearbox_ids'  => 'nullable|array',
+            'additional_gearbox_ids.*'=> 'integer|exists:gearboxes,id',
             'figure'                  => 'nullable|string|max:100',
             'code_gs'                 => 'nullable|string|max:100',
             'name_es'                 => 'nullable|string|max:255',
@@ -115,6 +117,7 @@ class ProductController extends Controller
 
         // Crear 1 item por variante (o 1 item genérico si no hay variantes)
         $this->syncItems($product, $data);
+        $this->syncAdditionalGearboxes($product, $data['additional_gearbox_ids'] ?? []);
 
         $this->storeImages($request, $product);
 
@@ -129,7 +132,7 @@ class ProductController extends Controller
 
     public function edit(Product $product)
     {
-        $product->load(['items', 'images', 'gearbox.brand']);
+        $product->load(['items', 'images', 'gearbox.brand', 'secondaryGearboxes.brand']);
 
         $brands    = Brand::active()->ordered()->get()
             ->map(fn ($b) => ['id' => $b->id, 'name' => $b->name]);
@@ -148,6 +151,8 @@ class ProductController extends Controller
         $data = $request->validate([
             // ── Producto base ─────────────────────────────────────────────
             'gearbox_id'              => 'required|exists:gearboxes,id',
+            'additional_gearbox_ids'  => 'nullable|array',
+            'additional_gearbox_ids.*'=> 'integer|exists:gearboxes,id',
             'figure'                  => 'nullable|string|max:100',
             'code_gs'                 => 'nullable|string|max:100',
             'name_es'                 => 'nullable|string|max:255',
@@ -187,6 +192,7 @@ class ProductController extends Controller
 
         // Sincronizar items: elimina y recrea según variantes del formulario
         $this->syncItems($product, $data);
+        $this->syncAdditionalGearboxes($product, $data['additional_gearbox_ids'] ?? []);
 
         $this->storeImages($request, $product);
 
@@ -312,6 +318,13 @@ class ProductController extends Controller
             ],
             'variants'      => $variants,
             'items_count'   => $p->items->count(),
+            'secondary_gearboxes' => $p->secondaryGearboxes
+                ->map(fn (Gearbox $gearbox) => [
+                    'id' => $gearbox->id,
+                    'name' => $gearbox->name,
+                    'brand' => $gearbox->brand?->name['es'] ?? $gearbox->brand?->name ?? '',
+                ])
+                ->values(),
             'primary_image' => $p->primaryImage
                 ? ['url' => asset('storage/' . $p->primaryImage->path)]
                 : null,
@@ -346,6 +359,7 @@ class ProductController extends Controller
             // ── Producto base ──────────────────────────────────────────────
             'id'              => $p->id,
             'gearbox_id'      => $p->gearbox_id,
+            'additional_gearbox_ids' => $p->secondaryGearboxes->pluck('id')->values()->all(),
             'figure'          => $p->figure,
             'code_gs'         => $p->code_gs,
             'name_es'         => null, // campo manual — no se auto-rellena
@@ -354,6 +368,12 @@ class ProductController extends Controller
             'description_es'  => $p->description['es'] ?? $p->name['es'] ?? null,
             'is_active'       => $p->is_active,
             'gearbox'         => ['brand_id' => $p->gearbox->brand_id],
+            'secondary_gearboxes' => $p->secondaryGearboxes->map(fn (Gearbox $gearbox) => [
+                'id'       => $gearbox->id,
+                'name'     => $gearbox->name,
+                'brand_id' => $gearbox->brand_id,
+                'brand'    => $gearbox->brand?->name['es'] ?? $gearbox->brand?->name ?? '',
+            ])->values(),
             // ── Item principal (editable) ──────────────────────────────────
             'code_oem'               => $primaryOem,
             'referencia_original'    => $refOriginal,
@@ -453,6 +473,24 @@ class ProductController extends Controller
                 ]);
             }
         }
+    }
+
+    /**
+     * Mantiene una caja principal (la que usa el Excel) y cajas adicionales
+     * donde el producto también debe mostrarse en la web y en el admin.
+     */
+    private function syncAdditionalGearboxes(Product $product, array $gearboxIds): void
+    {
+        $primaryGearboxId = (int) $product->gearbox_id;
+
+        $gearboxIds = collect($gearboxIds)
+            ->map(fn ($id) => (int) $id)
+            ->filter(fn (int $id) => $id > 0 && $id !== $primaryGearboxId)
+            ->unique()
+            ->values()
+            ->all();
+
+        $product->secondaryGearboxes()->sync($gearboxIds);
     }
 
     /**

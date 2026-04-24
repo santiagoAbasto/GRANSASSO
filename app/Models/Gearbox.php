@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Support\CatalogImage;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Str;
 
 /**
@@ -75,6 +76,12 @@ class Gearbox extends Model
     public function products()
     {
         return $this->hasMany(Product::class);
+    }
+
+    public function linkedProducts(): BelongsToMany
+    {
+        return $this->belongsToMany(Product::class, 'product_gearbox_links')
+            ->withTimestamps();
     }
 
     public function documents()

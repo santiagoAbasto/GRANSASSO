@@ -61,7 +61,7 @@
         </div>
 
         {{-- RIGHT --}}
-        <div class="zp-pagos-card" style="width:808px;border-radius:6px;background:rgba(38,39,43,0.03);padding:28px 17px 0 18px;box-sizing:border-box">
+        <div class="zp-pagos-card">
 
             <form method="POST" action="{{ route('zona-privada.info-pagos.store') }}" enctype="multipart/form-data">
                 @csrf

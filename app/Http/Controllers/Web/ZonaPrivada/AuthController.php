@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Web\ZonaPrivada;
 
 use App\Http\Controllers\Controller;
 use App\Models\PrivateUser;
+use App\Models\PrivateUserLoginEvent;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -45,6 +46,13 @@ class AuthController extends Controller
         Auth::guard('client')->login($user, $request->boolean('remember'));
         $request->session()->regenerate();
 
+        PrivateUserLoginEvent::create([
+            'private_user_id' => $user->id,
+            'ip_address' => $request->ip(),
+            'user_agent' => (string) $request->userAgent(),
+            'logged_in_at' => now(),
+        ]);
+
         return redirect()->route('zona-privada.lista-precios');
     }
 
@@ -61,13 +69,15 @@ class AuthController extends Controller
     // GET /zona-privada/registrarse
     public function showRegister()
     {
-        return view('web.zona-privada.auth.register');
+        return redirect($this->authRedirectUrl())
+            ->with('zona_privada_modal', true)
+            ->with('zona_privada_register', true);
     }
 
     // POST /zona-privada/registrarse
     public function register(Request $request)
     {
-        $data = $request->validate([
+        $data = $request->validateWithBag('zonaPrivadaRegister', [
             'name'                  => ['required', 'string', 'max:100'],
             'lastname'              => ['required', 'string', 'max:100'],
             'email'                 => ['required', 'email', 'unique:private_users,email'],
@@ -82,6 +92,20 @@ class AuthController extends Controller
             'status'   => 'pending',
         ]);
 
-        return redirect()->route('zona-privada.register')->with('registered', true);
+        return redirect($this->authRedirectUrl($request))
+            ->with('zona_privada_modal', true)
+            ->with('zona_privada_register', true)
+            ->with('registered', true);
+    }
+
+    private function authRedirectUrl(?Request $request = null): string
+    {
+        $referer = $request?->headers->get('referer');
+
+        if ($referer && ! str_contains($referer, '/registrarse')) {
+            return $referer;
+        }
+
+        return route('home');
     }
 }

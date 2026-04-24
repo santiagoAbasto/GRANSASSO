@@ -56,18 +56,18 @@ class PageSection extends Model
     {
         $locale = $locale ?? app()->getLocale();
 
-        return $this->title[$locale]
+        return $this->sanitizePlainText($this->title[$locale]
             ?? $this->title['es']
-            ?? '';
+            ?? '');
     }
 
     public function getSubtitle($locale = null)
     {
         $locale = $locale ?? app()->getLocale();
 
-        return $this->subtitle[$locale]
+        return $this->sanitizePlainText($this->subtitle[$locale]
             ?? $this->subtitle['es']
-            ?? '';
+            ?? '');
     }
 
     public function getContent($locale = null)
@@ -83,9 +83,9 @@ class PageSection extends Model
     {
         $locale = $locale ?? app()->getLocale();
 
-        return $this->button_text[$locale]
+        return $this->sanitizePlainText($this->button_text[$locale]
             ?? $this->button_text['es']
-            ?? '';
+            ?? '');
     }
 
     public function getSafeButtonLinkAttribute(): ?string

@@ -46,13 +46,13 @@ function BannerSection({ section }) {
                         <Icon icon="solar:gallery-wide-outline" width={16} className="text-[#25A7CA]" />
                     </div>
                     <div>
-                        <p className="text-sm font-semibold text-gray-800">Banner / Slider</p>
+                        <p className="text-sm font-semibold text-gray-800">Banner principal</p>
                         <p className="text-xs text-gray-400">
                             {images.length === 0
                                 ? "Sin imágenes — el banner no se mostrará"
                                 : images.length === 1
                                 ? "1 imagen — banner estático"
-                                : `${images.length} imágenes — slider con dots`}
+                                : `${images.length} imágenes — carrusel con indicadores`}
                         </p>
                     </div>
                 </div>
@@ -345,8 +345,8 @@ export default function Contacto({ sections, contactInfo, messages, totalMessage
         <AdminLayout>
             <div className="max-w-3xl space-y-6">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-800">CMS – Contacto</h1>
-                    <p className="text-sm text-gray-500">Banner, datos de contacto y mensajes</p>
+                    <h1 className="text-2xl font-bold text-gray-800">Contacto</h1>
+                    <p className="text-sm text-gray-500">Editá los datos de contacto y revisá los mensajes.</p>
                 </div>
 
                 {banner && <BannerSection section={banner} />}

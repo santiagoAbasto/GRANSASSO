@@ -17,12 +17,19 @@ $_pageKey = match(true) {
     str_starts_with($_route, 'products')        => 'productos',
     $_route === 'empresa'                       => 'empresa',
     $_route === 'calidad'                       => 'calidad',
+    str_starts_with($_route, 'novedades')       => 'novedades',
     str_starts_with($_route, 'contacto')        => 'contacto',
     default                                     => null,
 };
 $_seo        = $_pageKey ? SeoMeta::where('page', $_pageKey)->first() : null;
-$_seoKeywords = $_seo?->keywords    ?: '';
-$_seoOgImage  = $_seo?->og_image_url ?: asset('images/og/gran-sasso-default.png');
+$_pageKeywords = $__env->hasSection('meta_keywords') ? trim($__env->yieldContent('meta_keywords')) : null;
+$_pageOgImage  = $__env->hasSection('meta_image') ? trim($__env->yieldContent('meta_image')) : null;
+$_pageCanonical = $__env->hasSection('canonical_url') ? trim($__env->yieldContent('canonical_url')) : url()->current();
+$_pageOgType = $__env->hasSection('og_type') ? trim($__env->yieldContent('og_type')) : 'website';
+$_articlePublished = $__env->hasSection('article_published_time') ? trim($__env->yieldContent('article_published_time')) : null;
+
+$_seoKeywords = $_pageKeywords ?: ($_seo?->keywords ?: '');
+$_seoOgImage  = $_pageOgImage ?: ($_seo?->og_image_url ?: asset('images/og/gran-sasso-default.png'));
 
 // ── Título final: página específica tiene prioridad sobre el del admin ──
 $_pageTitle  = $__env->hasSection('title') ? trim($__env->yieldContent('title')) : null;
@@ -40,21 +47,25 @@ $_metaDesc  = $_pageDesc
 <title>{{ $_metaTitle }}</title>
 
 <meta name="description" content="{{ $_metaDesc }}">
+<link rel="canonical" href="{{ $_pageCanonical }}">
 
 @if(!empty($_seoKeywords))
 <meta name="keywords" content="{{ $_seoKeywords }}">
 @endif
 
 {{-- ── Open Graph (WhatsApp, LinkedIn, Facebook) ── --}}
-<meta property="og:type"        content="website">
+<meta property="og:type"        content="{{ $_pageOgType }}">
 <meta property="og:site_name"   content="Gran Sasso">
-<meta property="og:url"         content="{{ url()->current() }}">
+<meta property="og:url"         content="{{ $_pageCanonical }}">
 <meta property="og:title"       content="{{ $_metaTitle }}">
 <meta property="og:description" content="{{ $_metaDesc }}">
 @if($_seoOgImage)
 <meta property="og:image"        content="{{ $_seoOgImage }}">
 <meta property="og:image:width"  content="1200">
 <meta property="og:image:height" content="630">
+@endif
+@if($_articlePublished && $_pageOgType === 'article')
+<meta property="article:published_time" content="{{ $_articlePublished }}">
 @endif
 
 {{-- ── Twitter Card ── --}}

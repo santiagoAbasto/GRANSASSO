@@ -30,6 +30,11 @@ class PrivateUser extends Authenticatable
         'password' => 'hashed',
     ];
 
+    public function loginEvents()
+    {
+        return $this->hasMany(PrivateUserLoginEvent::class);
+    }
+
     public function paymentSubmissions()
     {
         return $this->hasMany(PaymentSubmission::class);

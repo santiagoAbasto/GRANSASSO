@@ -239,12 +239,14 @@
     color: var(--Gris, #1D1E20);
     font-family: "Open Sans", sans-serif;
     font-size: 16px;
+    font-style: normal;
     font-weight: 400;
     line-height: 150%;
 }
 
 /* cada párrafo (rich text) tiene gap de 24px */
 .empresa-about__text p {
+    margin-top: 0;
     margin-bottom: 24px;
     overflow-wrap: break-word;
 }
@@ -332,20 +334,23 @@
 .empresa-card__text {
     color: var(--Gris, #1D1E20);
     font-family: "Open Sans", sans-serif;
-    font-size: 15px;
-    font-weight: 300;
-    line-height: 24px;
-    letter-spacing: -0.15px;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 150%;
     width: 100%;            /* ← era 335px fijo: ROTO en tablet/mobile */
     overflow-wrap: break-word;
     word-break: break-word;
 }
 
-.empresa-card__text p  { margin-bottom: 16px; }
+.empresa-card__text p  {
+    margin-top: 0;
+    margin-bottom: 24px;
+}
 .empresa-card__text p:last-child { margin-bottom: 0; }
 .empresa-card__text ul,
-.empresa-card__text ol { padding-left: 18px; margin-bottom: 16px; }
-.empresa-card__text li { margin-bottom: 6px; }
+.empresa-card__text ol { padding-left: 18px; margin-bottom: 24px; }
+.empresa-card__text li { margin-bottom: 8px; }
 
 
 /* ══════════════════════════════════════════

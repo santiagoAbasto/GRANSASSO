@@ -145,8 +145,8 @@ function SubcategoryModal({ subcategory, categories, onClose }) {
                     <Toggle
                         checked={data.show_in_home}
                         onChange={(v) => setData("show_in_home", v)}
-                        label="Mostrar en Home"
-                        description="Aparece como producto destacado en el inicio"
+                        label="Mostrar en inicio"
+                        description="Aparece como producto destacado en la página principal"
                     />
 
                     <div className="flex justify-end gap-3 pt-2">
@@ -212,7 +212,7 @@ export default function SubcategoriesIndex({ subcategories, categories }) {
                             <th className="text-left px-5 py-3">Categoría</th>
                             <th className="px-5 py-3 text-center">Productos</th>
                             <th className="px-5 py-3 text-center">Estado</th>
-                            <th className="px-5 py-3 text-center">Home</th>
+                            <th className="px-5 py-3 text-center">Inicio</th>
                             <th className="px-5 py-3 text-center">Orden</th>
                             <th className="px-5 py-3 text-center">Acciones</th>
                         </tr>
@@ -251,12 +251,12 @@ export default function SubcategoriesIndex({ subcategories, categories }) {
                                     </span>
                                 </td>
 
-                                {/* Home */}
+                                {/* Inicio */}
                                 <td className="px-5 py-3 text-center">
                                     {s.show_in_home ? (
                                         <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full font-medium bg-[#25A7CA]/10 text-[#25A7CA]">
                                             <Icon icon="solar:home-2-bold" width={12} />
-                                            Home
+                                            Inicio
                                         </span>
                                     ) : (
                                         <span className="text-gray-300">—</span>

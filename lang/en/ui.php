@@ -8,8 +8,9 @@ return [
         'products'     => 'Products',
         'special_dev'  => 'Special Developments',
         'quality'      => 'Quality',
+        'novedades'    => 'News',
         'contact'      => 'Contact',
-        'private_zone' => 'Private Area',
+        'private_zone' => 'Customer Access',
     ],
 
     /* ── Footer ── */
@@ -18,6 +19,7 @@ return [
         'newsletter_title'       => 'Subscribe to newsletter',
         'newsletter_placeholder' => 'Enter your email',
         'social'                 => 'Social networks',
+        'shipping'               => 'Nationwide shipping',
         'contact'                => 'Contact',
         'copyright'              => '© Copyright :year Gran Sasso. All rights reserved',
         'whatsapp_label'         => 'Contact via WhatsApp',
@@ -51,6 +53,7 @@ return [
         'products' => 'Products',
         'empresa'  => 'Company',
         'calidad'  => 'Quality',
+        'novedades'=> 'News',
     ],
 
     /* ── Calidad slug ── */
@@ -60,6 +63,18 @@ return [
         'cert_alt'    => 'ISO Certification',
         'bc_aria'     => 'Breadcrumb',
         'slide_aria'  => 'Go to slide :num',
+    ],
+
+    /* ── News slug ── */
+    'novedades' => [
+        'page_title' => 'News',
+        'intro_title' => 'Latest news',
+        'intro_copy' => 'Explore new releases, availability updates and featured news from Gran Sasso.',
+        'bc_aria' => 'Breadcrumb',
+        'slide_aria' => 'Go to slide :num',
+        'read_more' => 'Read more',
+        'back' => 'Back to news',
+        'empty' => 'No news available.',
     ],
 
     /* ── Empresa slug ── */

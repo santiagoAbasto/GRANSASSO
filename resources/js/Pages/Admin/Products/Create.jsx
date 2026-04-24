@@ -10,6 +10,7 @@ export default function ProductCreate({ brands, gearboxes }) {
     const { data, setData, post, processing, errors } = useForm({
         // Producto base
         gearbox_id:              "",
+        additional_gearbox_ids:  [],
         figure:                  "",
         code_gs:                 "",
         name_es:                 "",
@@ -31,6 +32,14 @@ export default function ProductCreate({ brands, gearboxes }) {
         (g) => !selectedBrand || String(g.brand_id) === String(selectedBrand)
     );
 
+    const groupedGearboxes = brands
+        .map((brand) => ({
+            id: brand.id,
+            name: brand.name?.es ?? brand.name,
+            gearboxes: gearboxes.filter((gearbox) => String(gearbox.brand_id) === String(brand.id)),
+        }))
+        .filter((group) => group.gearboxes.length > 0);
+
     const addVariant = () => {
         const v = variantInput.trim().toUpperCase();
         if (v && !data.variants.includes(v)) {
@@ -40,6 +49,19 @@ export default function ProductCreate({ brands, gearboxes }) {
     };
 
     const removeVariant = (v) => setData("variants", data.variants.filter((x) => x !== v));
+
+    const toggleAdditionalGearbox = (gearboxId) => {
+        const id = Number(gearboxId);
+        const current = Array.isArray(data.additional_gearbox_ids) ? data.additional_gearbox_ids : [];
+        const exists = current.some((value) => Number(value) === id);
+
+        setData(
+            "additional_gearbox_ids",
+            exists
+                ? current.filter((value) => Number(value) !== id)
+                : [...current, id]
+        );
+    };
 
     const submit = (e) => {
         e.preventDefault();
@@ -89,7 +111,16 @@ export default function ProductCreate({ brands, gearboxes }) {
                                 <label className={lc}>Caja de cambios *</label>
                                 <select
                                     value={data.gearbox_id}
-                                    onChange={(e) => setData("gearbox_id", e.target.value)}
+                                    onChange={(e) => {
+                                        const nextGearboxId = e.target.value;
+                                        setData((current) => ({
+                                            ...current,
+                                            gearbox_id: nextGearboxId,
+                                            additional_gearbox_ids: (current.additional_gearbox_ids || []).filter(
+                                                (value) => String(value) !== String(nextGearboxId)
+                                            ),
+                                        }));
+                                    }}
                                     className={ic}
                                     required
                                 >
@@ -100,6 +131,56 @@ export default function ProductCreate({ brands, gearboxes }) {
                                 </select>
                                 {errors.gearbox_id && <p className="text-xs text-red-500 mt-1">{errors.gearbox_id}</p>}
                             </div>
+                        </div>
+
+                        <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-4">
+                            <div className="flex items-start gap-2 mb-3">
+                                <Icon icon="solar:share-outline" width={18} className="text-[#25A7CA] mt-0.5" />
+                                <div>
+                                    <p className="text-sm font-semibold text-slate-700">También mostrar en otras marcas o cajas</p>
+                                    <p className="text-xs text-slate-500 mt-1">
+                                        La caja principal sigue siendo la del catálogo y del Excel. Acá solo elegís dónde más querés que aparezca este mismo producto.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div className="grid gap-3 md:grid-cols-2">
+                                {groupedGearboxes.map((group) => (
+                                    <div key={group.id} className="rounded-xl border border-white bg-white p-3">
+                                        <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">
+                                            {group.name}
+                                        </p>
+                                        <div className="space-y-2">
+                                            {group.gearboxes.map((gearbox) => {
+                                                const isPrimary = String(data.gearbox_id) === String(gearbox.id);
+                                                const isChecked = data.additional_gearbox_ids.some((value) => String(value) === String(gearbox.id));
+
+                                                return (
+                                                    <label
+                                                        key={gearbox.id}
+                                                        className={`flex items-center gap-2 text-sm ${isPrimary ? "text-slate-400" : "text-slate-600"} ${isPrimary ? "cursor-not-allowed" : "cursor-pointer"}`}
+                                                    >
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={isPrimary ? false : isChecked}
+                                                            disabled={isPrimary}
+                                                            onChange={() => toggleAdditionalGearbox(gearbox.id)}
+                                                            className="accent-[#25A7CA]"
+                                                        />
+                                                        <span>{gearbox.name}</span>
+                                                        {isPrimary && (
+                                                            <span className="rounded-full bg-[#25A7CA]/10 px-2 py-0.5 text-[10px] font-semibold text-[#25A7CA]">
+                                                                Principal
+                                                            </span>
+                                                        )}
+                                                    </label>
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                            {errors.additional_gearbox_ids && <p className="text-xs text-red-500 mt-2">{errors.additional_gearbox_ids}</p>}
                         </div>
 
                         <div className="grid grid-cols-2 gap-4">

@@ -7,6 +7,7 @@ use App\Models\CalidadDownload;
 use App\Models\Page;
 use App\Models\PageSection;
 use App\Models\PageSectionImage;
+use App\Models\PublicNovedad;
 use App\Traits\SanitizesHtml;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -28,6 +29,35 @@ class CmsController extends Controller
         return Inertia::render('Admin/CMS/HomeAbout', [
             'page'    => $page,
             'section' => $section ? $this->expandSection($section) : null,
+        ]);
+    }
+
+    // ── HOME → galería de imágenes destacadas ────────────────────────────
+
+    public function homeGallery()
+    {
+        $page = Page::firstOrCreate(
+            ['slug' => 'home'],
+            ['title' => ['es' => 'Inicio', 'en' => 'Home', 'pt' => 'Início']]
+        );
+
+        $section = $page->sections()->firstOrCreate(
+            ['type' => 'home_gallery'],
+            ['is_active' => true, 'order' => 'C']
+        );
+
+        $section->load('images');
+
+        return Inertia::render('Admin/CMS/HomeGallery', [
+            'section' => [
+                'id'        => $section->id,
+                'is_active' => $section->is_active,
+                'images'    => $section->images->sortBy('order')->map(fn ($img) => [
+                    'id'        => $img->id,
+                    'image_url' => $img->image ? asset('storage/' . $img->image) : null,
+                    'order'     => $img->order,
+                ])->values(),
+            ],
         ]);
     }
 
@@ -124,6 +154,75 @@ class CmsController extends Controller
         ]);
     }
 
+    // ── NOVEDADES PÚBLICAS ──────────────────────────────────────────────
+
+    public function novedades()
+    {
+        $page = Page::where('slug', 'novedades')
+            ->with(['sections' => fn ($q) => $q->orderBy('order')->with('images')])
+            ->firstOrCreate(
+                ['slug' => 'novedades'],
+                ['title' => ['es' => 'Novedades', 'en' => 'News', 'pt' => 'Novidades']]
+            );
+
+        $page->sections()->firstOrCreate(
+            ['type' => 'banner'],
+            ['is_active' => true, 'order' => 'A']
+        );
+
+        $page->sections()->firstOrCreate(
+            ['type' => 'novedades_intro'],
+            [
+                'is_active' => true,
+                'order' => 'B',
+                'title' => [
+                    'es' => 'Últimas novedades',
+                    'en' => 'Latest news',
+                    'pt' => 'Últimas novidades',
+                ],
+                'content' => [
+                    'es' => '<p>Conocé lanzamientos, disponibilidad, incorporaciones y novedades destacadas de Gran Sasso.</p>',
+                    'en' => '<p>Explore new releases, availability updates and featured news from Gran Sasso.</p>',
+                    'pt' => '<p>Conheça lançamentos, disponibilidade, novidades e destaques da Gran Sasso.</p>',
+                ],
+            ]
+        );
+
+        $page->load(['sections' => fn ($q) => $q->orderBy('order')->with('images')]);
+        $sections = $page->sections->map(fn ($s) => $this->expandSection($s, withImages: true))->values();
+        $novedades = PublicNovedad::with('galleryImages')->orderByDesc('created_at')
+            ->get()
+            ->map(fn (PublicNovedad $novedad) => [
+                'id' => $novedad->id,
+                'title' => $novedad->getNormalizedTranslations('title'),
+                'title_display' => $novedad->getLocalizedTitle('es'),
+                'category' => $novedad->getNormalizedTranslations('category'),
+                'category_display' => $novedad->getLocalizedCategory('es'),
+                'excerpt' => $novedad->getNormalizedTranslations('excerpt'),
+                'excerpt_display' => $novedad->getLocalizedExcerpt('es'),
+                'body' => $novedad->getNormalizedTranslations('body'),
+                'body_display' => $novedad->getLocalizedBody('es'),
+                'image' => $novedad->image,
+                'image_url' => $novedad->image_url,
+                'gallery_images' => $novedad->galleryImages->map(fn ($image) => [
+                    'id' => $image->id,
+                    'image' => $image->image,
+                    'image_url' => $image->image_url,
+                    'order' => $image->order,
+                ])->values(),
+                'is_active' => $novedad->is_active,
+                'created_at' => optional($novedad->created_at)?->toISOString(),
+                'updated_at' => optional($novedad->updated_at)?->toISOString(),
+            ])
+            ->values();
+
+        return Inertia::render('Admin/CMS/Novedades', [
+            'page' => $page,
+            'sections' => $sections,
+            'novedades' => $novedades,
+        ]);
+    }
+
     // ── CONTACTO → info (dirección, teléfono, email, mapa) ───────────────
 
     public function contacto()
@@ -214,6 +313,25 @@ class CmsController extends Controller
             ['is_active' => true, 'order' => 'B']
         );
 
+        // Auto-create main content section
+        $page->sections()->firstOrCreate(
+            ['type' => 'desarrollos_main'],
+            [
+                'is_active' => true,
+                'order' => 'C',
+                'title' => [
+                    'es' => 'Desarrollo y fabricación a medida',
+                    'en' => 'Custom development and manufacturing',
+                    'pt' => 'Desenvolvimento e fabricação sob medida',
+                ],
+                'content' => [
+                    'es' => '<p>Nuestra experiencia en el sector, combinada con tecnología de última generación y un equipo técnico altamente capacitado, nos permite desarrollar y fabricar engranajes y piezas especiales según los requerimientos específicos de cada cliente.</p><p>Trabajamos con precisión y compromiso en cada proyecto, otorgando soluciones confiables y adaptadas a las necesidades de cada aplicación.</p><p>Realizamos el diseño y la producción de repuestos para maquinaria industrial a partir de muestras físicas o planos técnicos de los equipos, garantizando compatibilidad, funcionalidad y altos estándares de calidad.</p><p>Este servicio permite optimizar el rendimiento de los equipos y extender su vida útil, incluso cuando se trata de componentes discontinuados o de difícil acceso.</p><p>Ofrecemos soluciones de nacionalización de repuestos, reduciendo tiempos de espera y costos de importación, así como la fabricación de piezas unitarias o en series, según las necesidades de producción de cada cliente.</p><p>Nuestro enfoque flexible nos permite adaptarnos tanto a proyectos puntuales como a demandas continuas, siempre manteniendo el foco en la precisión, la eficiencia y la confiabilidad.</p>',
+                    'en' => '<p>Our experience in the industry, combined with cutting-edge technology and a highly skilled technical team, allows us to develop and manufacture gears and special parts according to the specific requirements of each client.</p><p>We work with precision and commitment on every project, providing reliable solutions adapted to the needs of each application.</p><p>We carry out the design and production of spare parts for industrial machinery based on physical samples or technical drawings, ensuring compatibility, functionality and high quality standards.</p><p>This service optimises equipment performance and extends its useful life, even for discontinued or hard-to-find components.</p><p>We offer spare parts localisation solutions, reducing lead times and import costs, as well as single-unit or series production according to each client\'s needs.</p><p>Our flexible approach allows us to adapt to both one-off projects and ongoing demands, always keeping the focus on precision, efficiency and reliability.</p>',
+                    'pt' => '<p>Nossa experiência no setor, combinada com tecnologia de última geração e uma equipe técnica altamente capacitada, nos permite desenvolver e fabricar engrenagens e peças especiais de acordo com os requisitos específicos de cada cliente.</p><p>Trabalhamos com precisão e compromisso em cada projeto, fornecendo soluções confiáveis e adaptadas às necessidades de cada aplicação.</p><p>Realizamos o design e a produção de peças de reposição para maquinário industrial a partir de amostras físicas ou desenhos técnicos dos equipamentos, garantindo compatibilidade, funcionalidade e altos padrões de qualidade.</p><p>Este serviço otimiza o desempenho dos equipamentos e estende sua vida útil, mesmo para componentes descontinuados ou de difícil acesso.</p><p>Oferecemos soluções de nacionalização de peças de reposição, reduzindo prazos de espera e custos de importação, bem como a fabricação de peças unitárias ou em série, de acordo com as necessidades de produção de cada cliente.</p><p>Nossa abordagem flexível nos permite adaptar tanto a projetos pontuais quanto a demandas contínuas, sempre mantendo o foco na precisão, eficiência e confiabilidade.</p>',
+                ],
+            ]
+        );
+
         $page->load(['sections' => fn ($q) => $q->orderBy('order')->with('images')]);
 
         $sections = $page->sections->map(fn ($s) => $this->expandSection($s, withImages: true))->values();
@@ -245,7 +363,8 @@ class CmsController extends Controller
             'image'          => 'nullable|image|max:4096',
         ]);
 
-        $data = $this->sanitizeDataFields($data, ['title', 'subtitle', 'content', 'button_text']);
+        $data = $this->sanitizePlainTextFields($data, ['title', 'subtitle', 'button_text']);
+        $data = $this->sanitizeDataFields($data, ['content']);
         $buttonLink = $this->sanitizeUrl($data['button_link'] ?? null, allowRelative: true);
 
         $imagePath = null;
@@ -291,7 +410,8 @@ class CmsController extends Controller
             'image'          => 'nullable|image|max:4096',
         ]);
 
-        $data = $this->sanitizeDataFields($data, ['title', 'subtitle', 'content', 'button_text']);
+        $data = $this->sanitizePlainTextFields($data, ['title', 'subtitle', 'button_text']);
+        $data = $this->sanitizeDataFields($data, ['content']);
         $buttonLink = array_key_exists('button_link', $data)
             ? $this->sanitizeUrl($data['button_link'], allowRelative: true)
             : $section->button_link;
@@ -324,6 +444,12 @@ class CmsController extends Controller
 
     public function addSectionImage(Request $request, PageSection $section)
     {
+        if ($section->type === 'home_gallery' && $section->images()->count() >= 3) {
+            return back()->withErrors([
+                'image' => 'Esta sección admite hasta 3 imágenes.',
+            ]);
+        }
+
         $request->validate([
             'image'     => 'nullable|image|max:5120',
             'video_url' => 'nullable|string|max:500',
@@ -474,9 +600,16 @@ class CmsController extends Controller
 
     private function expandSection(PageSection $section, bool $withImages = false): array
     {
-        $get = fn ($field, $lang) => is_array($section->$field)
-            ? ($section->$field[$lang] ?? '')
-            : ($lang === 'es' ? ($section->$field ?? '') : '');
+        $richFields = ['content'];
+        $get = function ($field, $lang) use ($section, $richFields) {
+            $value = is_array($section->$field)
+                ? ($section->$field[$lang] ?? '')
+                : ($lang === 'es' ? ($section->$field ?? '') : '');
+
+            return in_array($field, $richFields, true)
+                ? $value
+                : $this->sanitizePlainText($value);
+        };
 
         $result = [
             'id'             => $section->id,
@@ -514,9 +647,15 @@ class CmsController extends Controller
 
     private function flattenSection(PageSection $section): array
     {
-        $str = fn ($field) => is_array($section->$field)
-            ? ($section->$field['es'] ?? '')
-            : ($section->$field ?? '');
+        $str = function ($field) use ($section) {
+            $value = is_array($section->$field)
+                ? ($section->$field['es'] ?? '')
+                : ($section->$field ?? '');
+
+            return $field === 'content'
+                ? $value
+                : $this->sanitizePlainText($value);
+        };
 
         return [
             'id'          => $section->id,

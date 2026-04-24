@@ -29,6 +29,8 @@ trait SanitizesHtml
             return '';
         }
 
+        $html = $this->normalizeRichTextParagraphs((string) $html);
+
         $html = preg_replace('#<(script|style|iframe|object|embed|form|input|button|textarea|select|option|link|meta)[^>]*>.*?</\1>#is', '', $html);
         $html = preg_replace('#<(script|style|iframe|object|embed|form|input|button|textarea|select|option|link|meta)[^>]*/?>#is', '', $html);
 
@@ -87,6 +89,148 @@ trait SanitizesHtml
         return trim($html);
     }
 
+    protected function normalizeRichTextParagraphs(string $html): string
+    {
+        // El editor rich-text suele emitir <div> por cada Enter.
+        // Los normalizamos a párrafos antes de reparar la estructura.
+        $html = preg_replace('/<div\b[^>]*>\s*(<br\s*\/?>)?\s*<\/div>/i', '<p><br></p>', $html) ?? $html;
+        $html = preg_replace('/<div\b[^>]*>/i', '<p>', $html) ?? $html;
+        $html = preg_replace('/<\/div>/i', '</p>', $html) ?? $html;
+
+        if (! class_exists(\DOMDocument::class)) {
+            return $html;
+        }
+
+        $document = new \DOMDocument('1.0', 'UTF-8');
+        $wrapperId = 'rich-text-root';
+
+        libxml_use_internal_errors(true);
+        $loaded = $document->loadHTML(
+            '<?xml encoding="UTF-8"><div id="' . $wrapperId . '">' . $html . '</div>',
+            LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD
+        );
+        libxml_clear_errors();
+
+        if (! $loaded) {
+            return $html;
+        }
+
+        $wrapper = $document->getElementById($wrapperId);
+        if (! $wrapper) {
+            return $html;
+        }
+
+        $blockTags = ['p', 'ul', 'ol', 'blockquote', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
+        $childNodes = [];
+        foreach ($wrapper->childNodes as $childNode) {
+            $childNodes[] = $childNode;
+        }
+
+        foreach ($childNodes as $childNode) {
+            $wrapper->removeChild($childNode);
+        }
+
+        $pendingParagraph = null;
+        $flushPendingParagraph = function () use (&$pendingParagraph, $wrapper): void {
+            if (! $pendingParagraph) {
+                return;
+            }
+
+            $text = html_entity_decode((string) $pendingParagraph->textContent, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+            $hasBreak = $pendingParagraph->getElementsByTagName('br')->length > 0;
+
+            if (trim($text) !== '' || $hasBreak) {
+                $wrapper->appendChild($pendingParagraph);
+            }
+
+            $pendingParagraph = null;
+        };
+
+        foreach ($childNodes as $childNode) {
+            if ($childNode->nodeType === XML_TEXT_NODE) {
+                $text = html_entity_decode((string) $childNode->textContent, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+                if (trim($text) === '') {
+                    continue;
+                }
+
+                $pendingParagraph ??= $document->createElement('p');
+                $pendingParagraph->appendChild($document->createTextNode(trim($text)));
+                continue;
+            }
+
+            if ($childNode->nodeType === XML_ELEMENT_NODE && in_array(strtolower($childNode->nodeName), $blockTags, true)) {
+                $flushPendingParagraph();
+                $wrapper->appendChild($childNode);
+                continue;
+            }
+
+            $pendingParagraph ??= $document->createElement('p');
+            $pendingParagraph->appendChild($childNode);
+        }
+
+        $flushPendingParagraph();
+
+        $paragraphNodes = [];
+        foreach ($wrapper->childNodes as $childNode) {
+            if ($childNode->nodeType === XML_ELEMENT_NODE && strtolower($childNode->nodeName) === 'p') {
+                $paragraphNodes[] = $childNode;
+            }
+        }
+
+        if (count($paragraphNodes) >= 2) {
+            $firstParagraph = $paragraphNodes[0];
+            $secondParagraph = $paragraphNodes[1];
+
+            $firstHasOnlyInlineChildren = true;
+            $firstHasElementChild = false;
+
+            foreach ($firstParagraph->childNodes as $paragraphChild) {
+                if ($paragraphChild->nodeType === XML_TEXT_NODE && trim((string) $paragraphChild->textContent) !== '') {
+                    $firstHasOnlyInlineChildren = false;
+                    break;
+                }
+
+                if ($paragraphChild->nodeType === XML_ELEMENT_NODE) {
+                    $firstHasElementChild = true;
+                }
+            }
+
+            if ($firstHasOnlyInlineChildren && $firstHasElementChild) {
+                $firstParagraph->appendChild($document->createTextNode(' '));
+
+                $secondChildren = [];
+                foreach ($secondParagraph->childNodes as $child) {
+                    $secondChildren[] = $child;
+                }
+
+                foreach ($secondChildren as $child) {
+                    $firstParagraph->appendChild($child);
+                }
+
+                $wrapper->removeChild($secondParagraph);
+            }
+        }
+
+        $normalized = '';
+        foreach (iterator_to_array($wrapper->childNodes) as $childNode) {
+            if (
+                $childNode->nodeType === XML_ELEMENT_NODE
+                && strtolower($childNode->nodeName) === 'p'
+            ) {
+                $text = html_entity_decode((string) $childNode->textContent, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+                $hasBreak = $childNode->getElementsByTagName('br')->length > 0;
+
+                if (trim($text) === '' && ! $hasBreak) {
+                    continue;
+                }
+            }
+
+            $normalized .= $document->saveHTML($childNode);
+        }
+
+        return $normalized;
+    }
+
     protected function sanitizeUrl(?string $url, bool $allowRelative = false): ?string
     {
         $url = trim((string) $url);
@@ -106,6 +250,15 @@ trait SanitizesHtml
         $scheme = strtolower((string) parse_url($url, PHP_URL_SCHEME));
 
         return in_array($scheme, ['http', 'https', 'mailto', 'tel'], true) ? $url : null;
+    }
+
+    protected function sanitizePlainText(?string $text): string
+    {
+        $text = html_entity_decode((string) $text, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        $text = strip_tags($text);
+        $text = preg_replace('/\s+/u', ' ', $text) ?? $text;
+
+        return trim($text);
     }
 
     protected function sanitizeMapEmbed(?string $html): string
@@ -170,6 +323,20 @@ trait SanitizesHtml
                 }
             }
         }
+        return $data;
+    }
+
+    protected function sanitizePlainTextFields(array $data, array $fields): array
+    {
+        foreach ($fields as $field) {
+            foreach (['es', 'en', 'pt'] as $locale) {
+                $key = "{$field}_{$locale}";
+                if (array_key_exists($key, $data)) {
+                    $data[$key] = $this->sanitizePlainText($data[$key]);
+                }
+            }
+        }
+
         return $data;
     }
 }

@@ -36,7 +36,7 @@ export default function NewsletterIndex({ subscribers, total, total_active }) {
                     className="flex items-center gap-2 bg-[#25A7CA] text-white px-4 py-2 rounded-xl text-sm font-medium hover:bg-[#1d96b8] transition"
                 >
                     <Icon icon="solar:letter-outline" width={18} />
-                    Enviar Email
+                    Enviar correo
                 </button>
             </div>
 
@@ -50,7 +50,7 @@ export default function NewsletterIndex({ subscribers, total, total_active }) {
                                 Enviar campaña
                             </h2>
                             <p className="text-xs text-gray-500 mt-0.5">
-                                Se enviará a los <strong>{total_active}</strong> suscriptores activos via Mailtrap
+                                Se enviará a los <strong>{total_active}</strong> suscriptores activos vía Mailtrap
                             </p>
                         </div>
                         <button onClick={() => setShowSend(false)} className="p-1.5 hover:bg-gray-100 rounded-lg text-gray-400">

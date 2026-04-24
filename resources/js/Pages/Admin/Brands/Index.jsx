@@ -40,7 +40,7 @@ function MultiInput({ label, field, data, setData, placeholder = "" }) {
     );
 }
 
-function HomeSwitch({ brand }) {
+function InicioSwitch({ brand }) {
     const active = brand.show_in_home;
     return (
         <div className="flex flex-col items-center gap-1">
@@ -50,13 +50,13 @@ function HomeSwitch({ brand }) {
                 className={`relative inline-flex h-5 w-9 flex-shrink-0 rounded-full border-2 transition-colors focus:outline-none ${
                     active ? "bg-[#25A7CA] border-[#25A7CA]" : "bg-gray-200 border-gray-200"
                 }`}
-                title={active ? "Ocultar de Home" : "Mostrar en Home"}
+                title={active ? "Ocultar del inicio" : "Mostrar en el inicio"}
             >
                 <span className={`inline-block h-3.5 w-3.5 rounded-full bg-white shadow transition-transform ${
                     active ? "translate-x-3.5" : "translate-x-0.5"
                 }`} />
             </button>
-            <span className="text-[10px] text-gray-400 leading-none">{active ? "Home" : "Oculta"}</span>
+            <span className="text-[10px] text-gray-400 leading-none">{active ? "Inicio" : "Oculta"}</span>
         </div>
     );
 }
@@ -154,7 +154,7 @@ function BrandForm({ initial = null, onCancel }) {
                     <span className="text-sm text-gray-700">Activa</span>
                 </label>
                 <div className="flex flex-col gap-1 mb-2">
-                    <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide">Visible en Home</label>
+                    <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide">Visible en inicio</label>
                     <button
                         type="button"
                         onClick={() => setData("show_in_home", !data.show_in_home)}
@@ -166,7 +166,7 @@ function BrandForm({ initial = null, onCancel }) {
                             data.show_in_home ? "translate-x-3.5" : "translate-x-0.5"
                         }`} />
                     </button>
-                    <span className="text-xs text-gray-400">{data.show_in_home ? "Se muestra en Home" : "Oculta en Home"}</span>
+                    <span className="text-xs text-gray-400">{data.show_in_home ? "Se muestra en el inicio" : "Oculta en el inicio"}</span>
                 </div>
             </div>
 
@@ -279,8 +279,8 @@ export default function BrandsIndex({ brands }) {
                                         <p className="text-xs text-gray-400 mt-0.5">slug: {brand.slug}</p>
                                     </div>
 
-                                    {/* Home switch */}
-                                    <HomeSwitch brand={brand} />
+                                    {/* Inicio */}
+                                    <InicioSwitch brand={brand} />
 
                                     {/* Acciones */}
                                     <div className="flex items-center gap-1 flex-shrink-0">

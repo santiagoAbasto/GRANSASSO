@@ -643,6 +643,14 @@
     padding: 28px;
 }
 
+.zp-pagos-card {
+    width: 808px;
+    border-radius: 6px;
+    background: rgba(38, 39, 43, 0.03);
+    padding: 28px 17px 42px 18px;
+    box-sizing: border-box;
+}
+
 .zp-bank-row {
     display: flex;
     flex-direction: column;
@@ -1076,12 +1084,14 @@
 }
 
 /* ── Info pagos card: always fill grid column (prevents overflow at 1025-1365px) ── */
-.zp-pagos-card {
-    width: 100% !important;
-    box-sizing: border-box !important;
+@media (max-width: 1365px) {
+    .zp-pagos-card {
+        width: 100% !important;
+    }
 }
+
 @media (max-width: 640px) {
-    .zp-pagos-card { padding: 20px 16px 0 !important; }
+    .zp-pagos-card { padding: 20px 16px 28px !important; }
 }
 
 /* ── Hamburger: raise header above overlay so nav-links drawer is clickable ── */

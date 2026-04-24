@@ -8,15 +8,14 @@ $about = $page?->sections
 @if($about)
 
 <section class="about-section">
-
-    <div class="about-section__img-wrap">
-        <img
-            src="{{ asset('storage/' . $about->image) }}"
-            alt="{{ $about->getTitle() ?: 'Sobre nosotros' }}"
-            class="about-section__img">
-    </div>
-
     <div class="about-section__inner">
+        <div class="about-section__img-wrap">
+            <img
+                src="{{ asset('storage/' . $about->image) }}"
+                alt="{{ $about->getTitle() ?: 'Sobre nosotros' }}"
+                class="about-section__img">
+        </div>
+
         <div class="about-section__content">
 
             <h2 class="about-section__title">
@@ -30,8 +29,7 @@ $about = $page?->sections
             @php
                 $content = $about->getContent();
                 if ($content && !preg_match('/<[^>]+>/', $content)) {
-                    $paragraphs = array_filter(array_map('trim', preg_split('/\n+/', $content)));
-                    $content = implode('', array_map(fn($p) => "<p>{$p}</p>", $paragraphs));
+                    $content = nl2br(e($content));
                 }
             @endphp
             <div class="about-section__text">{!! $content !!}</div>

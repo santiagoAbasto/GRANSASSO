@@ -16,6 +16,7 @@ class SeoController extends Controller
         'productos' => 'Productos',
         'empresa'   => 'Empresa',
         'calidad'   => 'Calidad',
+        'novedades' => 'Novedades',
         'contacto'  => 'Contacto',
     ];
 

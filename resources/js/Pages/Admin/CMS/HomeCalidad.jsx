@@ -55,9 +55,9 @@ export default function HomeCalidad({ page, section }) {
 
                 {/* ── HEADER ─────────────────────────────────────────────── */}
                 <div className="mb-6">
-                    <h1 className="text-2xl font-bold text-gray-800">Home – Calidad</h1>
+                    <h1 className="text-2xl font-bold text-gray-800">Importamos/calidad</h1>
                     <p className="text-sm text-gray-500 mt-1">
-                        Edita el bloque "Calidad" que aparece en la página de inicio.
+                        Editá la sección Importamos/calidad que aparece en la página de inicio.
                     </p>
                 </div>
 

@@ -84,9 +84,9 @@ export default function HomeAbout({ page, section }) {
             <div className="max-w-3xl">
                 <div className="mb-6 flex items-start justify-between gap-4">
                     <div>
-                        <h1 className="text-2xl font-bold text-gray-800">Home – Bloque "Nosotros"</h1>
+                        <h1 className="text-2xl font-bold text-gray-800">Nosotros en inicio</h1>
                         <p className="text-sm text-gray-500 mt-1">
-                            Edita el bloque "Sobre nosotros" que aparece en la página de inicio.
+                            Editá la sección Nosotros que aparece en la página de inicio.
                         </p>
                     </div>
                     <span className={`inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full font-medium ${
