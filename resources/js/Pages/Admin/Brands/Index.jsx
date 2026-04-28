@@ -108,6 +108,7 @@ function BrandForm({ initial = null, onCancel }) {
             {/* Logo */}
             <div>
                 <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Logo</label>
+                <p className="text-xs text-gray-400 mb-2">Recomendado: 286×215 px · JPG/PNG · máx 2 MB</p>
                 <div className="flex items-center gap-4">
                     {preview ? (
                         <img src={preview} alt="logo" className="h-16 w-auto object-contain rounded border border-gray-100 p-1 bg-gray-50" />

@@ -401,6 +401,7 @@ export default function ProductEdit({ product, brands, gearboxes }) {
                         {/* Subir nuevas */}
                         <div className="border border-dashed border-gray-200 rounded-xl p-4">
                             <p className="text-xs text-gray-400 mb-2">Agregar imágenes (se puede subir varias a la vez)</p>
+                            <p className="text-xs text-gray-400 mb-2">Recomendado: 288×209 px · JPG/PNG · máx 4 MB por imagen</p>
                             <input
                                 type="file"
                                 multiple

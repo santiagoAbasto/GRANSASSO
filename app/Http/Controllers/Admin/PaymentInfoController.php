@@ -14,22 +14,51 @@ class PaymentInfoController extends Controller
 {
     public function index()
     {
+        $search = trim((string) request()->input('q', ''));
         $bankInfo    = BankInfo::first();
-        $submissions = PaymentSubmission::with('privateUser')
+        $query = PaymentSubmission::with('privateUser')
+            ->when($search !== '', function ($query) use ($search) {
+                $query->where(function ($inner) use ($search) {
+                    $term = '%' . $search . '%';
+                    $inner->where('bank', 'like', $term)
+                        ->orWhere('branch', 'like', $term)
+                        ->orWhere('invoices_cancelled', 'like', $term)
+                        ->orWhere('observations', 'like', $term)
+                        ->orWhereHas('privateUser', function ($userQuery) use ($term) {
+                            $userQuery->where('name', 'like', $term)
+                                ->orWhere('lastname', 'like', $term)
+                                ->orWhere('email', 'like', $term);
+                        });
+                });
+            });
+
+        $stats = [
+            'count'        => (clone $query)->count(),
+            'total_amount' => (float) ((clone $query)->sum('amount') ?? 0),
+        ];
+
+        $submissions = $query
             ->orderByDesc('created_at')
-            ->paginate(20);
+            ->paginate(20)
+            ->withQueryString();
 
         $submissions->through(function (PaymentSubmission $submission) {
             return array_merge($submission->toArray(), [
+                'customer_name' => $submission->privateUser?->full_name,
+                'customer_email'=> $submission->privateUser?->email,
                 'download_url' => $submission->file_path
                     ? route('admin.payment-submissions.download', $submission)
                     : null,
+                'payment_date_label' => $submission->payment_date?->format('d/m/Y'),
+                'created_at_label'   => $submission->created_at?->setTimezone(config('app.timezone'))->format('d/m/Y H:i'),
             ]);
         });
 
         return Inertia::render('Admin/PrivateZone/PaymentInfo', [
             'bankInfo'    => $bankInfo,
             'submissions' => $submissions,
+            'q'           => $search,
+            'stats'       => $stats,
         ]);
     }
 

@@ -12,7 +12,18 @@ class PriceListAdminController extends Controller
 {
     public function index()
     {
-        $priceLists = PriceList::orderByDesc('created_at')->get();
+        $priceLists = PriceList::orderByDesc('created_at')
+            ->get()
+            ->map(fn (PriceList $priceList) => [
+                'id'              => $priceList->id,
+                'name'            => $priceList->name,
+                'file_size'       => $priceList->file_size,
+                'file_size_human' => $priceList->file_size_human,
+                'is_active'       => (bool) $priceList->is_active,
+                'created_at'      => $priceList->created_at?->toISOString(),
+                'created_at_label'=> $priceList->created_at?->format('d/m/Y'),
+                'view_url'        => asset('storage/' . $priceList->file_path),
+            ]);
 
         return Inertia::render('Admin/PrivateZone/PriceLists', [
             'priceLists' => $priceLists,

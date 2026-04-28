@@ -305,6 +305,7 @@ export default function ProductCreate({ brands, gearboxes }) {
                             <Icon icon="solar:gallery-outline" width={18} className="text-[#25A7CA]" />
                             Imágenes
                         </h2>
+                        <p className="text-xs text-gray-400">Recomendado: 288×209 px · JPG/PNG · máx 4 MB por imagen</p>
                         <input
                             type="file"
                             multiple

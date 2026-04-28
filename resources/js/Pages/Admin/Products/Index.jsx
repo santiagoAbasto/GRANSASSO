@@ -223,6 +223,7 @@ export default function ProductsIndex({ products, brands, gearboxes }) {
                         </div>
 
                         {/* File input */}
+                        <p className="text-xs text-gray-400 mb-2">Recomendado: 288×209 px · JPG/PNG · máx 8 MB por imagen</p>
                         <input
                             type="file"
                             accept="image/*"

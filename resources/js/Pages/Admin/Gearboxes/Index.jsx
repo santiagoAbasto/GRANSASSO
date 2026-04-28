@@ -95,6 +95,7 @@ function FormRow({ data, setData, brands, errors, processing, onCancel, isNew })
                 {/* Imagen */}
                 <div>
                     <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Imagen</label>
+                    <p className="text-xs text-gray-400 mb-2">Recomendado: 286×215 px · JPG/PNG · máx 4 MB</p>
                     <div className="flex items-center gap-3">
                         {preview ? (
                             <img src={preview} alt="" className="h-12 w-auto object-contain rounded border border-gray-100 p-1 bg-gray-50" />

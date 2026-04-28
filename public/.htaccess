@@ -1,10 +1,26 @@
 <IfModule mod_rewrite.c>
+    <IfModule mod_negotiation.c>
+        Options -MultiViews -Indexes
+    </IfModule>
+
     RewriteEngine On
 
-    # Redirecciones de URLs legacy hacia la home actual
-    RewriteRule ^(?:home-eng/?|home-eng/index(?:\.php|\.html)?|home-es/?|home-es/index(?:\.php|\.html)?|home-pt/?|home-pt/index(?:\.php|\.html)?)$ https://gransasso.com.ar/ [R=301,L,NC]
+    # Preserve auth headers for Laravel / Sanctum / Inertia
+    RewriteCond %{HTTP:Authorization} .
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
 
-    # Laravel
+    RewriteCond %{HTTP:x-xsrf-token} .
+    RewriteRule .* - [E=HTTP_X_XSRF_TOKEN:%{HTTP:x-xsrf-token}]
+
+    # Legacy URLs from old site versions -> current home
+    RewriteRule ^(?:home-eng|home-es|home-pt)(?:/.*)?$ https://gransasso.com.ar/ [R=301,L,NC]
+
+    # Remove trailing slash if not a real directory
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_URI} (.+)/$
+    RewriteRule ^ %1 [L,R=301]
+
+    # Laravel front controller
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]

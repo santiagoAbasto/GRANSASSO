@@ -238,7 +238,7 @@ function GallerySection({ section }) {
                 <form onSubmit={submit} className="flex flex-col sm:flex-row items-start sm:items-end gap-3 p-4 bg-gray-50 rounded-xl border border-dashed border-gray-200">
                     <div className="flex-1">
                         <label className="block text-xs font-medium text-gray-500 mb-1">Agregar imagen a la galería</label>
-                        <p className="text-xs text-gray-400 mb-2">JPG/PNG · máx 5 MB · proporción cuadrada recomendada</p>
+                        <p className="text-xs text-gray-400 mb-2">Recomendado: 268×268 px · JPG/PNG · máx 5 MB</p>
                         <input
                             ref={fileRef}
                             type="file"
@@ -378,7 +378,7 @@ export default function Desarrollos({ page, sections }) {
                 <div className="flex items-center justify-between">
                     <div>
                         <h1 className="text-2xl font-bold text-gray-800">Desarrollos especiales</h1>
-                        <p className="text-sm text-gray-500">Editá el texto principal, las imágenes del banner y la galería.</p>
+                        <p className="text-sm text-gray-500">Editá el banner principal, el texto de la página y la galería.</p>
                     </div>
                     <a
                         href="/desarrollos-especiales"
@@ -397,15 +397,15 @@ export default function Desarrollos({ page, sections }) {
                         <Icon icon="solar:info-circle-outline" width={18} className="text-[#25A7CA] mt-0.5 flex-shrink-0" />
                         <div className="text-sm text-gray-600">
                             <p className="font-medium text-gray-700 mb-1">Qué podés editar</p>
-                            <p>Desde acá podés actualizar el texto principal de la página, las imágenes principales y la galería de trabajos realizados.</p>
+                            <p>Desde acá podés actualizar primero el banner principal con su imagen recomendada, después el texto de la página y la galería de trabajos realizados.</p>
                         </div>
                     </div>
                 </div>
 
-                {mainText && <MainTextSection section={{ ...mainText, page_id: page.id }} />}
-
                 {/* Banner */}
                 {banner && <BannerSection section={banner} />}
+
+                {mainText && <MainTextSection section={{ ...mainText, page_id: page.id }} />}
 
                 {/* Gallery */}
                 {gallery && <GallerySection section={gallery} />}

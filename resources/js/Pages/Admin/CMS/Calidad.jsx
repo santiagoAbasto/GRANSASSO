@@ -286,6 +286,7 @@ function ContentSection({ section }) {
                 {/* ── Imagen de sección ── */}
                 <div>
                     <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Imagen de sección</label>
+                    <p className="text-xs text-gray-400 mb-2">Recomendado: 560×560 px · JPG/PNG · máx 4 MB</p>
                     {editing ? (
                         <div className="flex items-center gap-4">
                             {imgPreview ? (
@@ -328,6 +329,7 @@ function ContentSection({ section }) {
                     <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
                         Certificación ISO <span className="text-gray-400 normal-case font-normal">(badge overlay — posición: left 25px, top 22px)</span>
                     </label>
+                    <p className="text-xs text-gray-400 mb-2">Recomendado: 100×100 px · PNG/SVG · máx 5 MB</p>
                     <div className="flex items-center gap-4 mt-2">
                         {certPreview ? (
                             <div className="relative group">
@@ -440,6 +442,7 @@ function AddDownloadForm({ onCancel }) {
             {/* Logo */}
             <div>
                 <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Logo / Ícono</label>
+                <p className="text-xs text-gray-400 mb-2">Recomendado: 120×120 px · PNG/SVG · máx 2 MB</p>
                 <div className="flex items-center gap-4">
                     {logoPreview ? (
                         <img src={logoPreview} alt="" className="w-12 h-12 rounded-full object-cover border border-gray-100" />
@@ -460,6 +463,7 @@ function AddDownloadForm({ onCancel }) {
             {/* Archivo */}
             <div>
                 <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Archivo descargable *</label>
+                <p className="text-xs text-gray-400 mb-2">Recomendado: PDF · máx 30 MB</p>
                 <label className="cursor-pointer flex items-center gap-3 p-3 bg-gray-50 rounded-xl border border-dashed border-gray-200 hover:border-[#25A7CA]/40 transition">
                     <Icon icon="solar:file-send-outline" width={22} className="text-gray-400 flex-shrink-0" />
                     <div className="flex-1 min-w-0">
@@ -548,6 +552,7 @@ function DownloadCard({ item, onDelete }) {
                     {/* Logo */}
                     <div>
                         <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Logo / Ícono</label>
+                        <p className="text-xs text-gray-400 mb-2">Recomendado: 120×120 px · PNG/SVG · máx 2 MB</p>
                         <div className="flex items-center gap-3">
                             {logoPreview ? (
                                 <img src={logoPreview} alt="" className="w-10 h-10 rounded-full object-cover border border-gray-100" />
@@ -566,6 +571,7 @@ function DownloadCard({ item, onDelete }) {
                     {/* Reemplazar archivo */}
                     <div>
                         <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Reemplazar archivo (opcional)</label>
+                        <p className="text-xs text-gray-400 mb-2">Recomendado: PDF · máx 30 MB</p>
                         <label className="cursor-pointer flex items-center gap-3 p-3 bg-gray-50 rounded-xl border border-dashed border-gray-200 hover:border-[#25A7CA]/40 transition">
                             <Icon icon="solar:file-send-outline" width={18} className="text-gray-400 flex-shrink-0" />
                             <div className="flex-1 min-w-0">

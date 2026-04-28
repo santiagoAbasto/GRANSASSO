@@ -69,11 +69,14 @@ class UserController extends Controller
         return back()->with('success', 'Usuario actualizado correctamente.');
     }
 
-    public function destroy(User $user)
+    public function destroy(Request $request, User $user)
     {
         $principalId = User::where('is_admin', true)->oldest()->value('id');
         if ($user->id === $principalId) {
             return back()->with('error', 'No se puede eliminar el usuario principal.');
+        }
+        if ($request->user() && $user->id === $request->user()->id) {
+            return back()->with('error', 'No podés eliminar tu propio usuario mientras estás usando el panel.');
         }
         $user->delete();
         return back()->with('success', 'Usuario eliminado.');

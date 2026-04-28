@@ -182,7 +182,7 @@ function SectionForm({ initial = null, pageId, onCancel, onSuccess }) {
                     <ImageUploadField
                         currentUrl={initial?.image_url}
                         onChange={(f) => setData("image", f)}
-                        specs={{ maxMB: 4, formats: ["JPG", "PNG"] }}
+                        specs={{ width: 600, height: 600, maxMB: 4, formats: ["JPG", "PNG"] }}
                         error={errors.image}
                     />
                     {!initial?.image_url && !data.image && (

@@ -389,6 +389,7 @@ export default function NovedadesManager({
                                     </div>
                                     <div>
                                         <label className="mb-1 block text-xs font-semibold text-gray-600">{form.currentImageUrl ? "Imagen principal" : "Imagen principal"}</label>
+                                        <p className="mb-2 text-[11px] text-gray-400">Recomendado: 364×300 px · JPG/PNG · máx 3 MB</p>
                                         {form.currentImageUrl && !form.image && (
                                             <div className="mb-2 aspect-video w-full overflow-hidden rounded-lg border border-gray-100 bg-gray-50">
                                                 <img src={form.currentImageUrl} alt="Imagen actual" className="h-full w-full object-cover" />
@@ -414,6 +415,7 @@ export default function NovedadesManager({
                                         <div>
                                             <p className="text-sm font-semibold text-gray-700">Imágenes adicionales</p>
                                             <p className="text-xs text-gray-400">Podés sumar más imágenes para mostrar en el detalle público de la novedad.</p>
+                                            <p className="mt-1 text-[11px] text-gray-400">Recomendado: 364×300 px · JPG/PNG · máx 3 MB</p>
                                         </div>
                                         <span className="rounded-full bg-white px-2.5 py-1 text-xs font-medium text-gray-500 shadow-sm">
                                             {(form.currentGalleryImages?.length || 0) + (form.galleryImages?.length || 0)} imágenes

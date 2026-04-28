@@ -73,7 +73,7 @@ export default function HomeCalidad({ page, section }) {
                             label="Fondo de la sección"
                             currentUrl={section?.image_url}
                             onChange={(f) => setData("image", f)}
-                            specs={{ width: 1920, height: 500, maxMB: 5, formats: ["JPG", "PNG"] }}
+                            specs={{ width: 1920, height: 465, maxMB: 5, formats: ["JPG", "PNG"] }}
                             error={errors.image}
                         />
                     </div>
