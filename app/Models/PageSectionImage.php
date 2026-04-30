@@ -10,6 +10,7 @@ class PageSectionImage extends Model
         'section_id',
         'image',
         'video_url',
+        'kind',
         'order',
     ];
 

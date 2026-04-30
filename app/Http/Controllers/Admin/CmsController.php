@@ -10,6 +10,7 @@ use App\Models\PageSectionImage;
 use App\Models\PublicNovedad;
 use App\Traits\SanitizesHtml;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
@@ -358,6 +359,7 @@ class CmsController extends Controller
             'button_text_en' => 'nullable|string|max:100',
             'button_text_pt' => 'nullable|string|max:100',
             'button_link'    => 'nullable|string|max:500',
+            'autoplay_seconds' => 'nullable|integer|min:1|max:30',
             'order'          => 'nullable|string|max:20',
             'is_active'      => 'boolean',
             'image'          => 'nullable|image|max:4096',
@@ -368,21 +370,32 @@ class CmsController extends Controller
         $buttonLink = $this->sanitizeUrl($data['button_link'] ?? null, allowRelative: true);
 
         $imagePath = null;
+        $isGallerySection = in_array($data['type'], ['about_main', 'calidad_main'], true);
+
         if ($request->hasFile('image')) {
             $imagePath = $request->file('image')->store('pages', 'public');
         }
 
-        $page->sections()->create([
+        $section = $page->sections()->create([
             'type'        => $data['type'],
             'title'       => ['es' => $data['title_es'] ?? null, 'en' => $data['title_en'] ?? null, 'pt' => $data['title_pt'] ?? null],
             'subtitle'    => ['es' => $data['subtitle_es'] ?? null, 'en' => $data['subtitle_en'] ?? null, 'pt' => $data['subtitle_pt'] ?? null],
             'content'     => ['es' => $data['content_es'] ?? null, 'en' => $data['content_en'] ?? null, 'pt' => $data['content_pt'] ?? null],
             'button_text' => ['es' => $data['button_text_es'] ?? null, 'en' => $data['button_text_en'] ?? null, 'pt' => $data['button_text_pt'] ?? null],
             'button_link' => $buttonLink,
+            'autoplay_seconds' => $data['autoplay_seconds'] ?? 3,
             'order'       => strtoupper(trim($data['order'] ?? 'A')),
             'is_active'   => $data['is_active'] ?? true,
-            'image'       => $imagePath,
+            'image'       => $isGallerySection ? null : $imagePath,
         ]);
+
+        if ($isGallerySection && $imagePath) {
+            $section->images()->create($this->makeSectionImagePayload(
+                imagePath: $imagePath,
+                order: 'A',
+                kind: 'gallery',
+            ));
+        }
 
         return back()->with('success', 'Sección creada.');
     }
@@ -405,6 +418,7 @@ class CmsController extends Controller
             'button_text_en' => 'nullable|string|max:100',
             'button_text_pt' => 'nullable|string|max:100',
             'button_link'    => 'nullable|string|max:500',
+            'autoplay_seconds' => 'nullable|integer|min:1|max:30',
             'order'          => 'nullable|string|max:20',
             'is_active'      => 'boolean',
             'image'          => 'nullable|image|max:4096',
@@ -417,9 +431,22 @@ class CmsController extends Controller
             : $section->button_link;
 
         $imagePath = $section->image;
+        $newGalleryImagePath = null;
+        $isGallerySection = in_array($section->type, ['about_main', 'calidad_main'], true);
+
         if ($request->hasFile('image')) {
-            if ($imagePath) Storage::disk('public')->delete($imagePath);
-            $imagePath = $request->file('image')->store('pages', 'public');
+            $storedPath = $request->file('image')->store('pages', 'public');
+
+            if ($isGallerySection) {
+                if ($imagePath) {
+                    Storage::disk('public')->delete($imagePath);
+                    $imagePath = null;
+                }
+                $newGalleryImagePath = $storedPath;
+            } else {
+                if ($imagePath) Storage::disk('public')->delete($imagePath);
+                $imagePath = $storedPath;
+            }
         }
 
         $existing = fn ($field) => is_array($section->$field)
@@ -432,10 +459,26 @@ class CmsController extends Controller
             'content'     => array_merge($existing('content'),     ['es' => $data['content_es'] ?? null, 'en' => $data['content_en'] ?? null, 'pt' => $data['content_pt'] ?? null]),
             'button_text' => array_merge($existing('button_text'), ['es' => $data['button_text_es'] ?? null, 'en' => $data['button_text_en'] ?? null, 'pt' => $data['button_text_pt'] ?? null]),
             'button_link' => $buttonLink,
+            'autoplay_seconds' => $data['autoplay_seconds'] ?? $section->autoplay_seconds ?? 3,
             'order'       => isset($data['order']) ? strtoupper(trim($data['order'])) : $section->order,
             'is_active'   => $data['is_active']   ?? $section->is_active,
             'image'       => $imagePath,
         ]);
+
+        if ($newGalleryImagePath) {
+            $existingOrders = $section->images()
+                ->where('kind', 'gallery')
+                ->pluck('order')
+                ->toArray();
+
+            $section->images()->create([
+                ...$this->makeSectionImagePayload(
+                    imagePath: $newGalleryImagePath,
+                    order: $this->nextAlphaOrder($existingOrders),
+                    kind: 'gallery',
+                ),
+            ]);
+        }
 
         return back()->with('success', 'Sección actualizada.');
     }
@@ -452,29 +495,63 @@ class CmsController extends Controller
 
         $request->validate([
             'image'     => 'nullable|image|max:5120',
+            'images'    => 'nullable|array',
+            'images.*'  => 'nullable|image|max:5120',
             'video_url' => 'nullable|string|max:500',
+            'kind'      => 'nullable|string|in:default,gallery,badge',
             'order'     => 'nullable|string|max:20',
         ]);
 
-        if (! $request->hasFile('image') && ! $request->filled('video_url')) {
+        $uploadedFiles = [];
+        if ($request->hasFile('images')) {
+            $uploadedFiles = array_values(array_filter($request->file('images', [])));
+        } elseif ($request->hasFile('image')) {
+            $uploadedFiles = [$request->file('image')];
+        }
+
+        if (empty($uploadedFiles) && ! $request->filled('video_url')) {
             return back()->withErrors(['image' => 'Se requiere una imagen o URL de video.']);
         }
 
-        // Calcular siguiente orden alfanumérico si no se provee uno
-        $order = $request->filled('order')
+        if ($section->type === 'home_gallery' && ($section->images()->count() + count($uploadedFiles)) > 3) {
+            return back()->withErrors([
+                'images' => 'Esta sección admite hasta 3 imágenes.',
+            ]);
+        }
+
+        $currentOrder = $request->filled('order')
             ? strtoupper(trim($request->input('order')))
             : $this->nextAlphaOrder($section->images()->pluck('order')->toArray());
 
-        $path = null;
-        if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('pages/banner', 'public');
+        if (! empty($uploadedFiles)) {
+            foreach ($uploadedFiles as $index => $uploadedFile) {
+                $path = $uploadedFile->store('pages/banner', 'public');
+
+                $section->images()->create($this->makeSectionImagePayload(
+                    imagePath: $path,
+                    videoUrl: null,
+                    order: $currentOrder,
+                    kind: $request->input('kind', 'default'),
+                ));
+
+                if ($index < count($uploadedFiles) - 1) {
+                    $currentOrder = $this->nextAlphaOrder(array_merge(
+                        $section->images()->pluck('order')->toArray(),
+                        [$currentOrder]
+                    ));
+                }
+            }
+
+            $count = count($uploadedFiles);
+            return back()->with('success', $count === 1 ? 'Imagen agregada.' : "Se agregaron {$count} imágenes.");
         }
 
-        $section->images()->create([
-            'image'     => $path,
-            'video_url' => $request->filled('video_url') ? $request->input('video_url') : null,
-            'order'     => $order,
-        ]);
+        $section->images()->create($this->makeSectionImagePayload(
+            imagePath: null,
+            videoUrl: $request->filled('video_url') ? $request->input('video_url') : null,
+            order: $currentOrder,
+            kind: $request->input('kind', 'default'),
+        ));
 
         return back()->with('success', 'Slide agregado.');
     }
@@ -538,6 +615,21 @@ class CmsController extends Controller
         }
 
         return $next;
+    }
+
+    private function makeSectionImagePayload(?string $imagePath, string $order, string $kind = 'default', ?string $videoUrl = null): array
+    {
+        $payload = [
+            'image' => $imagePath,
+            'video_url' => $videoUrl,
+            'order' => $order,
+        ];
+
+        if (Schema::hasColumn('page_section_images', 'kind')) {
+            $payload['kind'] = $kind;
+        }
+
+        return $payload;
     }
 
     // ── Eliminar una imagen de sección ────────────────────────────────────
@@ -627,6 +719,7 @@ class CmsController extends Controller
             'button_text_en' => $get('button_text', 'en'),
             'button_text_pt' => $get('button_text', 'pt'),
             'button_link'    => $section->button_link,
+            'autoplay_seconds' => $section->autoplay_seconds ?? 3,
             'order'          => $section->order,
             'is_active'      => $section->is_active,
             'image_url'      => $section->image ? asset('storage/' . $section->image) : null,
@@ -635,7 +728,8 @@ class CmsController extends Controller
         if ($withImages) {
             $result['images'] = $section->images->sortBy('order')->map(fn ($img) => [
                 'id'        => $img->id,
-                'image_url' => asset('storage/' . $img->image),
+                'image_url' => $img->image ? asset('storage/' . $img->image) : null,
+                'kind'      => $img->kind ?? 'default',
                 'order'     => $img->order,
             ])->values();
         }

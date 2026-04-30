@@ -9,7 +9,17 @@ $locale         = session('locale', 'es');
 $bannerSection  = $page?->sections->where('type', 'banner')->first();
 $bannerSlides   = $bannerSection?->images->sortBy('order') ?? collect();
 $mainSection    = $page?->sections->where('type', 'calidad_main')->first();
-$certImage      = $mainSection?->images->first();
+$certImage      = ($mainSection?->images ?? collect())->first(fn ($img) => ($img->kind ?? null) === 'badge')
+    ?? (($mainSection?->images ?? collect())->first(fn ($img) => empty($img->kind)));
+$mainGallerySlides = $mainSection
+    ? (($mainSection->images ?? collect())->filter(fn ($img) => ($img->kind ?? 'default') === 'gallery')->sortBy('order')->values())
+    : collect();
+
+if ($mainSection && $mainGallerySlides->isEmpty() && $mainSection->image) {
+    $mainGallerySlides = collect([(object) ['image' => $mainSection->image, 'order' => 'A']]);
+}
+
+$mainAutoplayMs = max(1, (int) ($mainSection?->autoplay_seconds ?? 3)) * 1000;
 
 function calidad_text($value, string $locale = 'es'): string
 {
@@ -24,12 +34,13 @@ function calidad_text($value, string $locale = 'es'): string
 {{-- ════════════════════════════════════════
      BANNER
 ════════════════════════════════════════ --}}
-<section class="calidad-banner" data-slides="{{ $bannerSlides->count() }}">
+<section class="calidad-banner" data-slider data-autoplay="5000" data-slides="{{ $bannerSlides->count() }}">
 
     @if($bannerSlides->count())
         @foreach($bannerSlides as $i => $slide)
         <div class="calidad-banner__slide {{ $i === 0 ? 'active' : '' }}"
              data-index="{{ $i }}"
+             data-slide
              @if($slide->image)
                  style="background: linear-gradient(0deg, rgba(0, 0, 0, 0.10) 0%, rgba(0, 0, 0, 0.10) 100%), url('{{ asset('storage/' . $slide->image) }}') lightgray 50% / cover no-repeat;"
              @endif>
@@ -62,6 +73,7 @@ function calidad_text($value, string $locale = 'es'): string
                 <button
                     class="calidad-banner__dot {{ $i === 0 ? 'active' : '' }}"
                     data-index="{{ $i }}"
+                    data-slider-dot
                     aria-label="{{ __('ui.calidad.slide_aria', ['num' => $i + 1]) }}"></button>
                 @endforeach
             </div>
@@ -82,10 +94,38 @@ function calidad_text($value, string $locale = 'es'): string
         <div class="calidad-main__grid">
 
             {{-- Image --}}
-            <div class="calidad-main__image-wrap"
-                @if($mainSection->image)
-                    style="background-image: url('{{ asset('storage/' . $mainSection->image) }}');"
-                @endif>
+            <div class="calidad-main__image-wrap">
+                @if($mainGallerySlides->count())
+                <div class="calidad-main__slider" data-slider data-autoplay="{{ $mainAutoplayMs }}">
+                    @foreach($mainGallerySlides as $i => $slide)
+                    <div
+                        class="calidad-main__slide {{ $i === 0 ? 'active' : '' }}"
+                        data-slide
+                        style="background-image: url('{{ asset('storage/' . $slide->image) }}');"></div>
+                    @endforeach
+
+                    @if($mainGallerySlides->count() > 1)
+                    <div class="calidad-main__controls">
+                        <button type="button" class="calidad-main__nav calidad-main__nav--prev" data-slider-prev aria-label="Imagen anterior">
+                            <span aria-hidden="true">‹</span>
+                        </button>
+                        <button type="button" class="calidad-main__nav calidad-main__nav--next" data-slider-next aria-label="Siguiente imagen">
+                            <span aria-hidden="true">›</span>
+                        </button>
+                    </div>
+
+                    <div class="calidad-main__dots">
+                        @foreach($mainGallerySlides as $i => $slide)
+                        <button
+                            type="button"
+                            class="calidad-main__dot {{ $i === 0 ? 'active' : '' }}"
+                            data-slider-dot
+                            aria-label="Ir a imagen {{ $i + 1 }}"></button>
+                        @endforeach
+                    </div>
+                    @endif
+                </div>
+                @endif
 
                 @if($certImage?->image)
                     <img
@@ -182,36 +222,78 @@ function calidad_text($value, string $locale = 'es'): string
 @push('scripts')
 <script>
 (function () {
-    const banner = document.querySelector('.calidad-banner');
-    if (!banner) return;
-    const slides = banner.querySelectorAll('.calidad-banner__slide');
-    const dots   = banner.querySelectorAll('.calidad-banner__dot');
-    if (slides.length <= 1) return;
+    const sliders = document.querySelectorAll('[data-slider]');
+    if (!sliders.length) return;
 
-    let current = 0;
-    let timer = null;
+    sliders.forEach((slider) => {
+        const slides = slider.querySelectorAll('[data-slide]');
+        const dots = slider.querySelectorAll('[data-slider-dot]');
+        const prev = slider.querySelector('[data-slider-prev]');
+        const next = slider.querySelector('[data-slider-next]');
 
-    function goTo(index) {
-        slides[current].classList.remove('active');
-        dots[current]?.classList.remove('active');
-        current = (index + slides.length) % slides.length;
-        slides[current].classList.add('active');
-        dots[current]?.classList.add('active');
-    }
+        if (slides.length <= 1) return;
 
-    function startTimer() {
-        timer = setInterval(() => goTo(current + 1), 5000);
-    }
+        let current = 0;
+        let timer = null;
+        const delay = Math.max(1000, Number(slider.dataset.autoplay || 5000));
 
-    dots.forEach((dot, i) => {
-        dot.addEventListener('click', () => {
-            clearInterval(timer);
-            goTo(i);
-            startTimer();
+        const clearTimer = () => {
+            if (timer) {
+                clearInterval(timer);
+                timer = null;
+            }
+        };
+
+        const goTo = (index) => {
+            slides[current].classList.remove('active');
+            dots[current]?.classList.remove('active');
+            current = (index + slides.length) % slides.length;
+            slides[current].classList.add('active');
+            dots[current]?.classList.add('active');
+        };
+
+        const restartTimer = () => {
+            clearTimer();
+            timer = setInterval(() => goTo(current + 1), delay);
+        };
+
+        dots.forEach((dot, i) => {
+            dot.addEventListener('click', () => {
+                if (i === current) return;
+                goTo(i);
+                restartTimer();
+            });
         });
-    });
 
-    startTimer();
+        prev?.addEventListener('click', () => {
+            goTo(current - 1);
+            restartTimer();
+        });
+
+        next?.addEventListener('click', () => {
+            goTo(current + 1);
+            restartTimer();
+        });
+
+        slider.addEventListener('mouseenter', clearTimer);
+        slider.addEventListener('mouseleave', restartTimer);
+        slider.addEventListener('focusin', clearTimer);
+        slider.addEventListener('focusout', (event) => {
+            if (!slider.contains(event.relatedTarget)) {
+                restartTimer();
+            }
+        });
+
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                clearTimer();
+            } else {
+                restartTimer();
+            }
+        });
+
+        restartTimer();
+    });
 })();
 
 /* ── íconos en ítems del body de calidad ── */

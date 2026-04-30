@@ -18,6 +18,7 @@ class PageSection extends Model
         'image',
         'button_text',
         'button_link',
+        'autoplay_seconds',
         'order',
         'is_active'
     ];
@@ -27,6 +28,7 @@ class PageSection extends Model
         'subtitle' => 'array',
         'content' => 'array',
         'button_text' => 'array',
+        'autoplay_seconds' => 'integer',
         'is_active' => 'boolean'
     ];
 

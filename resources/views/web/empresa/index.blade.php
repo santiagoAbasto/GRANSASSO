@@ -31,6 +31,16 @@ $formatEmpresaContent = static function ($content): string {
 
     return nl2br(e($content));
 };
+
+$mainGallerySlides = $main
+    ? (($main->images ?? collect())->filter(fn ($img) => ($img->kind ?? 'gallery') === 'gallery')->sortBy('order')->values())
+    : collect();
+
+if ($main && $mainGallerySlides->isEmpty() && $main->image) {
+    $mainGallerySlides = collect([(object) ['image' => $main->image, 'order' => 'A']]);
+}
+
+$mainAutoplayMs = max(1, (int) ($main?->autoplay_seconds ?? 3)) * 1000;
 @endphp
 
 
@@ -42,13 +52,14 @@ $formatEmpresaContent = static function ($content): string {
 ================================================================ --}}
 @if($bannerSlides->count())
 
-<section class="empresa-banner" data-slides="{{ $bannerSlides->count() }}">
+<section class="empresa-banner" data-slider data-autoplay="6000" data-slides="{{ $bannerSlides->count() }}">
 
     {{-- SLIDES --}}
     @foreach($bannerSlides as $i => $slide)
     <div
         class="empresa-banner__slide {{ $i === 0 ? 'active' : '' }}"
         data-index="{{ $i }}"
+        data-slide
         style="background-image: url('{{ asset('storage/' . $slide->image) }}');"></div>
     @endforeach
 
@@ -83,6 +94,7 @@ $formatEmpresaContent = static function ($content): string {
                 <button
                     class="empresa-banner__dot {{ $i === 0 ? 'active' : '' }}"
                     data-index="{{ $i }}"
+                    data-slider-dot
                     aria-label="{{ __('ui.empresa.slide_aria', ['num' => $i + 1]) }}"></button>
                 @endforeach
             </div>
@@ -105,12 +117,37 @@ $formatEmpresaContent = static function ($content): string {
     <div class="container">
         <div class="empresa-about__grid">
 
-            @if($main->image)
-            <div class="empresa-about__img-col">
-                <img
-                    src="{{ asset('storage/' . $main->image) }}"
-                    alt="{{ $main->getTitle() ?: 'Quiénes somos' }}"
-                    class="empresa-about__img">
+            @if($mainGallerySlides->count())
+            <div class="empresa-about__media">
+                <div class="empresa-about__slider" data-slider data-autoplay="{{ $mainAutoplayMs }}">
+                    @foreach($mainGallerySlides as $i => $slide)
+                    <div
+                        class="empresa-about__slide {{ $i === 0 ? 'active' : '' }}"
+                        data-slide
+                        style="background-image: url('{{ asset('storage/' . $slide->image) }}');"></div>
+                    @endforeach
+
+                    @if($mainGallerySlides->count() > 1)
+                    <div class="empresa-about__controls">
+                        <button type="button" class="empresa-about__nav empresa-about__nav--prev" data-slider-prev aria-label="Imagen anterior">
+                            <span aria-hidden="true">‹</span>
+                        </button>
+                        <button type="button" class="empresa-about__nav empresa-about__nav--next" data-slider-next aria-label="Siguiente imagen">
+                            <span aria-hidden="true">›</span>
+                        </button>
+                    </div>
+
+                    <div class="empresa-about__dots">
+                        @foreach($mainGallerySlides as $i => $slide)
+                        <button
+                            type="button"
+                            class="empresa-about__dot {{ $i === 0 ? 'active' : '' }}"
+                            data-slider-dot
+                            aria-label="Ir a imagen {{ $i + 1 }}"></button>
+                        @endforeach
+                    </div>
+                    @endif
+                </div>
             </div>
             @endif
 
@@ -227,42 +264,86 @@ document.addEventListener('DOMContentLoaded', function () {
        Misma lógica que hero, pero scoped a .empresa-banner
     ============================================= */
 
-    var banner = document.querySelector('.empresa-banner');
-    if (!banner) return;
+    var sliders = document.querySelectorAll('[data-slider]');
+    if (!sliders.length) return;
 
-    var slides = banner.querySelectorAll('.empresa-banner__slide');
-    var dots   = banner.querySelectorAll('.empresa-banner__dot');
+    sliders.forEach(function (slider) {
+        var slides = slider.querySelectorAll('[data-slide]');
+        var dots = slider.querySelectorAll('[data-slider-dot]');
+        var prev = slider.querySelector('[data-slider-prev]');
+        var next = slider.querySelector('[data-slider-next]');
 
-    if (slides.length <= 1) return;
+        if (slides.length <= 1) return;
 
-    var current  = 0;
-    var autoplay;
+        var current = 0;
+        var autoplay = null;
+        var delay = Math.max(1000, Number(slider.dataset.autoplay || 5000));
 
-    function goTo(index) {
-        slides[current].classList.remove('active');
-        if (dots[current]) dots[current].classList.remove('active');
-
-        current = (index + slides.length) % slides.length;
-
-        slides[current].classList.add('active');
-        if (dots[current]) dots[current].classList.add('active');
-    }
-
-    function startAutoplay() {
-        autoplay = setInterval(function () { goTo(current + 1); }, 6000);
-    }
-
-    dots.forEach(function (dot, i) {
-        dot.addEventListener('click', function () {
-            if (i !== current) {
-                goTo(i);
+        function clearAutoplay() {
+            if (autoplay) {
                 clearInterval(autoplay);
-                startAutoplay();
+                autoplay = null;
+            }
+        }
+
+        function goTo(index) {
+            slides[current].classList.remove('active');
+            if (dots[current]) dots[current].classList.remove('active');
+
+            current = (index + slides.length) % slides.length;
+
+            slides[current].classList.add('active');
+            if (dots[current]) dots[current].classList.add('active');
+        }
+
+        function restartAutoplay() {
+            clearAutoplay();
+            autoplay = setInterval(function () {
+                goTo(current + 1);
+            }, delay);
+        }
+
+        dots.forEach(function (dot, i) {
+            dot.addEventListener('click', function () {
+                if (i === current) return;
+                goTo(i);
+                restartAutoplay();
+            });
+        });
+
+        if (prev) {
+            prev.addEventListener('click', function () {
+                goTo(current - 1);
+                restartAutoplay();
+            });
+        }
+
+        if (next) {
+            next.addEventListener('click', function () {
+                goTo(current + 1);
+                restartAutoplay();
+            });
+        }
+
+        slider.addEventListener('mouseenter', clearAutoplay);
+        slider.addEventListener('mouseleave', restartAutoplay);
+        slider.addEventListener('focusin', clearAutoplay);
+        slider.addEventListener('focusout', function (event) {
+            if (!slider.contains(event.relatedTarget)) {
+                restartAutoplay();
             }
         });
-    });
 
-    startAutoplay();
+        document.addEventListener('visibilitychange', function () {
+            if (document.hidden) {
+                clearAutoplay();
+            } else {
+                restartAutoplay();
+            }
+        });
+
+        restartAutoplay();
+    });
 
 });
 </script>
