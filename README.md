@@ -15,17 +15,17 @@
 
 <img src="docs/readme/divider.svg" alt="" width="100%">
 
-## 📑 Contenido
+## <img src="docs/readme/ic-indice.svg" width="24" height="24" alt=""> Contenido
 
 [El problema](#-el-problema) · [La solución](#-la-solución) · [Funcionalidades](#-funcionalidades) · [Arquitectura](#-arquitectura) · [Flujos de trabajo](#-flujos-de-trabajo) · [Modelo de datos](#-modelo-de-datos) · [Criterios y decisiones](#-criterios-y-decisiones) · [Stack](#-stack) · [Estructura](#-estructura-del-repo) · [Puesta en marcha](#-puesta-en-marcha) · [Pruebas y calidad](#-pruebas-y-calidad) · [Despliegue](#-despliegue) · [Estado y pendientes](#-estado-y-pendientes) · [Licencia y autoría](#-licencia-y-autoría)
 
 <img src="docs/readme/divider.svg" alt="" width="100%">
 
-## 🧩 El problema
+## <img src="docs/readme/ic-problema.svg" width="24" height="24" alt=""> El problema
 
 Encontrar una pieza para una caja de cambios exige cruzar marca, caja, producto y códigos de fabricante original (OEM). Ese cruce se hacía en planillas, y los precios y documentos de los clientes mayoristas no tenían un lugar propio: se enviaban por otros medios y se actualizaban a mano.
 
-## 💡 La solución
+## <img src="docs/readme/ic-solucion.svg" width="24" height="24" alt=""> La solución
 
 **Gran Sasso** es una aplicación Laravel con tres perfiles:
 
@@ -35,7 +35,7 @@ Encontrar una pieza para una caja de cambios exige cruzar marca, caja, producto 
 
 <img src="docs/readme/divider.svg" alt="" width="100%">
 
-## ✨ Funcionalidades
+## <img src="docs/readme/ic-funcionalidades.svg" width="24" height="24" alt=""> Funcionalidades
 
 **Sitio público** (rol: visitante)
 - Inicio, empresa, calidad, novedades, contacto y desarrollos especiales.
@@ -54,7 +54,7 @@ Encontrar una pieza para una caja de cambios exige cruzar marca, caja, producto 
 
 <img src="docs/readme/divider.svg" alt="" width="100%">
 
-## 🏗️ Arquitectura
+## <img src="docs/readme/ic-arquitectura.svg" width="24" height="24" alt=""> Arquitectura
 
 Monolito Laravel con tres guards de acceso: `web` para el panel, `client` para la zona privada y el público sin autenticación. Las páginas usan Inertia con React y las plantillas de PDF se generan en Blade. Los contenidos se guardan en JSON con fallback a español.
 
@@ -81,7 +81,7 @@ flowchart LR
 
 <img src="docs/readme/divider.svg" alt="" width="100%">
 
-## 🔄 Flujos de trabajo
+## <img src="docs/readme/ic-flujos.svg" width="24" height="24" alt=""> Flujos de trabajo
 
 **Alta y aprobación de un cliente**
 
@@ -115,7 +115,7 @@ sequenceDiagram
 
 <img src="docs/readme/divider.svg" alt="" width="100%">
 
-## 🗃️ Modelo de datos
+## <img src="docs/readme/ic-datos.svg" width="24" height="24" alt=""> Modelo de datos
 
 Eloquent con 65 migraciones y 31 modelos en el repositorio.
 
@@ -144,7 +144,7 @@ La caja es única por marca y slug; el producto, por caja y código Gran Sasso. 
 
 <img src="docs/readme/divider.svg" alt="" width="100%">
 
-## 🧭 Criterios y decisiones
+## <img src="docs/readme/ic-criterios.svg" width="24" height="24" alt=""> Criterios y decisiones
 
 - **Producto base con ítems.** Un mismo producto agrupa códigos OEM y variantes, para no repetir la pieza por cada código.
 - **Clientes aprobados antes de ver precios.** Las cuentas nuevas pasan por aprobación administrativa.
@@ -159,7 +159,7 @@ La caja es única por marca y slug; el producto, por caja y código Gran Sasso. 
 
 <img src="docs/readme/divider.svg" alt="" width="100%">
 
-## 🧱 Stack
+## <img src="docs/readme/ic-stack.svg" width="24" height="24" alt=""> Stack
 
 | Capa | Tecnología | Versión |
 | --- | --- | --- |
@@ -176,7 +176,7 @@ La caja es única por marca y slug; el producto, por caja y código Gran Sasso. 
 
 <img src="docs/readme/divider.svg" alt="" width="100%">
 
-## 🗂️ Estructura del repo
+## <img src="docs/readme/ic-estructura.svg" width="24" height="24" alt=""> Estructura del repo
 
 ```text
 app/Http/Controllers/     público, zona privada y administración
@@ -191,7 +191,7 @@ tests/                    pruebas unitarias y feature
 
 <img src="docs/readme/divider.svg" alt="" width="100%">
 
-## 🚀 Puesta en marcha
+## <img src="docs/readme/ic-arranque.svg" width="24" height="24" alt=""> Puesta en marcha
 
 Requisitos: PHP 8.2+, Composer, Node.js y npm.
 
@@ -210,7 +210,7 @@ Variables relevantes (por nombre): `DB_*`, `MAIL_*`, `QUEUE_CONNECTION`, `FILESY
 
 <img src="docs/readme/divider.svg" alt="" width="100%">
 
-## 🧪 Pruebas y calidad
+## <img src="docs/readme/ic-pruebas.svg" width="24" height="24" alt=""> Pruebas y calidad
 
 Pruebas unitarias y feature sobre la portada y el flujo de autenticación administrativa: render del login, credenciales válidas e inválidas y cierre de sesión.
 
@@ -224,13 +224,13 @@ La última ejecución registrada en la versión anterior de este README fue de 6
 
 <img src="docs/readme/divider.svg" alt="" width="100%">
 
-## 🚢 Despliegue
+## <img src="docs/readme/ic-despliegue.svg" width="24" height="24" alt=""> Despliegue
 
 No definido en el repositorio. No hay manifiestos Docker, Kubernetes ni configuración de CI/CD. Servidor web, workers, TLS, copias de seguridad y gestión de secretos se definen fuera del código.
 
 <img src="docs/readme/divider.svg" alt="" width="100%">
 
-## 📌 Estado y pendientes
+## <img src="docs/readme/ic-estado.svg" width="24" height="24" alt=""> Estado y pendientes
 
 - **Estado:** aplicación funcional con catálogo, CMS, zona privada, importaciones y panel. Producción no verificada.
 - **Último commit:** 2026-04-30, `VERSION 1.3.5`, en el historial local.
@@ -241,7 +241,7 @@ No definido en el repositorio. No hay manifiestos Docker, Kubernetes ni configur
 
 <img src="docs/readme/divider.svg" alt="" width="100%">
 
-## 📄 Licencia y autoría
+## <img src="docs/readme/ic-licencia.svg" width="24" height="24" alt=""> Licencia y autoría
 
 Desarrollado por el **Ing. Santiago Abasto**.
 
